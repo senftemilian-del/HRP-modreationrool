@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bestrafungs-Log System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0e27;
+            min-height: 100vh;
+            padding: 20px;
+            color: #e0e0e0;
+        }
+
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            background: #1a1f3a;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+
+        .login-container h1 {
+            color: #6c8fff;
+            margin-bottom: 30px;
+        }
+
+        .discord-btn {
+            background: #5865F2;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            transition: all 0.3s;
+        }
+
+        .discord-btn:hover {
+            background: #4752C4;
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: none;
+        }
+
+        .container.active {
+            display: block;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a1f3a 0%, #2d1b4e 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(0,0,0,0.3);
+            padding: 15px 25px;
+            border-radius: 10px;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 3px solid #6c8fff;
+        }
+
+        .user-details {
+            text-align: left;
+        }
+
+        .user-name {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .user-rank {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        .rank-owner {
+            background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+        }
+
+        .rank-admin {
+            background: linear-gradient(135deg, #ff6b00 0%, #cc5500 100%);
+        }
+
+        .rank-moderator {
+            background: linear-gradient(135deg, #00cc00 0%, #009900 100%);
+        }
+
+        .rank-supporter {
+            background: linear-gradient(135deg, #0099ff 0%, #0066cc 100%);
+        }
+
+        .logout-btn {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-left: 15px;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #cc0000;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 20px;
+        }
+
+        .sidebar {
+            background: #1a1f3a;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .content {
+            background: #1a1f3a;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .form-section h2 {
+            color: #6c8fff;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #b0b8d4;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #2d3548;
+            border-radius: 8px;
+            font-size: 14px;
+            background: #0f1425;
+            color: #e0e0e0;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #6c8fff;
+            background: #151b2e;
+        }
+
+        input[type="text"]:disabled,
+        select:disabled,
+        textarea:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #6c8fff 0%, #4a5fc1 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            font-weight: 600;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(108, 143, 255, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .permission-notice {
+            background: #ff4444;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #2d1b4e 0%, #1a1f3a 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #2d3548;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #6c8fff;
+        }
+
+        .stat-label {
+            font-size: 0.85em;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        .logs-section h2 {
+            color: #6c8fff;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .log-item {
+            background: #0f1425;
+            border: 2px solid #2d3548;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.4s ease;
+            cursor: pointer;
+        }
+
+        .log-item:hover {
+            transform: translateX(5px);
+            border-color: #6c8fff;
+            background: #1a2844;
+            box-shadow: 0 5px 25px rgba(108, 143, 255, 0.2);
+        }
+
+        .log-item.clicked {
+            animation: clickPulse 0.6s ease;
+            background: #1a3d6e;
+            border-color: #4a7bc8;
+        }
+
+        @keyframes clickPulse {
+            0% {
+                background: #1a3d6e;
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(74, 123, 200, 0.7);
+            }
+            50% {
+                background: #2a4d7e;
+                transform: scale(1.02);
+                box-shadow: 0 0 0 10px rgba(74, 123, 200, 0);
+            }
+            100% {
+                background: #1a2844;
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(74, 123, 200, 0);
+            }
+        }
+
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .log-type {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .log-type.ban {
+            background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
+            color: white;
+        }
+
+        .log-type.kick {
+            background: linear-gradient(135deg, #ffaa00 0%, #ff8800 100%);
+            color: white;
+        }
+
+        .log-type.warn {
+            background: linear-gradient(135deg, #ffdd00 0%, #ffaa00 100%);
+            color: #333;
+        }
+
+        .log-type.mute {
+            background: linear-gradient(135deg, #9933ff 0%, #6600cc 100%);
+            color: white;
+        }
+
+        .log-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .log-info-item {
+            font-size: 14px;
+            color: #b0b8d4;
+        }
+
+        .log-info-item strong {
+            color: #6c8fff;
+        }
+
+        .log-reason {
+            background: #0a0e1f;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 14px;
+            border-left: 3px solid #6c8fff;
+            color: #c0c8e0;
+        }
+
+        .delete-btn {
+            background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .delete-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, #ff6666 0%, #ff0000 100%);
+            transform: scale(1.05);
+        }
+
+        .delete-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .no-logs {
+            text-align: center;
+            padding: 60px;
+            color: #5a6378;
+            font-size: 1.2em;
+        }
+
+        @media (max-width: 1024px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                position: relative;
+                top: 0;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 20px;
+            }
+        }
+
+        select option {
+            background: #0f1425;
+            color: #e0e0e0;
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0a0e1f;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #2d3548;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6c8fff;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Seite -->
+    <div class="login-container" id="loginContainer">
+        <h1>⚖️ Bestrafungs-Log System</h1>
+        <p style="color: #b0b8d4; margin-bottom: 30px;">Melde dich mit Discord an, um fortzufahren</p>
+        <button class="discord-btn" onclick="loginWithDiscord()">
+            <svg width="24" height="24" viewBox="0 0 127.14 96.36" fill="currentColor">
+                <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/>
+            </svg>
+            Mit Discord anmelden
+        </button>
+        <p style="color: #7a8299; margin-top: 30px; font-size: 12px;">In einer echten Implementierung würde hier OAuth2 verwendet werden</p>
+    </div>
+
+    <!-- Haupt-App -->
+    <div class="container" id="mainContainer">
+        <div class="header">
+            <div class="header-left">
+                <h1>⚖️ Bestrafungs-Log System</h1>
+                <p>Verwaltung von Bestrafungen und Verwarnungen</p>
+            </div>
+            <div class="user-info">
+                <img src="" alt="Avatar" class="user-avatar" id="userAvatar">
+                <div class="user-details">
+                    <div class="user-name" id="userName"></div>
+                    <span class="user-rank" id="userRank"></span>
+                </div>
+                <button class="logout-btn" onclick="logout()">Abmelden</button>
+            </div>
+        </div>
+
+        <div class="main-layout">
+            <!-- Sidebar mit Formular -->
+            <div class="sidebar">
+                <h2>➕ Neue Bestrafung</h2>
+                
+                <!-- Statistiken -->
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalLogs">0</div>
+                        <div class="stat-label">Gesamt</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalBans">0</div>
+                        <div class="stat-label">Bans</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalKicks">0</div>
+                        <div class="stat-label">Kicks</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalWarns">0</div>
+                        <div class="stat-label">Warnungen</div>
+                    </div>
+                </div>
+
+                <div id="permissionNotice"></div>
+
+                <form id="punishmentForm">
+                    <div class="form-group">
+                        <label for="punishmentType">Bestrafungsart:</label>
+                        <select id="punishmentType" required>
+                            <option value="">-- Bitte wählen --</option>
+                            <option value="ban">Ban</option>
+                            <option value="kick">Kick</option>
+                            <option value="warn">Warnung</option>
+                            <option value="mute">Mute</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="username">Benutzername:</label>
+                        <input type="text" id="username" required placeholder="z.B. MaxMustermann">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reason">Grund:</label>
+                        <textarea id="reason" required placeholder="Beschreibe den Grund..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="duration">Dauer:</label>
+                        <input type="text" id="duration" placeholder="z.B. 7 Tage, Permanent">
+                    </div>
+
+                    <button type="submit" class="btn" id="submitBtn">Bestrafung hinzufügen</button>
+                </form>
+
+                <!-- Such- und Filterbereich -->
+                <div style="margin-top: 25px;">
+                    <h2 style="margin-bottom: 15px;">🔍 Suchen & Filtern</h2>
+                    <div class="form-group">
+                        <label for="searchUser">Nach Benutzer:</label>
+                        <input type="text" id="searchUser" placeholder="Benutzername...">
+                    </div>
+                    <div class="form-group">
+                        <label for="filterType">Nach Typ:</label>
+                        <select id="filterType">
+                            <option value="">Alle anzeigen</option>
+                            <option value="ban">Nur Bans</option>
+                            <option value="kick">Nur Kicks</option>
+                            <option value="warn">Nur Warnungen</option>
+                            <option value="mute">Nur Mutes</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="searchMod">Nach Moderator:</label>
+                        <input type="text" id="searchMod" placeholder="Moderator...">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hauptbereich mit Logs -->
+            <div class="content">
+                <div class="logs-section">
+                    <h2>📋 Bestrafungs-Logs</h2>
+                    <div id="logsContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Owner Discord ID
+        const OWNER_ID = '1072581651051315240';
+        
+        // Team-Mitglieder mit ihren Discord IDs und Rängen
+        const teamMembers = {
+            '1072581651051315240': {
+                rank: 'owner',
+                rankName: 'Owner',
+                permissions: ['ban', 'kick', 'warn', 'mute', 'delete']
+            }
+            // Weitere Team-Mitglieder können hier hinzugefügt werden
+            // 'DISCORD_ID': { rank: 'admin', rankName: 'Admin', permissions: [...] }
+        };
+
+        let currentUser = null;
+        let punishments = [];
+        let nextId = 1;
+
+        function loginWithDiscord() {
+            // In einer echten Implementierung würde hier Discord OAuth2 verwendet werden
+            // Für diese Demo simulieren wir den Login
+            
+            // Simuliere Discord API Response (würde normalerweise von Discord kommen)
+            const discordUserId = prompt('Gib deine Discord User ID ein:');
+            
+            if (!discordUserId) {
+                alert('Login abgebrochen');
+                return;
+            }
+            
+            // Prüfe ob Benutzer im Team ist
+            if (!teamMembers[discordUserId]) {
+                alert('❌ Zugriff verweigert!\n\nDu bist nicht im Team. Nur autorisierte Team-Mitglieder haben Zugriff auf dieses System.');
+                return;
+            }
+            
+            // Simuliere Benutzerdaten (würde normalerweise von Discord API kommen)
+            const isOwner = discordUserId === OWNER_ID;
+            const username = isOwner ? 'Owner' : 'TeamMitglied';
+            const discriminator = Math.floor(Math.random() * 9999).toString().padStart(4, '0');
+            const avatarIndex = Math.floor(Math.random() * 5);
+            
+            currentUser = {
+                id: discordUserId,
+                username: username,
+                discriminator: discriminator,
+                avatar: `https://cdn.discordapp.com/embed/avatars/${avatarIndex}.png`,
+                ...teamMembers[discordUserId]
+            };
+            
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('mainContainer').classList.add('active');
+            
+            // Benutzer-Info anzeigen
+            document.getElementById('userName').textContent = currentUser.username + '#' + currentUser.discriminator;
+            document.getElementById('userAvatar').src = currentUser.avatar;
+            document.getElementById('userRank').textContent = currentUser.rankName;
+            document.getElementById('userRank').className = 'user-rank rank-' + currentUser.rank;
+            
+            updatePermissions();
+            updateDisplay();
+            updateStats();
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('mainContainer').classList.remove('active');
+            document.getElementById('loginContainer').style.display = 'block';
+        }
+
+        function updatePermissions() {
+            const form = document.getElementById('punishmentForm');
+            const typeSelect = document.getElementById('punishmentType');
+            const submitBtn = document.getElementById('submitBtn');
+            const noticeDiv = document.getElementById('permissionNotice');
+            
+            // Alle Optionen zuerst aktivieren
+            Array.from(typeSelect.options).forEach(option => {
+                if (option.value) {
+                    option.disabled = !currentUser.permissions.includes(option.value);
+                }
+            });
+            
+            // Prüfe ob Benutzer überhaupt Rechte hat
+            if (currentUser.permissions.length === 0) {
+                noticeDiv.innerHTML = '<div class="permission-notice">⚠️ Du hast keine Berechtigungen um Bestrafungen zu erstellen</div>';
+                form.style.opacity = '0.5';
+                submitBtn.disabled = true;
+            } else {
+                noticeDiv.innerHTML = '';
+                form.style.opacity = '1';
+            }
+        }
+
+        // Formular absenden
+        document.getElementById('punishmentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const type = document.getElementById('punishmentType').value;
+            
+            // Berechtigungsprüfung
+            if (!currentUser.permissions.includes(type)) {
+                alert('⚠️ Du hast keine Berechtigung für diese Bestrafungsart!');
+                return;
+            }
+            
+            const punishment = {
+                id: nextId++,
+                type: type,
+                username: document.getElementById('username').value,
+                moderator: currentUser.username + '#' + currentUser.discriminator,
+                moderatorRank: currentUser.rankName,
+                reason: document.getElementById('reason').value,
+                duration: document.getElementById('duration').value || 'Nicht angegeben',
+                date: new Date().toLocaleString('de-DE')
+            };
+
+            punishments.unshift(punishment);
+            
+            // Formular zurücksetzen
+            this.reset();
+            
+            // Anzeige aktualisieren
+            updateDisplay();
+            updateStats();
+        });
+
+        // Such- und Filterfunktionen
+        document.getElementById('searchUser').addEventListener('input', updateDisplay);
+        document.getElementById('filterType').addEventListener('change', updateDisplay);
+        document.getElementById('searchMod').addEventListener('input', updateDisplay);
+
+        function updateDisplay() {
+            const searchUser = document.getElementById('searchUser').value.toLowerCase();
+            const filterType = document.getElementById('filterType').value;
+            const searchMod = document.getElementById('searchMod').value.toLowerCase();
+
+            const filtered = punishments.filter(p => {
+                const matchUser = p.username.toLowerCase().includes(searchUser);
+                const matchType = !filterType || p.type === filterType;
+                const matchMod = p.moderator.toLowerCase().includes(searchMod);
+                return matchUser && matchType && matchMod;
+            });
+
+            const container = document.getElementById('logsContainer');
+            
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="no-logs">Keine Bestrafungen gefunden</div>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(p => `
+                <div class="log-item" onclick="handleLogClick(this)">
+                    <div class="log-header">
+                        <span class="log-type ${p.type}">${getTypeLabel(p.type)}</span>
+                        <button class="delete-btn" 
+                                onclick="event.stopPropagation(); deletePunishment(${p.id})"
+                                ${!currentUser || !currentUser.permissions.includes('delete') ? 'disabled' : ''}>
+                            ${currentUser && currentUser.permissions.includes('delete') ? 'Löschen' : '🔒'}
+                        </button>
+                    </div>
+                    <div class="log-info">
+                        <div class="log-info-item">
+                            <strong>Benutzer:</strong> ${p.username}
+                        </div>
+                        <div class="log-info-item">
+                            <strong>Moderator:</strong> ${p.moderator}
+                        </div>
+                        <div class="log-info-item">
+                            <strong>Rang:</strong> ${p.moderatorRank}
+                        </div>
+                        <div class="log-info-item">
+                            <strong>Datum:</strong> ${p.date}
+                        </div>
+                        <div class="log-info-item">
+                            <strong>Dauer:</strong> ${p.duration}
+                        </div>
+                    </div>
+                    <div class="log-reason">
+                        <strong>Grund:</strong> ${p.reason}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function handleLogClick(element) {
+            element.classList.add('clicked');
+            setTimeout(() => {
+                element.classList.remove('clicked');
+            }, 600);
+        }
+
+        function getTypeLabel(type) {
+            const labels = {
+                'ban': 'BAN',
+                'kick': 'KICK',
+                'warn': 'WARNUNG',
+                'mute': 'MUTE'
+            };
+            return labels[type] || type.toUpperCase();
+        }
+
+        function deletePunishment(id) {
+            if (!currentUser.permissions.includes('delete')) {
+                alert('⚠️ Du hast keine Berechtigung zum Löschen!');
+                return;
+            }
+            
+            if (confirm('Möchtest du diesen Eintrag wirklich löschen?')) {
+                punishments = punishments.filter(p => p.id !== id);
+                updateDisplay();
+                updateStats();
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('totalLogs').textContent = punishments.length;
+            document.getElementById('totalBans').textContent = punishments.filter(p => p.type === 'ban').length;
+            document.getElementById('totalKicks').textContent = punishments.filter(p => p.type === 'kick').length;
+            document.getElementById('totalWarns').textContent = punishments.filter(p => p.type === 'warn').length;
+        }
+    </script>
+</body>
+</html>
