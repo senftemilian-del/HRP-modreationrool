@@ -1,244 +1,4 @@
-function deleteRank(rankId) {
-            showConfirm('Möchtest du diesen Rang wirklich löschen?', () => {
-                delete customRanks[rankId];
-                localStorage.setItem('customRanks', JSON.stringify(customRanks));
-                updateRankList();
-                updateRankSelectOptions();
-                showSuccess('Rang erfolgreich gelöscht!');
-            });
-        }
-
-        // Players List Functions
-        function updatePlayersList() {
-            const container = document.getElementById('playersContainer');
-            const playerIds = Object.keys(players);
-
-            document.getElementById('totalPlayers').textContent = playerIds.length;
-
-            if (playerIds.length === 0) {
-                container.innerHTML = '<div class="no-logs">Keine Spieler gefunden</div>';
-                return;
-            }
-
-            container.innerHTML = playerIds.map(playerId => {
-                const player = players[playerId];
-                const canManage = currentUser.id === OWNER_ID || currentUser.permissions.includes('manage_users');
-
-                return `
-                    <div class="player-card">
-                        <div class="player-info-section">
-                            <div class="player-avatars">
-                                <div class="player-avatar-group">
-                                    <img src="${player.discordAvatar}" alt="Discord" class="discord-avatar" style="width: 50px; height: 50px;">
-                                    ${player.robloxAvatar ? `<img src="${player.robloxAvatar}" alt="Roblox" class="roblox-avatar" style="width: 50px; height: 50px;">` : ''}
-                                </div>
-                            </div>
-                            <div class="player-details">
-                                <div class="player-name">
-                                    ${player.robloxUsername || 'Kein Roblox Account'}
-                                </div>
-                                <div class="player-discord">
-                                    <svg width="20" height="20" viewBox="0 0 127.14 96.36" fill="#5865F2">
-                                        <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/>
-                                    </svg>
-                                    ${player.discordName}
-                                </div>
-                                <div style="color: #888; font-size: 0.9em; margin-top: 5px;">
-                                    Beigetreten: ${player.joinDate}
-                                </div>
-                                <div class="player-roles">
-                                    ${player.roles.map(role => `<span class="role-badge">${role}</span>`).join('')}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="player-actions">
-                            ${canManage ? `
-                                <button class="action-btn edit" onclick="editPlayerRoles('${playerId}')">Rollen bearbeiten</button>
-                                <button class="action-btn edit" onclick="linkRobloxAccount('${playerId}')">Roblox verknüpfen</button>
-                            ` : ''}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function editPlayerRoles(playerId) {
-            const player = players[playerId];
-            const availableRoles = ['Supporter', 'Moderator', 'Admin', 'Developer', 'Manager', 'VIP'];
-            
-            let rolesHTML = availableRoles.map(role => {
-                const checked = player.roles.includes(role) ? 'checked' : '';
-                return `
-                    <div class="permission-checkbox">
-                        <input type="checkbox" id="role_${role}_${playerId}" value="${role}" ${checked}>
-                        <label for="role_${role}_${playerId}">${role}</label>
-                    </div>
-                `;
-            }).join('');
-
-            const modalContent = `
-                <div style="text-align: left;">
-                    <h3 style="color: #3b82f6; margin-bottom: 15px;">Rollen für ${player.discordName}</h3>
-                    ${rolesHTML}
-                </div>
-            `;
-
-            document.getElementById('modalIcon').innerHTML = '🎭';
-            document.getElementById('modalIcon').className = 'modal-icon success';
-            document.getElementById('modalTitle').textContent = 'Rollen bearbeiten';
-            document.getElementById('modalMessage').innerHTML = modalContent;
-            
-            const buttonsEl = document.getElementById('modalButtons');
-            buttonsEl.innerHTML = '';
-            
-            const cancelBtn = document.createElement('button');
-            cancelBtn.className = 'modal-btn cancel';
-            cancelBtn.textContent = 'Abbrechen';
-            cancelBtn.onclick = () => document.getElementById('modalOverlay').classList.remove('active');
-            
-            const saveBtn = document.createElement('button');
-            saveBtn.className = 'modal-btn success';
-            saveBtn.textContent = 'Speichern';
-            saveBtn.onclick = () => {
-                const selectedRoles = [];
-                availableRoles.forEach(role => {
-                    const checkbox = document.getElementById(`role_${role}_${playerId}`);
-                    if (checkbox && checkbox.checked) {
-                        selectedRoles.push(role);
-                    }
-                });
-                
-                players[playerId].roles = selectedRoles;
-                localStorage.setItem('players', JSON.stringify(players));
-                document.getElementById('modalOverlay').classList.remove('active');
-                updatePlayersList();
-                showSuccess('Rollen erfolgreich aktualisiert!');
-            };
-            
-            buttonsEl.appendChild(cancelBtn);
-            buttonsEl.appendChild(saveBtn);
-            document.getElementById('modalOverlay').classList.add('active');
-        }
-
-        function linkRobloxAccount(playerId) {
-            const robloxUsername = prompt('Gib den Roblox Benutzernamen ein:');
-            if (!robloxUsername) return;
-
-            fetchRobloxUserData(robloxUsername).then(userData => {
-                if (userData) {
-                    players[playerId].robloxUsername = robloxUsername;
-                    players[playerId].robloxAvatar = userData.avatar;
-                    players[playerId].robloxUserId = userData.id;
-                    localStorage.setItem('players', JSON.stringify(players));
-                    updatePlayersList();
-                    showSuccess('Roblox Account erfolgreich verknüpft!');
-                } else {
-                    showError('Roblox Benutzer nicht gefunden!');
-                }
-            });
-        }
-
-        document.getElementById('playerSearch').addEventListener('input', function() {
-            const search = this.value.toLowerCase();
-            document.querySelectorAll('.player-card').forEach(card => {
-                const text = card.textContent.toLowerCase();
-                card.style.display = text.includes(search) ? 'flex' : 'none';
-            });
-        });
-
-        // Access Requests Functions
-        function updateRequestsList() {
-            const container = document.getElementById('requestsContainer');
-            const requestIds = Object.keys(accessRequests).filter(id => accessRequests[id].status === 'pending');
-
-            if (requestIds.length === 0) {
-                container.innerHTML = '<div class="no-logs">Keine ausstehenden Anfragen</div>';
-                return;
-            }
-
-            container.innerHTML = requestIds.map(requestId => {
-                const request = accessRequests[requestId];
-                return `
-                    <div class="request-card">
-                        <div class="request-header">
-                            <div class="request-info">
-                                <img src="${request.avatar}" alt="Avatar" class="discord-avatar" style="width: 50px; height: 50px;">
-                                <div>
-                                    <div style="font-size: 1.2em; font-weight: bold; color: #3b82f6;">${request.username}</div>
-                                    <div style="color: #b0b8d4; font-size: 0.9em;">User ID: ${request.id}</div>
-                                    <div style="color: #888; font-size: 0.85em; margin-top: 5px;">Anfrage vom: ${request.requestDate}</div>
-                                </div>
-                            </div>
-                            <span class="request-badge">AUSSTEHEND</span>
-                        </div>
-                        <div class="request-actions">
-                            <button class="action-btn unban" onclick="approveRequest('${requestId}')">Genehmigen</button>
-                            <button class="action-btn ban" onclick="rejectRequest('${requestId}')">Ablehnen</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function approveRequest(userId) {
-            showModal('warning', 'Anfrage genehmigen', 'Welchen Rang möchtest du diesem Benutzer zuweisen?', [
-                { text: 'Abbrechen', class: 'cancel', callback: null },
-                { text: 'Supporter', class: 'success', callback: () => assignRankToRequest(userId, 'supporter', 'Supporter') },
-                { text: 'Moderator', class: 'success', callback: () => assignRankToRequest(userId, 'moderator', 'Moderator') }
-            ]);
-        }
-
-        function assignRankToRequest(userId, rankType, rankName) {
-            const request = accessRequests[userId];
-            
-            // Default permissions based on rank
-            let permissions = [];
-            if (rankType === 'supporter') {
-                permissions = ['warn', 'mundlich'];
-            } else if (rankType === 'moderator') {
-                permissions = ['ban', 'kick', 'warn', 'mundlich', 'bolo', 'delete'];
-            }
-
-            teamMembers[userId] = {
-                rank: rankType,
-                rankName: rankName,
-                permissions: permissions,
-                status: 'approved'
-            };
-
-            accessRequests[userId].status = 'approved';
-
-            // Add to players list
-            players[userId] = {
-                discordId: userId,
-                discordName: request.username,
-                discordAvatar: request.avatar,
-                roles: [rankName],
-                joinDate: new Date().toLocaleString('de-DE'),
-                robloxUsername: null,
-                robloxAvatar: null
-            };
-
-            localStorage.setItem('teamMembers', JSON.stringify(teamMembers));
-            localStorage.setItem('accessRequests', JSON.stringify(accessRequests));
-            localStorage.setItem('players', JSON.stringify(players));
-
-            updateRequestsList();
-            updatePlayersList();
-            showSuccess(`Anfrage genehmigt! ${request.username} wurde als ${rankName} hinzugefügt.`);
-        }
-
-        function rejectRequest(userId) {
-            showConfirm('Möchtest du diese Anfrage wirklich ablehnen?', () => {
-                delete accessRequests[userId];
-                localStorage.setItem('accessRequests', JSON.stringify(accessRequests));
-                updateRequestsList();
-                showSuccess('Anfrage wurde abgelehnt!');
-            });
-        }
-    </script>
-</body>
-</html><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -259,7 +19,6 @@ function deleteRank(rankId) {
             color: #e0e0e0;
         }
 
-        /* Modal Overlay */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -317,17 +76,9 @@ function deleteRank(rankId) {
             font-size: 30px;
         }
 
-        .modal-icon.success {
-            background: #3b82f6;
-        }
-
-        .modal-icon.error {
-            background: #ef4444;
-        }
-
-        .modal-icon.warning {
-            background: #f59e0b;
-        }
+        .modal-icon.success { background: #3b82f6; }
+        .modal-icon.error { background: #ef4444; }
+        .modal-icon.warning { background: #f59e0b; }
 
         .modal-title {
             font-size: 1.5em;
@@ -348,6 +99,7 @@ function deleteRank(rankId) {
             display: flex;
             gap: 10px;
             justify-content: center;
+            flex-wrap: wrap;
         }
 
         .modal-btn {
@@ -393,7 +145,6 @@ function deleteRank(rankId) {
             transform: translateY(-2px);
         }
 
-        /* Banned Screen */
         .banned-screen {
             display: none;
             position: fixed;
@@ -534,21 +285,10 @@ function deleteRank(rankId) {
             margin-top: 5px;
         }
 
-        .rank-owner {
-            background: #ef4444;
-        }
-
-        .rank-admin {
-            background: #f59e0b;
-        }
-
-        .rank-moderator {
-            background: #10b981;
-        }
-
-        .rank-supporter {
-            background: #3b82f6;
-        }
+        .rank-owner { background: #ef4444; }
+        .rank-admin { background: #f59e0b; }
+        .rank-moderator { background: #10b981; }
+        .rank-supporter { background: #3b82f6; }
 
         .logout-btn {
             background: #ef4444;
@@ -566,7 +306,6 @@ function deleteRank(rankId) {
             box-shadow: 0 5px 20px rgba(239, 68, 68, 0.5);
         }
 
-        /* Tabs */
         .tabs {
             display: flex;
             gap: 10px;
@@ -822,30 +561,11 @@ function deleteRank(rankId) {
             font-size: 14px;
         }
 
-        .log-type.ban {
-            background: #ef4444;
-            color: white;
-        }
-
-        .log-type.kick {
-            background: #f59e0b;
-            color: white;
-        }
-
-        .log-type.bolo {
-            background: #8b5cf6;
-            color: white;
-        }
-
-        .log-type.mundlich {
-            background: #06b6d4;
-            color: white;
-        }
-
-        .log-type.warn {
-            background: #eab308;
-            color: #000;
-        }
+        .log-type.ban { background: #ef4444; color: white; }
+        .log-type.kick { background: #f59e0b; color: white; }
+        .log-type.bolo { background: #8b5cf6; color: white; }
+        .log-type.mundlich { background: #06b6d4; color: white; }
+        .log-type.warn { background: #eab308; color: #000; }
 
         .log-info {
             display: grid;
@@ -896,7 +616,6 @@ function deleteRank(rankId) {
             cursor: not-allowed;
         }
 
-        /* Admin Panel */
         .admin-grid {
             display: grid;
             gap: 20px;
@@ -961,20 +680,9 @@ function deleteRank(rankId) {
             font-weight: bold;
         }
 
-        .status-active {
-            background: #10b981;
-            color: white;
-        }
-
-        .status-banned {
-            background: #ef4444;
-            color: white;
-        }
-
-        .status-kicked {
-            background: #f59e0b;
-            color: white;
-        }
+        .status-active { background: #10b981; color: white; }
+        .status-banned { background: #ef4444; color: white; }
+        .status-kicked { background: #f59e0b; color: white; }
 
         .user-item-actions {
             display: flex;
@@ -1064,14 +772,6 @@ function deleteRank(rankId) {
             cursor: pointer;
         }
 
-        .no-logs {
-            text-align: center;
-            padding: 60px;
-            color: #5a6378;
-            font-size: 1.2em;
-        }
-
-        /* Player Card */
         .player-card {
             background: #0a0a0a;
             border: 2px solid #1e3a8a;
@@ -1148,7 +848,6 @@ function deleteRank(rankId) {
             gap: 10px;
         }
 
-        /* Request Card */
         .request-card {
             background: #0a0a0a;
             border: 2px solid #f59e0b;
@@ -1212,6 +911,13 @@ function deleteRank(rankId) {
             line-height: 1.6;
         }
 
+        .no-logs {
+            text-align: center;
+            padding: 60px;
+            color: #5a6378;
+            font-size: 1.2em;
+        }
+
         @media (max-width: 1024px) {
             .main-layout {
                 grid-template-columns: 1fr;
@@ -1247,7 +953,6 @@ function deleteRank(rankId) {
     </style>
 </head>
 <body>
-    <!-- Banned Screen -->
     <div class="banned-screen" id="bannedScreen">
         <div class="banned-icon">🚫</div>
         <div class="banned-title">ZUGRIFF VERWEIGERT</div>
@@ -1256,7 +961,6 @@ function deleteRank(rankId) {
         </div>
     </div>
 
-    <!-- Custom Modal -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal-box">
             <div class="modal-icon" id="modalIcon"></div>
@@ -1266,7 +970,6 @@ function deleteRank(rankId) {
         </div>
     </div>
 
-    <!-- Login Seite -->
     <div class="login-container" id="loginContainer">
         <h1>⚖️ Bestrafungs-Log System</h1>
         <p style="color: #b0b8d4; margin-bottom: 30px;">Melde dich mit Discord an, um fortzufahren</p>
@@ -1278,7 +981,6 @@ function deleteRank(rankId) {
         </a>
     </div>
 
-    <!-- Haupt-App -->
     <div class="container" id="mainContainer">
         <div class="header">
             <div class="header-left">
@@ -1295,15 +997,13 @@ function deleteRank(rankId) {
             </div>
         </div>
 
-        <!-- Tabs -->
         <div class="tabs">
             <div class="tab active" onclick="switchTab('logs')">📋 Bestrafungen</div>
             <div class="tab" onclick="switchTab('players')">👥 Spielerliste</div>
-            <div class="tab" onclick="switchTab('requests')" id="requestsTab" style="display: none;">📨 Anfragen</div>
-            <div class="tab" onclick="switchTab('admin')" id="adminTab" style="display: none;">⚙️ Admin Panel</div>
+            <div class="tab" onclick="switchTab('requests')" id="requestsTabBtn" style="display: none;">📨 Anfragen</div>
+            <div class="tab" onclick="switchTab('admin')" id="adminTabBtn" style="display: none;">⚙️ Admin Panel</div>
         </div>
 
-        <!-- Tab: Bestrafungen -->
         <div class="tab-content active" id="logsTab">
             <div class="main-layout">
                 <div class="sidebar">
@@ -1391,7 +1091,6 @@ function deleteRank(rankId) {
             </div>
         </div>
 
-        <!-- Tab: Spielerliste -->
         <div class="tab-content" id="playersTab">
             <div class="content">
                 <h2>👥 Spielerliste</h2>
@@ -1409,7 +1108,6 @@ function deleteRank(rankId) {
             </div>
         </div>
 
-        <!-- Tab: Anfragen -->
         <div class="tab-content" id="requestsTab">
             <div class="content">
                 <h2>📨 Zugangsanfragen</h2>
@@ -1419,16 +1117,13 @@ function deleteRank(rankId) {
             </div>
         </div>
 
-        <!-- Tab: Admin Panel -->
         <div class="tab-content" id="adminTab">
             <div class="admin-grid">
-                <!-- Benutzerverwaltung -->
                 <div class="admin-section">
                     <h3>👥 Team-Mitglieder</h3>
                     <div class="user-list" id="userList"></div>
                 </div>
 
-                <!-- Rang erstellen -->
                 <div class="admin-section">
                     <h3>✨ Neuen Rang erstellen</h3>
                     <form id="createRankForm">
@@ -1484,13 +1179,11 @@ function deleteRank(rankId) {
                     </form>
                 </div>
 
-                <!-- Ränge Übersicht -->
                 <div class="admin-section">
                     <h3>🎭 Bestehende Ränge</h3>
                     <div class="rank-list" id="rankList"></div>
                 </div>
 
-                <!-- Benutzer Rang zuweisen -->
                 <div class="admin-section">
                     <h3>🔧 Rang einem Benutzer zuweisen</h3>
                     <form id="assignRankForm">
@@ -1512,10 +1205,7 @@ function deleteRank(rankId) {
     </div>
 
     <script>
-        // Owner Discord ID
         const OWNER_ID = '1072581651051315240';
-
-        // Globale Variablen
         let currentUser = null;
         let punishments = [];
         let nextId = 1;
@@ -1532,7 +1222,6 @@ function deleteRank(rankId) {
         let accessRequests = {};
         let players = {};
 
-        // Modal Functions
         function showModal(type, title, message, buttons = []) {
             const overlay = document.getElementById('modalOverlay');
             const icon = document.getElementById('modalIcon');
@@ -1564,21 +1253,15 @@ function deleteRank(rankId) {
         }
 
         function showSuccess(message) {
-            showModal('success', 'Erfolg', message, [
-                { text: 'OK', class: 'success', callback: null }
-            ]);
+            showModal('success', 'Erfolg', message, [{ text: 'OK', class: 'success', callback: null }]);
         }
 
         function showError(message) {
-            showModal('error', 'Fehler', message, [
-                { text: 'OK', class: 'danger', callback: null }
-            ]);
+            showModal('error', 'Fehler', message, [{ text: 'OK', class: 'danger', callback: null }]);
         }
 
         function showWarning(message) {
-            showModal('warning', 'Warnung', message, [
-                { text: 'OK', class: 'success', callback: null }
-            ]);
+            showModal('warning', 'Warnung', message, [{ text: 'OK', class: 'success', callback: null }]);
         }
 
         function showConfirm(message, onConfirm) {
@@ -1588,22 +1271,18 @@ function deleteRank(rankId) {
             ]);
         }
 
-        // Close modal when clicking outside
         document.getElementById('modalOverlay').addEventListener('click', function(e) {
             if (e.target === this) {
                 this.classList.remove('active');
             }
         });
 
-        // Tab Switching
         function switchTab(tabName) {
-            // Update tab buttons
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.classList.remove('active');
             });
             event.target.classList.add('active');
 
-            // Update tab content
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.remove('active');
             });
@@ -1619,12 +1298,10 @@ function deleteRank(rankId) {
             }
         }
 
-        // Load Data
         window.addEventListener('load', function() {
             const urlParams = new URLSearchParams(window.location.search);
             const code = urlParams.get('code');
 
-            // Load saved data
             const savedRanks = localStorage.getItem('customRanks');
             const savedTeamMembers = localStorage.getItem('teamMembers');
             const savedBannedUsers = localStorage.getItem('bannedUsers');
@@ -1687,7 +1364,6 @@ function deleteRank(rankId) {
                 ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png?size=128`
                 : `https://cdn.discordapp.com/embed/avatars/${parseInt(discordUser.discriminator || '0') % 5}.png`;
 
-            // Check if user already exists
             if (teamMembers[discordUser.id]) {
                 currentUser = {
                     id: discordUser.id,
@@ -1700,7 +1376,6 @@ function deleteRank(rankId) {
                 sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
                 checkUserStatus();
             } else {
-                // Create access request
                 accessRequests[discordUser.id] = {
                     id: discordUser.id,
                     username: discordUser.global_name || discordUser.username,
@@ -1732,13 +1407,11 @@ function deleteRank(rankId) {
         function checkUserStatus() {
             if (!currentUser) return;
 
-            // Check if user is banned
             if (bannedUsers[currentUser.id] && bannedUsers[currentUser.id].status === 'banned') {
                 showBannedScreen(bannedUsers[currentUser.id].reason);
                 return;
             }
 
-            // Check if user is kicked
             if (bannedUsers[currentUser.id] && bannedUsers[currentUser.id].status === 'kicked') {
                 showError('Du wurdest von der Website gekickt. Bitte melde dich erneut an.');
                 logout();
@@ -1758,34 +1431,26 @@ function deleteRank(rankId) {
 
         function showMainApp() {
             document.getElementById('loginContainer').style.display = 'none';
-            document.getElementById('mainContainer').style.display = 'block';
-            document.getElementById('mainContainer').classList.add('active');
-            
-            // Reset innerHTML in case it was changed
-            if (!document.getElementById('logsTab')) {
-                location.reload();
-                return;
-            }
+            const container = document.getElementById('mainContainer');
+            container.style.display = 'block';
+            container.classList.add('active');
 
             document.getElementById('userName').textContent = currentUser.username;
             document.getElementById('userAvatar').src = currentUser.avatar;
             document.getElementById('userRank').textContent = currentUser.rankName;
             document.getElementById('userRank').className = 'user-rank rank-' + currentUser.rank;
 
-            // Show admin tab if user has permissions
             if (currentUser.id === OWNER_ID || currentUser.permissions.includes('create_rank') || currentUser.permissions.includes('manage_users')) {
-                document.querySelector('.tab[onclick="switchTab(\'admin\')"]').style.display = 'block';
+                document.getElementById('adminTabBtn').style.display = 'block';
             }
 
-            // Show requests tab if user can manage
             const canManageRequests = currentUser.id === OWNER_ID || 
                                      currentUser.permissions.includes('manage_users') || 
                                      currentUser.rank === 'admin';
             if (canManageRequests) {
-                document.getElementById('requestsTab').style.display = 'block';
+                document.getElementById('requestsTabBtn').style.display = 'block';
             }
 
-            // Add player to players list
             if (!players[currentUser.id]) {
                 players[currentUser.id] = {
                     discordId: currentUser.id,
@@ -1811,9 +1476,9 @@ function deleteRank(rankId) {
             document.getElementById('mainContainer').classList.remove('active');
             document.getElementById('mainContainer').style.display = 'none';
             document.getElementById('loginContainer').style.display = 'block';
+            location.reload();
         }
 
-        // Punishment Form
         document.getElementById('punishmentForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
@@ -1829,7 +1494,7 @@ function deleteRank(rankId) {
                 id: nextId++,
                 type: type,
                 robloxUsername: robloxUsername,
-                robloxUserId: null, // Wird durch API gefüllt
+                robloxUserId: null,
                 moderatorDiscord: currentUser.username,
                 moderatorAvatar: currentUser.avatar,
                 moderatorRank: currentUser.rankName,
@@ -1838,7 +1503,6 @@ function deleteRank(rankId) {
                 date: new Date().toLocaleString('de-DE')
             };
 
-            // Roblox API Call für Avatar
             fetchRobloxUserData(robloxUsername).then(userData => {
                 if (userData) {
                     punishment.robloxUserId = userData.id;
@@ -1854,7 +1518,6 @@ function deleteRank(rankId) {
                 updateStats();
                 showSuccess('Bestrafung erfolgreich hinzugefügt!');
             }).catch(() => {
-                // Falls API fehlschlägt, trotzdem speichern
                 punishments.unshift(punishment);
                 localStorage.setItem('punishments', JSON.stringify(punishments));
                 
@@ -1866,7 +1529,6 @@ function deleteRank(rankId) {
             });
         });
 
-        // Show/Hide duration field based on punishment type
         document.getElementById('punishmentType').addEventListener('change', function() {
             const durationGroup = document.getElementById('durationGroup');
             if (this.value === 'ban') {
@@ -1877,10 +1539,8 @@ function deleteRank(rankId) {
             }
         });
 
-        // Roblox API Functions
         async function fetchRobloxUserData(username) {
             try {
-                // Hole User ID
                 const userResponse = await fetch(`https://users.roblox.com/v1/usernames/users`, {
                     method: 'POST',
                     headers: {
@@ -1899,7 +1559,6 @@ function deleteRank(rankId) {
 
                 const userId = userData.data[0].id;
 
-                // Hole Avatar Thumbnail
                 const avatarResponse = await fetch(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png&isCircular=false`);
                 const avatarData = await avatarResponse.json();
 
@@ -1918,7 +1577,6 @@ function deleteRank(rankId) {
             }
         }
 
-        // Search and Filter
         document.getElementById('searchUser').addEventListener('input', updateDisplay);
         document.getElementById('filterType').addEventListener('change', updateDisplay);
         document.getElementById('searchMod').addEventListener('input', updateDisplay);
@@ -1950,296 +1608,4 @@ function deleteRank(rankId) {
                 <div class="log-item">
                     <div class="log-header">
                         <span class="log-type ${p.type}">${getTypeLabel(p.type)}</span>
-                        <button class="delete-btn" onclick="deletePunishment(${p.id})" 
-                            ${!currentUser || !currentUser.permissions.includes('delete') ? 'disabled' : ''}>
-                            ${currentUser && currentUser.permissions.includes('delete') ? 'Löschen' : '🔒'}
-                        </button>
-                    </div>
-                    
-                    <div class="log-user-section">
-                        <img src="${avatarUrl}" alt="Roblox Avatar" class="roblox-avatar" onerror="this.src='https://via.placeholder.com/60?text=No+Avatar'">
-                        <div class="log-user-info">
-                            <div class="log-roblox-username">${p.robloxUsername}</div>
-                            ${p.robloxUserId ? `<div style="color: #b0b8d4; font-size: 0.9em;">User ID: ${p.robloxUserId}</div>` : ''}
-                        </div>
-                    </div>
-
-                    <div class="log-mod-section">
-                        <img src="${p.moderatorAvatar}" alt="Discord Avatar" class="discord-avatar">
-                        <div>
-                            <div style="color: #b0b8d4; font-size: 0.85em;">Bestraft von</div>
-                            <div class="log-mod-name">${p.moderatorDiscord}</div>
-                            <span class="user-rank rank-${p.moderatorRank.toLowerCase()}" style="font-size: 0.75em; padding: 2px 8px;">${p.moderatorRank}</span>
-                        </div>
-                    </div>
-
-                    <div class="log-info">
-                        <div class="log-info-item"><strong>Datum:</strong> ${p.date}</div>
-                        ${durationHTML}
-                    </div>
-                    <div class="log-reason"><strong>Grund:</strong> ${p.reason}</div>
-                </div>
-            `;
-            }).join('');
-        }
-
-        function getTypeLabel(type) {
-            const labels = {
-                'ban': 'BAN',
-                'bolo': 'BOLO',
-                'kick': 'KICK',
-                'warn': 'WARNUNG',
-                'mundlich': 'MÜNDLICHE WARNUNG'
-            };
-            return labels[type] || type.toUpperCase();
-        }
-
-        function deletePunishment(id) {
-            if (!currentUser.permissions.includes('delete')) {
-                showWarning('Du hast keine Berechtigung zum Löschen!');
-                return;
-            }
-
-            showConfirm('Möchtest du diesen Eintrag wirklich löschen?', () => {
-                punishments = punishments.filter(p => p.id !== id);
-                localStorage.setItem('punishments', JSON.stringify(punishments));
-                updateDisplay();
-                updateStats();
-                showSuccess('Eintrag erfolgreich gelöscht!');
-            });
-        }
-
-        function updateStats() {
-            document.getElementById('totalLogs').textContent = punishments.length;
-            document.getElementById('totalBans').textContent = punishments.filter(p => p.type === 'ban').length;
-            document.getElementById('totalKicks').textContent = punishments.filter(p => p.type === 'kick').length;
-            document.getElementById('totalWarns').textContent = punishments.filter(p => p.type === 'warn').length;
-        }
-
-        // Create Rank Form
-        document.getElementById('createRankForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            if (currentUser.id !== OWNER_ID && !currentUser.permissions.includes('create_rank')) {
-                showWarning('Du hast keine Berechtigung, Ränge zu erstellen!');
-                return;
-            }
-
-            const rankName = document.getElementById('rankName').value;
-            const rankColor = document.getElementById('rankColor').value;
-            const permissions = [];
-
-            document.querySelectorAll('.permission-checkbox input[type="checkbox"]:checked').forEach(checkbox => {
-                permissions.push(checkbox.value);
-            });
-
-            const rankId = 'rank_' + Date.now();
-            customRanks[rankId] = {
-                name: rankName,
-                color: rankColor,
-                permissions: permissions
-            };
-
-            localStorage.setItem('customRanks', JSON.stringify(customRanks));
-            
-            this.reset();
-            updateRankList();
-            updateRankSelectOptions();
-            showSuccess(`Rang "${rankName}" erfolgreich erstellt!`);
-        });
-
-        // Assign Rank Form
-        document.getElementById('assignRankForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            if (currentUser.id !== OWNER_ID && !currentUser.permissions.includes('manage_users')) {
-                showWarning('Du hast keine Berechtigung, Benutzer zu verwalten!');
-                return;
-            }
-
-            const userId = document.getElementById('assignUserId').value;
-            const rankId = document.getElementById('assignRankSelect').value;
-
-            if (rankId === 'owner' && currentUser.id !== OWNER_ID) {
-                showError('Nur der Owner kann den Owner-Rang zuweisen!');
-                return;
-            }
-
-            let rankInfo;
-            if (rankId === 'owner') {
-                rankInfo = {
-                    rank: 'owner',
-                    rankName: 'Owner',
-                    permissions: ['ban', 'bolo', 'kick', 'warn', 'mundlich', 'delete', 'create_rank', 'manage_users']
-                };
-            } else if (customRanks[rankId]) {
-                rankInfo = {
-                    rank: customRanks[rankId].color,
-                    rankName: customRanks[rankId].name,
-                    permissions: customRanks[rankId].permissions
-                };
-            } else {
-                showError('Ungültiger Rang ausgewählt!');
-                return;
-            }
-
-            teamMembers[userId] = rankInfo;
-            localStorage.setItem('teamMembers', JSON.stringify(teamMembers));
-
-            this.reset();
-            updateUserList();
-            showSuccess('Rang erfolgreich zugewiesen!');
-        });
-
-        function updateRankSelectOptions() {
-            const select = document.getElementById('assignRankSelect');
-            select.innerHTML = '<option value="">-- Bitte wählen --</option>';
-
-            if (currentUser.id === OWNER_ID) {
-                select.innerHTML += '<option value="owner">Owner</option>';
-            }
-
-            Object.keys(customRanks).forEach(rankId => {
-                const rank = customRanks[rankId];
-                select.innerHTML += `<option value="${rankId}">${rank.name}</option>`;
-            });
-        }
-
-        function updateUserList() {
-            const container = document.getElementById('userList');
-            const users = Object.keys(teamMembers);
-
-            if (users.length === 0) {
-                container.innerHTML = '<div class="no-logs">Keine Benutzer gefunden</div>';
-                return;
-            }
-
-            container.innerHTML = users.map(userId => {
-                const member = teamMembers[userId];
-                const banned = bannedUsers[userId];
-                const status = banned ? banned.status : 'active';
-                
-                let statusClass = 'status-active';
-                let statusText = 'Aktiv';
-                if (status === 'banned') {
-                    statusClass = 'status-banned';
-                    statusText = 'Gebannt';
-                } else if (status === 'kicked') {
-                    statusClass = 'status-kicked';
-                    statusText = 'Gekickt';
-                }
-
-                const canManage = currentUser.id === OWNER_ID || currentUser.permissions.includes('manage_users');
-                const isOwner = userId === OWNER_ID;
-
-                return `
-                    <div class="user-item">
-                        <div class="user-item-info">
-                            <div>
-                                <div><strong>User ID:</strong> ${userId}</div>
-                                <div><strong>Rang:</strong> <span class="user-rank rank-${member.rank}">${member.rankName}</span></div>
-                                <div><strong>Status:</strong> <span class="user-item-status ${statusClass}">${statusText}</span></div>
-                            </div>
-                        </div>
-                        <div class="user-item-actions">
-                            ${!isOwner && canManage && status !== 'banned' ? `
-                                <button class="action-btn ban" onclick="banUser('${userId}')">Ban</button>
-                            ` : ''}
-                            ${!isOwner && canManage && status !== 'kicked' && status !== 'banned' ? `
-                                <button class="action-btn kick" onclick="kickUser('${userId}')">Kick</button>
-                            ` : ''}
-                            ${!isOwner && canManage && status === 'banned' ? `
-                                <button class="action-btn unban" onclick="unbanUser('${userId}')">Unban</button>
-                            ` : ''}
-                            ${isOwner ? '<span style="color: #ef4444;">🔒 Owner</span>' : ''}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function banUser(userId) {
-            showModal('warning', 'Benutzer bannen', 'Gib einen Grund für den Ban ein:', [
-                { text: 'Abbrechen', class: 'cancel', callback: null },
-                { text: 'Bannen', class: 'danger', callback: () => {
-                    const reason = prompt('Grund für den Ban:');
-                    if (reason) {
-                        bannedUsers[userId] = {
-                            status: 'banned',
-                            reason: reason,
-                            bannedBy: currentUser.username,
-                            date: new Date().toLocaleString('de-DE')
-                        };
-                        localStorage.setItem('bannedUsers', JSON.stringify(bannedUsers));
-                        updateUserList();
-                        showSuccess('Benutzer erfolgreich gebannt!');
-                    }
-                }}
-            ]);
-        }
-
-        function kickUser(userId) {
-            showConfirm('Möchtest du diesen Benutzer wirklich kicken?', () => {
-                bannedUsers[userId] = {
-                    status: 'kicked',
-                    kickedBy: currentUser.username,
-                    date: new Date().toLocaleString('de-DE')
-                };
-                localStorage.setItem('bannedUsers', JSON.stringify(bannedUsers));
-                updateUserList();
-                showSuccess('Benutzer erfolgreich gekickt!');
-            });
-        }
-
-        function unbanUser(userId) {
-            showConfirm('Möchtest du diesen Benutzer wirklich entbannen?', () => {
-                delete bannedUsers[userId];
-                localStorage.setItem('bannedUsers', JSON.stringify(bannedUsers));
-                updateUserList();
-                showSuccess('Benutzer erfolgreich entbannt!');
-            });
-        }
-
-        function updateRankList() {
-            const container = document.getElementById('rankList');
-            const ranks = Object.keys(customRanks);
-
-            if (ranks.length === 0) {
-                container.innerHTML = '<div class="no-logs">Keine benutzerdefinierten Ränge erstellt</div>';
-                return;
-            }
-
-            container.innerHTML = ranks.map(rankId => {
-                const rank = customRanks[rankId];
-                const canDelete = currentUser.id === OWNER_ID || currentUser.permissions.includes('create_rank');
-
-                return `
-                    <div class="rank-item">
-                        <div class="rank-item-info">
-                            <div>
-                                <div><strong>Name:</strong> <span class="user-rank rank-${rank.color}">${rank.name}</span></div>
-                                <div><strong>Berechtigungen:</strong> ${rank.permissions.join(', ')}</div>
-                            </div>
-                        </div>
-                        <div class="user-item-actions">
-                            ${canDelete ? `
-                                <button class="action-btn delete" onclick="deleteRank('${rankId}')">Löschen</button>
-                            ` : ''}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function deleteRank(rankId) {
-            showConfirm('Möchtest du diesen Rang wirklich löschen?', () => {
-                delete customRanks[rankId];
-                localStorage.setItem('customRanks', JSON.stringify(customRanks));
-                updateRankList();
-                updateRankSelectOptions();
-                showSuccess('Rang erfolgreich gelöscht!');
-            });
-        }
-    </script>
-</body>
-</html>
+                        <button class="delete-btn" onclick="deletePunishment(
