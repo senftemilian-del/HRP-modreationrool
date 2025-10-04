@@ -1,221 +1,1620 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bestrafungs-Log System</title>
-<style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #0d0f1d; color: #d8d8d8; min-height:100vh; padding:20px;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bestrafungs-Log System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-/* Modal Overlay */
-.modal-overlay {
-    display: none; position: fixed; top:0; left:0;
-    width:100%; height:100%; background: rgba(0,0,0,0.8);
-    backdrop-filter: blur(5px); z-index:9999; justify-content:center; align-items:center;
-}
-.modal-overlay.active { display:flex; }
-.modal-box {
-    background:#1c1f33; border-radius:12px; padding:30px;
-    max-width:400px; width:90%; box-shadow:0 15px 50px rgba(0,0,0,0.7);
-    border:1px solid #2c2f44; text-align:center;
-}
-.modal-icon { width:60px; height:60px; margin:0 auto 20px; border-radius:50%;
-    display:flex; align-items:center; justify-content:center; font-size:30px;}
-.modal-icon.success { background:#28a745; color:#fff; }
-.modal-icon.error { background:#dc3545; color:#fff; }
-.modal-icon.warning { background:#ffc107; color:#1c1f33; }
-.modal-title { font-size:1.5em; font-weight:bold; margin-bottom:15px; color:#f1f1f1; }
-.modal-message { color:#ccc; line-height:1.6; margin-bottom:25px; }
-.modal-buttons { display:flex; justify-content:center; gap:10px; }
-.modal-btn { padding:12px 30px; border:none; border-radius:8px; font-size:16px; font-weight:600; cursor:pointer; transition: all 0.3s; }
-.modal-btn.success { background:#28a745; color:#fff; }
-.modal-btn.success:hover { background:#20b038; transform: translateY(-2px); box-shadow:0 5px 20px rgba(40,167,69,0.4); }
-.modal-btn.danger { background:#dc3545; color:#fff; }
-.modal-btn.danger:hover { background:#c82333; transform: translateY(-2px); box-shadow:0 5px 20px rgba(220,53,69,0.4); }
-.modal-btn.cancel { background:#2c2f44; color:#ccc; }
-.modal-btn.cancel:hover { background:#3a3e5a; transform: translateY(-2px); }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000000;
+            min-height: 100vh;
+            padding: 20px;
+            color: #e0e0e0;
+        }
 
-/* Login */
-.login-container {
-    max-width:400px; margin:80px auto; background:#1c1f33;
-    border-radius:12px; padding:40px; box-shadow:0 15px 50px rgba(0,0,0,0.7); text-align:center;
-}
-.login-container h1 { color:#ffc107; margin-bottom:25px; }
-.discord-btn {
-    background:#7289da; color:white; padding:15px 30px; border-radius:8px;
-    font-size:16px; display:flex; align-items:center; justify-content:center; gap:10px;
-    width:100%; text-decoration:none; transition: all 0.3s;
-}
-.discord-btn:hover { background:#5b6eae; transform: translateY(-2px); }
-.loading { display:none; color:#ffc107; margin-top:20px; }
-.error-message { background:#dc3545; color:#fff; padding:15px; border-radius:8px; margin-top:20px; display:none; }
+        /* Modal Overlay */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
 
-/* Main container */
-.container { max-width:1400px; margin:0 auto; display:none; }
-.container.active { display:block; }
+        .modal-overlay.active {
+            display: flex;
+        }
 
-/* Header */
-.header {
-    background:#1c1f33; color:white; padding:25px; border-radius:12px; margin-bottom:30px;
-    box-shadow:0 10px 40px rgba(0,0,0,0.7); display:flex; justify-content:space-between; align-items:center;
-}
-.header-left h1 { font-size:2.2em; margin-bottom:10px; color:#ffc107; }
-.header-left p { color:#ccc; }
-.user-info { display:flex; align-items:center; gap:15px; background:rgba(0,0,0,0.3); padding:12px 20px; border-radius:10px; }
-.user-avatar { width:50px; height:50px; border-radius:50%; border:2px solid #ffc107; }
-.user-name { font-weight:bold; color:#fff; }
-.user-rank { padding:4px 12px; border-radius:12px; font-size:0.85em; font-weight:bold; color:#fff; background:#6c757d; margin-top:4px; display:inline-block; }
-.logout-btn { background:#dc3545; color:#fff; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; transition: all 0.3s; margin-left:15px; }
-.logout-btn:hover { background:#c82333; }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
 
-/* Layout */
-.main-layout { display:grid; grid-template-columns:350px 1fr; gap:20px; }
-.sidebar, .content { background:#1c1f33; border-radius:12px; padding:25px; box-shadow:0 10px 40px rgba(0,0,0,0.7); }
+        .modal-box {
+            background: #0a0a0a;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(59, 130, 246, 0.5);
+            border: 2px solid #1e40af;
+            animation: slideUp 0.3s ease;
+        }
 
-/* Sidebar */
-.sidebar h2 { color:#ffc107; margin-bottom:20px; }
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
 
-/* Stats */
-.stats { display:grid; grid-template-columns:repeat(2,1fr); gap:15px; margin-bottom:25px; }
-.stat-card { background:#2c2f44; color:#fff; padding:20px; border-radius:10px; text-align:center; border:1px solid #3a3e5a; }
-.stat-number { font-size:2em; font-weight:bold; color:#ffc107; }
-.stat-label { font-size:0.85em; opacity:0.8; margin-top:5px; }
+        .modal-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
 
-/* Form */
-.form-section h2 { color:#ffc107; margin-bottom:20px; font-size:1.5em; }
-.form-group { margin-bottom:15px; }
-label { display:block; margin-bottom:5px; color:#ccc; font-weight:600; font-size:14px; }
-input[type="text"], select, textarea {
-    width:100%; padding:12px; border:2px solid #3a3e5a; border-radius:8px; font-size:14px;
-    background:#0d0f1d; color:#fff; transition: all 0.3s;
-}
-input:focus, select:focus, textarea:focus { outline:none; border-color:#ffc107; background:#11132a; }
-.btn { background:#ffc107; color:#1c1f33; padding:12px 30px; border:none; border-radius:8px; font-size:16px; font-weight:600; cursor:pointer; transition: all 0.3s; width:100%; }
-.btn:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 5px 20px rgba(255,193,7,0.4); }
+        .modal-icon.success {
+            background: #3b82f6;
+        }
 
-/* Logs */
-.logs-section h2 { color:#ffc107; margin-bottom:20px; font-size:1.8em; }
-.log-item { background:#11132a; border:1px solid #3a3e5a; border-radius:10px; padding:20px; margin-bottom:15px; transition:all 0.3s; cursor:pointer; }
-.log-item:hover { transform:translateX(5px); border-color:#ffc107; box-shadow:0 5px 25px rgba(255,193,7,0.2); }
-.log-type { padding:6px 14px; border-radius:20px; font-weight:bold; font-size:14px; color:#fff; }
-.log-type.ban { background:#dc3545; }
-.log-type.kick { background:#fd7e14; }
-.log-type.warn { background:#ffc107; color:#1c1f33; }
-.log-type.mundlich { background:#0d6efd; }
-.log-type.bolo { background:#6f42c1; }
-.log-reason { background:#1c1f33; border-left:3px solid #ffc107; padding:12px; margin-top:10px; color:#ccc; }
-.delete-btn { background:#dc3545; color:white; border:none; padding:8px 16px; border-radius:5px; cursor:pointer; font-size:12px; font-weight:600; transition: all 0.3s; }
-.delete-btn:hover:not(:disabled) { transform:scale(1.05); background:#c82333; }
+        .modal-icon.error {
+            background: #ef4444;
+        }
 
-/* Responsive */
-@media(max-width:1024px) { .main-layout { grid-template-columns:1fr; } }
-select option { background:#0d0f1d; color:#fff; }
-::-webkit-scrollbar { width:10px; }
-::-webkit-scrollbar-track { background:#0d0f1d; }
-::-webkit-scrollbar-thumb { background:#3a3e5a; border-radius:5px; }
-::-webkit-scrollbar-thumb:hover { background:#ffc107; }
+        .modal-icon.warning {
+            background: #f59e0b;
+        }
 
-</style>
+        .modal-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #3b82f6;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .modal-message {
+            color: #b0b8d4;
+            text-align: center;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .modal-btn.success {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .modal-btn.success:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(59, 130, 246, 0.6);
+        }
+
+        .modal-btn.danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .modal-btn.danger:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(239, 68, 68, 0.6);
+        }
+
+        .modal-btn.cancel {
+            background: #1f1f1f;
+            color: #b0b8d4;
+            border: 1px solid #333;
+        }
+
+        .modal-btn.cancel:hover {
+            background: #2a2a2a;
+            transform: translateY(-2px);
+        }
+
+        /* Banned Screen */
+        .banned-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .banned-screen.active {
+            display: flex;
+        }
+
+        .banned-icon {
+            font-size: 100px;
+            margin-bottom: 30px;
+        }
+
+        .banned-title {
+            font-size: 3em;
+            color: #ef4444;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .banned-message {
+            font-size: 1.3em;
+            color: #b0b8d4;
+            text-align: center;
+            max-width: 600px;
+        }
+
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            background: #0a0a0a;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(59, 130, 246, 0.3);
+            border: 2px solid #1e3a8a;
+            text-align: center;
+        }
+
+        .login-container h1 {
+            color: #3b82f6;
+            margin-bottom: 30px;
+        }
+
+        .discord-btn {
+            background: #5865F2;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .discord-btn:hover {
+            background: #4752C4;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(88, 101, 242, 0.5);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: none;
+        }
+
+        .container.active {
+            display: block;
+        }
+
+        .header {
+            background: #0a0a0a;
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(59, 130, 246, 0.2);
+            border: 2px solid #1e3a8a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: #3b82f6;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(59, 130, 246, 0.1);
+            padding: 15px 25px;
+            border-radius: 10px;
+            border: 1px solid #1e3a8a;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 3px solid #3b82f6;
+        }
+
+        .user-details {
+            text-align: left;
+        }
+
+        .user-name {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .user-rank {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        .rank-owner {
+            background: #ef4444;
+        }
+
+        .rank-admin {
+            background: #f59e0b;
+        }
+
+        .rank-moderator {
+            background: #10b981;
+        }
+
+        .rank-supporter {
+            background: #3b82f6;
+        }
+
+        .logout-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-left: 15px;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #dc2626;
+            box-shadow: 0 5px 20px rgba(239, 68, 68, 0.5);
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: #0a0a0a;
+            padding: 15px;
+            border-radius: 15px;
+            border: 2px solid #1e3a8a;
+            overflow-x: auto;
+        }
+
+        .tab {
+            padding: 12px 30px;
+            background: #1a1a1a;
+            border: 2px solid #333;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+            font-weight: 600;
+        }
+
+        .tab:hover {
+            background: #2a2a2a;
+            border-color: #3b82f6;
+        }
+
+        .tab.active {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+            box-shadow: 0 5px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 20px;
+        }
+
+        .sidebar {
+            background: #0a0a0a;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(59, 130, 246, 0.2);
+            border: 2px solid #1e3a8a;
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .content {
+            background: #0a0a0a;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(59, 130, 246, 0.2);
+            border: 2px solid #1e3a8a;
+        }
+
+        .form-section h2 {
+            color: #3b82f6;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #b0b8d4;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #1e3a8a;
+            border-radius: 8px;
+            font-size: 14px;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: #222;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn {
+            background: #3b82f6;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            font-weight: 600;
+        }
+
+        .btn:hover:not(:disabled) {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(59, 130, 246, 0.5);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: #1a1a1a;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #1e3a8a;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #3b82f6;
+        }
+
+        .stat-label {
+            font-size: 0.85em;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        .logs-section h2 {
+            color: #3b82f6;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .log-item {
+            background: #1a1a1a;
+            border: 2px solid #1e3a8a;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .log-item:hover {
+            transform: translateX(5px);
+            border-color: #3b82f6;
+            box-shadow: 0 5px 25px rgba(59, 130, 246, 0.3);
+        }
+
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .log-type {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .log-type.ban {
+            background: #ef4444;
+            color: white;
+        }
+
+        .log-type.kick {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .log-type.bolo {
+            background: #8b5cf6;
+            color: white;
+        }
+
+        .log-type.mundlich {
+            background: #06b6d4;
+            color: white;
+        }
+
+        .log-type.warn {
+            background: #eab308;
+            color: #000;
+        }
+
+        .log-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .log-info-item {
+            font-size: 14px;
+            color: #b0b8d4;
+        }
+
+        .log-info-item strong {
+            color: #3b82f6;
+        }
+
+        .log-reason {
+            background: #1a1a1a;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 14px;
+            border-left: 3px solid #3b82f6;
+            color: #c0c8e0;
+        }
+
+        .delete-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .delete-btn:hover:not(:disabled) {
+            background: #dc2626;
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.5);
+        }
+
+        .delete-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        /* Admin Panel */
+        .admin-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .admin-section {
+            background: #1a1a1a;
+            border: 2px solid #1e3a8a;
+            border-radius: 12px;
+            padding: 25px;
+        }
+
+        .admin-section h3 {
+            color: #3b82f6;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        .user-list,
+        .rank-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .user-item,
+        .rank-item {
+            background: #0a0a0a;
+            border: 2px solid #333;
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .user-item:hover,
+        .rank-item:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.2);
+        }
+
+        .user-item-info,
+        .rank-item-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-item-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #3b82f6;
+        }
+
+        .user-item-status {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: bold;
+        }
+
+        .status-active {
+            background: #10b981;
+            color: white;
+        }
+
+        .status-banned {
+            background: #ef4444;
+            color: white;
+        }
+
+        .status-kicked {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .user-item-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .action-btn.ban {
+            background: #ef4444;
+            color: white;
+        }
+
+        .action-btn.ban:hover {
+            background: #dc2626;
+            box-shadow: 0 3px 10px rgba(239, 68, 68, 0.5);
+        }
+
+        .action-btn.kick {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .action-btn.kick:hover {
+            background: #d97706;
+            box-shadow: 0 3px 10px rgba(245, 158, 11, 0.5);
+        }
+
+        .action-btn.unban {
+            background: #10b981;
+            color: white;
+        }
+
+        .action-btn.unban:hover {
+            background: #059669;
+            box-shadow: 0 3px 10px rgba(16, 185, 129, 0.5);
+        }
+
+        .action-btn.edit {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .action-btn.edit:hover {
+            background: #2563eb;
+            box-shadow: 0 3px 10px rgba(59, 130, 246, 0.5);
+        }
+
+        .action-btn.delete {
+            background: #ef4444;
+            color: white;
+        }
+
+        .action-btn.delete:hover {
+            background: #dc2626;
+            box-shadow: 0 3px 10px rgba(239, 68, 68, 0.5);
+        }
+
+        .permission-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #0a0a0a;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border: 1px solid #333;
+        }
+
+        .permission-checkbox input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #3b82f6;
+        }
+
+        .permission-checkbox label {
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .no-logs {
+            text-align: center;
+            padding: 60px;
+            color: #5a6378;
+            font-size: 1.2em;
+        }
+
+        @media (max-width: 1024px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: relative;
+                top: 0;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 20px;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2563eb;
+        }
+    </style>
 </head>
 <body>
-
-<!-- Login -->
-<div class="login-container">
-    <h1>Login</h1>
-    <a href="#" class="discord-btn">Login mit Discord</a>
-    <div class="loading">Lädt...</div>
-    <div class="error-message">Fehler beim Login</div>
-</div>
-
-<!-- Main Container -->
-<div class="container">
-    <div class="header">
-        <div class="header-left">
-            <h1>Bestrafungs-Log System</h1>
-            <p>Willkommen zurück!</p>
-        </div>
-        <div class="user-info">
-            <img src="https://via.placeholder.com/50" class="user-avatar">
-            <div>
-                <div class="user-name">Emilian</div>
-                <div class="user-rank">Admin</div>
-            </div>
-            <button class="logout-btn">Logout</button>
+    <!-- Banned Screen -->
+    <div class="banned-screen" id="bannedScreen">
+        <div class="banned-icon">🚫</div>
+        <div class="banned-title">ZUGRIFF VERWEIGERT</div>
+        <div class="banned-message" id="bannedMessage">
+            Du wurdest von dieser Website gebannt und kannst nicht mehr darauf zugreifen.
         </div>
     </div>
 
-    <div class="main-layout">
-        <div class="sidebar">
-            <h2>Statistiken</h2>
-            <div class="stats">
-                <div class="stat-card"><div class="stat-number">12</div><div class="stat-label">Bans</div></div>
-                <div class="stat-card"><div class="stat-number">5</div><div class="stat-label">Kicks</div></div>
-                <div class="stat-card"><div class="stat-number">7</div><div class="stat-label">Warns</div></div>
-                <div class="stat-card"><div class="stat-number">2</div><div class="stat-label">BOLO</div></div>
+    <!-- Custom Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-box">
+            <div class="modal-icon" id="modalIcon"></div>
+            <div class="modal-title" id="modalTitle"></div>
+            <div class="modal-message" id="modalMessage"></div>
+            <div class="modal-buttons" id="modalButtons"></div>
+        </div>
+    </div>
+
+    <!-- Login Seite -->
+    <div class="login-container" id="loginContainer">
+        <h1>⚖️ Bestrafungs-Log System</h1>
+        <p style="color: #b0b8d4; margin-bottom: 30px;">Melde dich mit Discord an, um fortzufahren</p>
+        <a href="https://discord.com/oauth2/authorize?client_id=1419243337826832406&response_type=code&redirect_uri=https%3A%2F%2Fhrp-moderationlogging.vercel.app%2F&scope=identify" class="discord-btn">
+            <svg width="24" height="24" viewBox="0 0 127.14 96.36" fill="currentColor">
+                <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/>
+            </svg>
+            Mit Discord anmelden
+        </a>
+    </div>
+
+    <!-- Haupt-App -->
+    <div class="container" id="mainContainer">
+        <div class="header">
+            <div class="header-left">
+                <h1>⚖️ Bestrafungs-Log System</h1>
+                <p>Verwaltung von Bestrafungen und Verwarnungen</p>
+            </div>
+            <div class="user-info">
+                <img src="" alt="Avatar" class="user-avatar" id="userAvatar">
+                <div class="user-details">
+                    <div class="user-name" id="userName"></div>
+                    <span class="user-rank" id="userRank"></span>
+                </div>
+                <button class="logout-btn" onclick="logout()">Abmelden</button>
             </div>
         </div>
 
-        <div class="content">
-            <div class="form-section">
-                <h2>Neuer Log</h2>
-                <div class="form-group"><label>Spieler</label><input type="text" placeholder="Spielername"></div>
-                <div class="form-group"><label>Typ</label>
-                    <select>
-                        <option value="ban">Ban</option>
-                        <option value="kick">Kick</option>
-                        <option value="warn">Warn</option>
-                        <option value="mundlich">Mündlich</option>
-                        <option value="bolo">BOLO</option>
-                    </select>
-                </div>
-                <div class="form-group"><label>Grund</label><textarea rows="3" placeholder="Grund..."></textarea></div>
-                <button class="btn">Log erstellen</button>
-            </div>
+        <!-- Tabs -->
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('logs')">📋 Bestrafungen</div>
+            <div class="tab" onclick="switchTab('admin')" id="adminTab" style="display: none;">⚙️ Admin Panel</div>
+        </div>
 
-            <div class="logs-section" style="margin-top:40px;">
-                <h2>Logs</h2>
+        <!-- Tab: Bestrafungen -->
+        <div class="tab-content active" id="logsTab">
+            <div class="main-layout">
+                <div class="sidebar">
+                    <h2>➕ Neue Bestrafung</h2>
+                    <div class="stats">
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalLogs">0</div>
+                            <div class="stat-label">Gesamt</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalBans">0</div>
+                            <div class="stat-label">Bans</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalKicks">0</div>
+                            <div class="stat-label">Kicks</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalWarns">0</div>
+                            <div class="stat-label">Warnungen</div>
+                        </div>
+                    </div>
+
+                    <form id="punishmentForm">
+                        <div class="form-group">
+                            <label for="punishmentType">Bestrafungsart:</label>
+                            <select id="punishmentType" required>
+                                <option value="">-- Bitte wählen --</option>
+                                <option value="ban">Ban</option>
+                                <option value="bolo">Bolo</option>
+                                <option value="kick">Kick</option>
+                                <option value="warn">Warnung</option>
+                                <option value="mundlich">Mündliche Warnung</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="username">Benutzername:</label>
+                            <input type="text" id="username" required placeholder="z.B. MaxMustermann">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="reason">Grund:</label>
+                            <textarea id="reason" required placeholder="Beschreibe den Grund..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="duration">Dauer:</label>
+                            <input type="text" id="duration" placeholder="z.B. 7 Tage, Permanent">
+                        </div>
+
+                        <button type="submit" class="btn">Bestrafung hinzufügen</button>
+                    </form>
+
+                    <div style="margin-top: 25px;">
+                        <h2 style="margin-bottom: 15px;">🔍 Suchen & Filtern</h2>
+                        <div class="form-group">
+                            <label for="searchUser">Nach Benutzer:</label>
+                            <input type="text" id="searchUser" placeholder="Benutzername...">
+                        </div>
+                        <div class="form-group">
+                            <label for="filterType">Nach Typ:</label>
+                            <select id="filterType">
+                                <option value="">Alle anzeigen</option>
+                                <option value="ban">Nur Bans</option>
+                                <option value="bolo">Nur Bolos</option>
+                                <option value="kick">Nur Kicks</option>
+                                <option value="warn">Nur Warnungen</option>
+                                <option value="mundlich">Nur Mündliche Warnungen</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="searchMod">Nach Moderator:</label>
+                            <input type="text" id="searchMod" placeholder="Moderator...">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content">
+                    <div class="logs-section">
+                        <h2>📋 Bestrafungs-Logs</h2>
+                        <div id="logsContainer"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Admin Panel -->
+        <div class="tab-content" id="adminTab">
+            <div class="admin-grid">
+                <!-- Benutzerverwaltung -->
+                <div class="admin-section">
+                    <h3>👥 Benutzerverwaltung</h3>
+                    <div class="user-list" id="userList"></div>
+                </div>
+
+                <!-- Rang erstellen -->
+                <div class="admin-section">
+                    <h3>✨ Neuen Rang erstellen</h3>
+                    <form id="createRankForm">
+                        <div class="form-group">
+                            <label for="rankName">Rang Name:</label>
+                            <input type="text" id="rankName" required placeholder="z.B. Moderator">
+                        </div>
+                        <div class="form-group">
+                            <label>Berechtigungen:</label>
+                            <div class="permission-checkbox">
+                                <input type="checkbox" id="perm_ban" value="ban">
+                                <label for="perm_ban">Ban Berechtigung</label>
+                            </div>
+                            <div class="permission-checkbox">
+                                <input type="checkbox" id="perm_kick" value="kick">
+                                <label for="perm_kick">Kick Berechtigung</label>
+                            </div>
+                            <div class="permission-checkbox">
+                                <input type="checkbox" id="perm_warn" value="warn">
+                                <label for="perm_warn">Warn Berechtigung</label>
+                            </div>
+                            <div class="permission-checkbox">
+                                <input type="checkbox" id="perm_bolo" value="bolo">
+                                <label for="perm_bolo">Bolo Berechtigung</label>
+                            </div>
+                            <div class="permission-checkbox">
+                                <input type="checkbox" id="perm_mundlich" value="mundlich">
+                                <label for="perm_mundlich">Mündliche Warnung Berechtigung</label>
+                            </div>
+                            <div class="permission-checkbox">
+                                <input type="checkbox" id="perm_delete" value="delete">
+                                <label for="perm_delete">Löschen Berechtigung</label>
+                            </div>
+                            <div class="permission-checkbox">
+                                <input type="checkbox" id="perm_create_rank" value="create_rank">
+                                <label for="perm_create_rank">Ränge erstellen Berechtigung</label>
+                            </div>
+                            <div class="permission-checkbox">
+                                <input type="checkbox" id="perm_manage_users" value="manage_users">
+                                <label for="perm_manage_users">Benutzer verwalten Berechtigung</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="rankColor">Rang Farbe:</label>
+                            <select id="rankColor" required>
+                                <option value="owner">Rot (Owner Style)</option>
+                                <option value="admin">Orange (Admin Style)</option>
+                                <option value="moderator">Grün (Moderator Style)</option>
+                                <option value="supporter">Blau (Supporter Style)</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn">Rang erstellen</button>
+                    </form>
+                </div>
+
+                <!-- Ränge Übersicht -->
+                <div class="admin-section">
+                    <h3>🎭 Bestehende Ränge</h3>
+                    <div class="rank-list" id="rankList"></div>
+                </div>
+
+                <!-- Benutzer Rang zuweisen -->
+                <div class="admin-section">
+                    <h3>🔧 Rang einem Benutzer zuweisen</h3>
+                    <form id="assignRankForm">
+                        <div class="form-group">
+                            <label for="assignUserId">Discord User ID:</label>
+                            <input type="text" id="assignUserId" required placeholder="z.B. 1072581651051315240">
+                        </div>
+                        <div class="form-group">
+                            <label for="assignRankSelect">Rang auswählen:</label>
+                            <select id="assignRankSelect" required>
+                                <option value="">-- Bitte wählen --</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn">Rang zuweisen</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Owner Discord ID
+        const OWNER_ID = '1072581651051315240';
+
+        // Globale Variablen
+        let currentUser = null;
+        let punishments = [];
+        let nextId = 1;
+        let customRanks = {};
+        let teamMembers = {
+            '1072581651051315240': {
+                rank: 'owner',
+                rankName: 'Owner',
+                permissions: ['ban', 'bolo', 'kick', 'warn', 'mundlich', 'delete', 'create_rank', 'manage_users']
+            }
+        };
+        let bannedUsers = {};
+
+        // Modal Functions
+        function showModal(type, title, message, buttons = []) {
+            const overlay = document.getElementById('modalOverlay');
+            const icon = document.getElementById('modalIcon');
+            const titleEl = document.getElementById('modalTitle');
+            const messageEl = document.getElementById('modalMessage');
+            const buttonsEl = document.getElementById('modalButtons');
+
+            icon.className = 'modal-icon ' + type;
+            if (type === 'success') icon.textContent = '✓';
+            else if (type === 'error') icon.textContent = '✕';
+            else if (type === 'warning') icon.textContent = '⚠';
+
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+
+            buttonsEl.innerHTML = '';
+            buttons.forEach(btn => {
+                const button = document.createElement('button');
+                button.className = 'modal-btn ' + btn.class;
+                button.textContent = btn.text;
+                button.onclick = () => {
+                    overlay.classList.remove('active');
+                    if (btn.callback) btn.callback();
+                };
+                buttonsEl.appendChild(button);
+            });
+
+            overlay.classList.add('active');
+        }
+
+        function showSuccess(message) {
+            showModal('success', 'Erfolg', message, [
+                { text: 'OK', class: 'success', callback: null }
+            ]);
+        }
+
+        function showError(message) {
+            showModal('error', 'Fehler', message, [
+                { text: 'OK', class: 'danger', callback: null }
+            ]);
+        }
+
+        function showWarning(message) {
+            showModal('warning', 'Warnung', message, [
+                { text: 'OK', class: 'success', callback: null }
+            ]);
+        }
+
+        function showConfirm(message, onConfirm) {
+            showModal('warning', 'Bestätigung', message, [
+                { text: 'Abbrechen', class: 'cancel', callback: null },
+                { text: 'Bestätigen', class: 'danger', callback: onConfirm }
+            ]);
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('modalOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.remove('active');
+            }
+        });
+
+        // Tab Switching
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabName + 'Tab').classList.add('active');
+
+            if (tabName === 'admin') {
+                updateUserList();
+                updateRankList();
+            }
+        }
+
+        // Load Data
+        window.addEventListener('load', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+
+            // Load saved data
+            const savedRanks = localStorage.getItem('customRanks');
+            const savedTeamMembers = localStorage.getItem('teamMembers');
+            const savedBannedUsers = localStorage.getItem('bannedUsers');
+            const savedPunishments = localStorage.getItem('punishments');
+
+            if (savedRanks) customRanks = JSON.parse(savedRanks);
+            if (savedTeamMembers) {
+                const loaded = JSON.parse(savedTeamMembers);
+                teamMembers = { ...teamMembers, ...loaded };
+            }
+            if (savedBannedUsers) bannedUsers = JSON.parse(savedBannedUsers);
+            if (savedPunishments) {
+                punishments = JSON.parse(savedPunishments);
+                nextId = Math.max(...punishments.map(p => p.id), 0) + 1;
+            }
+
+            if (code) {
+                handleDiscordCallback(code);
+            } else {
+                const savedUser = sessionStorage.getItem('currentUser');
+                if (savedUser) {
+                    try {
+                        currentUser = JSON.parse(savedUser);
+                        checkUserStatus();
+                    } catch (e) {
+                        sessionStorage.removeItem('currentUser');
+                    }
+                }
+            }
+        });
+
+        async function handleDiscordCallback(code) {
+            try {
+                const response = await fetch(`/api/discord-auth?code=${code}`);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Login fehlgeschlagen');
+                }
+
+                handleSuccessfulLogin(data);
+
+                const newUrl = window.location.origin + window.location.pathname;
+                window.history.replaceState({}, document.title, newUrl);
+            } catch (error) {
+                showError('Login fehlgeschlagen: ' + error.message);
+                setTimeout(() => {
+                    const newUrl = window.location.origin + window.location.pathname;
+                    window.history.replaceState({}, document.title, newUrl);
+                }, 3000);
+            }
+        }
+
+        function handleSuccessfulLogin(discordUser) {
+            if (!teamMembers[discordUser.id]) {
+                showError('Zugriff verweigert! Du bist nicht im Team.');
+                return;
+            }
+
+            const avatarUrl = discordUser.avatar
+                ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png?size=128`
+                : `https://cdn.discordapp.com/embed/avatars/${parseInt(discordUser.discriminator || '0') % 5}.png`;
+
+            currentUser = {
+                id: discordUser.id,
+                username: discordUser.global_name || discordUser.username,
+                discriminator: discordUser.discriminator || '0',
+                avatar: avatarUrl,
+                ...teamMembers[discordUser.id]
+            };
+
+            sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+            checkUserStatus();
+        }
+
+        function checkUserStatus() {
+            if (!currentUser) return;
+
+            // Check if user is banned
+            if (bannedUsers[currentUser.id] && bannedUsers[currentUser.id].status === 'banned') {
+                showBannedScreen(bannedUsers[currentUser.id].reason);
+                return;
+            }
+
+            // Check if user is kicked
+            if (bannedUsers[currentUser.id] && bannedUsers[currentUser.id].status === 'kicked') {
+                showError('Du wurdest von der Website gekickt. Bitte melde dich erneut an.');
+                logout();
+                return;
+            }
+
+            showMainApp();
+        }
+
+        function showBannedScreen(reason) {
+            document.getElementById('bannedMessage').textContent = 
+                `Du wurdest von dieser Website gebannt. Grund: ${reason || 'Kein Grund angegeben'}`;
+            document.getElementById('bannedScreen').classList.add('active');
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('mainContainer').style.display = 'none';
+        }
+
+        function showMainApp() {
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('mainContainer').style.display = 'block';
+            document.getElementById('mainContainer').classList.add('active');
+
+            document.getElementById('userName').textContent = currentUser.username;
+            document.getElementById('userAvatar').src = currentUser.avatar;
+            document.getElementById('userRank').textContent = currentUser.rankName;
+            document.getElementById('userRank').className = 'user-rank rank-' + currentUser.rank;
+
+            // Show admin tab if user has permissions
+            if (currentUser.id === OWNER_ID || currentUser.permissions.includes('create_rank') || currentUser.permissions.includes('manage_users')) {
+                document.querySelector('.tab[onclick="switchTab(\'admin\')"]').style.display = 'block';
+            }
+
+            updateDisplay();
+            updateStats();
+            updateRankSelectOptions();
+        }
+
+        function logout() {
+            currentUser = null;
+            sessionStorage.removeItem('currentUser');
+            document.getElementById('mainContainer').classList.remove('active');
+            document.getElementById('mainContainer').style.display = 'none';
+            document.getElementById('loginContainer').style.display = 'block';
+        }
+
+        // Punishment Form
+        document.getElementById('punishmentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const type = document.getElementById('punishmentType').value;
+            if (!currentUser.permissions.includes(type)) {
+                showWarning('Du hast keine Berechtigung für diese Bestrafungsart!');
+                return;
+            }
+
+            const punishment = {
+                id: nextId++,
+                type: type,
+                username: document.getElementById('username').value,
+                moderator: currentUser.username,
+                moderatorRank: currentUser.rankName,
+                reason: document.getElementById('reason').value,
+                duration: document.getElementById('duration').value || 'Nicht angegeben',
+                date: new Date().toLocaleString('de-DE')
+            };
+
+            punishments.unshift(punishment);
+            localStorage.setItem('punishments', JSON.stringify(punishments));
+            
+            this.reset();
+            updateDisplay();
+            updateStats();
+            showSuccess('Bestrafung erfolgreich hinzugefügt!');
+        });
+
+        // Search and Filter
+        document.getElementById('searchUser').addEventListener('input', updateDisplay);
+        document.getElementById('filterType').addEventListener('change', updateDisplay);
+        document.getElementById('searchMod').addEventListener('input', updateDisplay);
+
+        function updateDisplay() {
+            const searchUser = document.getElementById('searchUser').value.toLowerCase();
+            const filterType = document.getElementById('filterType').value;
+            const searchMod = document.getElementById('searchMod').value.toLowerCase();
+
+            const filtered = punishments.filter(p => {
+                const matchUser = p.username.toLowerCase().includes(searchUser);
+                const matchType = !filterType || p.type === filterType;
+                const matchMod = p.moderator.toLowerCase().includes(searchMod);
+                return matchUser && matchType && matchMod;
+            });
+
+            const container = document.getElementById('logsContainer');
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="no-logs">Keine Bestrafungen gefunden</div>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(p => `
                 <div class="log-item">
-                    <span class="log-type ban">Ban</span>
-                    <div class="log-reason">Beleidigung im Chat</div>
-                    <button class="delete-btn">Löschen</button>
+                    <div class="log-header">
+                        <span class="log-type ${p.type}">${getTypeLabel(p.type)}</span>
+                        <button class="delete-btn" onclick="deletePunishment(${p.id})" 
+                            ${!currentUser || !currentUser.permissions.includes('delete') ? 'disabled' : ''}>
+                            ${currentUser && currentUser.permissions.includes('delete') ? 'Löschen' : '🔒'}
+                        </button>
+                    </div>
+                    <div class="log-info">
+                        <div class="log-info-item"><strong>Benutzer:</strong> ${p.username}</div>
+                        <div class="log-info-item"><strong>Moderator:</strong> ${p.moderator}</div>
+                        <div class="log-info-item"><strong>Rang:</strong> ${p.moderatorRank}</div>
+                        <div class="log-info-item"><strong>Datum:</strong> ${p.date}</div>
+                        <div class="log-info-item"><strong>Dauer:</strong> ${p.duration}</div>
+                    </div>
+                    <div class="log-reason"><strong>Grund:</strong> ${p.reason}</div>
                 </div>
-                <div class="log-item">
-                    <span class="log-type kick">Kick</span>
-                    <div class="log-reason">Teamkill</div>
-                    <button class="delete-btn">Löschen</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+            `).join('');
+        }
 
-<!-- Modal Beispiel -->
-<div class="modal-overlay" id="modal">
-    <div class="modal-box">
-        <div class="modal-icon success">✔</div>
-        <div class="modal-title">Erfolg!</div>
-        <div class="modal-message">Der Log wurde erfolgreich erstellt.</div>
-        <div class="modal-buttons">
-            <button class="modal-btn success" onclick="closeModal()">OK</button>
-            <button class="modal-btn cancel" onclick="closeModal()">Abbrechen</button>
-        </div>
-    </div>
-</div>
+        function getTypeLabel(type) {
+            const labels = {
+                'ban': 'BAN',
+                'bolo': 'BOLO',
+                'kick': 'KICK',
+                'warn': 'WARNUNG',
+                'mundlich': 'MÜNDLICHE WARNUNG'
+            };
+            return labels[type] || type.toUpperCase();
+        }
 
-<script>
-const login = document.querySelector('.login-container');
-const container = document.querySelector('.container');
-document.querySelector('.discord-btn').addEventListener('click', ()=>{
-    login.style.display='none';
-    container.classList.add('active');
-});
+        function deletePunishment(id) {
+            if (!currentUser.permissions.includes('delete')) {
+                showWarning('Du hast keine Berechtigung zum Löschen!');
+                return;
+            }
 
-function closeModal() { document.getElementById('modal').classList.remove('active'); }
-</script>
+            showConfirm('Möchtest du diesen Eintrag wirklich löschen?', () => {
+                punishments = punishments.filter(p => p.id !== id);
+                localStorage.setItem('punishments', JSON.stringify(punishments));
+                updateDisplay();
+                updateStats();
+                showSuccess('Eintrag erfolgreich gelöscht!');
+            });
+        }
 
+        function updateStats() {
+            document.getElementById('totalLogs').textContent = punishments.length;
+            document.getElementById('totalBans').textContent = punishments.filter(p => p.type === 'ban').length;
+            document.getElementById('totalKicks').textContent = punishments.filter(p => p.type === 'kick').length;
+            document.getElementById('totalWarns').textContent = punishments.filter(p => p.type === 'warn').length;
+        }
+
+        // Create Rank Form
+        document.getElementById('createRankForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (currentUser.id !== OWNER_ID && !currentUser.permissions.includes('create_rank')) {
+                showWarning('Du hast keine Berechtigung, Ränge zu erstellen!');
+                return;
+            }
+
+            const rankName = document.getElementById('rankName').value;
+            const rankColor = document.getElementById('rankColor').value;
+            const permissions = [];
+
+            document.querySelectorAll('.permission-checkbox input[type="checkbox"]:checked').forEach(checkbox => {
+                permissions.push(checkbox.value);
+            });
+
+            const rankId = 'rank_' + Date.now();
+            customRanks[rankId] = {
+                name: rankName,
+                color: rankColor,
+                permissions: permissions
+            };
+
+            localStorage.setItem('customRanks', JSON.stringify(customRanks));
+            
+            this.reset();
+            updateRankList();
+            updateRankSelectOptions();
+            showSuccess(`Rang "${rankName}" erfolgreich erstellt!`);
+        });
+
+        // Assign Rank Form
+        document.getElementById('assignRankForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (currentUser.id !== OWNER_ID && !currentUser.permissions.includes('manage_users')) {
+                showWarning('Du hast keine Berechtigung, Benutzer zu verwalten!');
+                return;
+            }
+
+            const userId = document.getElementById('assignUserId').value;
+            const rankId = document.getElementById('assignRankSelect').value;
+
+            if (rankId === 'owner' && currentUser.id !== OWNER_ID) {
+                showError('Nur der Owner kann den Owner-Rang zuweisen!');
+                return;
+            }
+
+            let rankInfo;
+            if (rankId === 'owner') {
+                rankInfo = {
+                    rank: 'owner',
+                    rankName: 'Owner',
+                    permissions: ['ban', 'bolo', 'kick', 'warn', 'mundlich', 'delete', 'create_rank', 'manage_users']
+                };
+            } else if (customRanks[rankId]) {
+                rankInfo = {
+                    rank: customRanks[rankId].color,
+                    rankName: customRanks[rankId].name,
+                    permissions: customRanks[rankId].permissions
+                };
+            } else {
+                showError('Ungültiger Rang ausgewählt!');
+                return;
+            }
+
+            teamMembers[userId] = rankInfo;
+            localStorage.setItem('teamMembers', JSON.stringify(teamMembers));
+
+            this.reset();
+            updateUserList();
+            showSuccess('Rang erfolgreich zugewiesen!');
+        });
+
+        function updateRankSelectOptions() {
+            const select = document.getElementById('assignRankSelect');
+            select.innerHTML = '<option value="">-- Bitte wählen --</option>';
+
+            if (currentUser.id === OWNER_ID) {
+                select.innerHTML += '<option value="owner">Owner</option>';
+            }
+
+            Object.keys(customRanks).forEach(rankId => {
+                const rank = customRanks[rankId];
+                select.innerHTML += `<option value="${rankId}">${rank.name}</option>`;
+            });
+        }
+
+        function updateUserList() {
+            const container = document.getElementById('userList');
+            const users = Object.keys(teamMembers);
+
+            if (users.length === 0) {
+                container.innerHTML = '<div class="no-logs">Keine Benutzer gefunden</div>';
+                return;
+            }
+
+            container.innerHTML = users.map(userId => {
+                const member = teamMembers[userId];
+                const banned = bannedUsers[userId];
+                const status = banned ? banned.status : 'active';
+                
+                let statusClass = 'status-active';
+                let statusText = 'Aktiv';
+                if (status === 'banned') {
+                    statusClass = 'status-banned';
+                    statusText = 'Gebannt';
+                } else if (status === 'kicked') {
+                    statusClass = 'status-kicked';
+                    statusText = 'Gekickt';
+                }
+
+                const canManage = currentUser.id === OWNER_ID || currentUser.permissions.includes('manage_users');
+                const isOwner = userId === OWNER_ID;
+
+                return `
+                    <div class="user-item">
+                        <div class="user-item-info">
+                            <div>
+                                <div><strong>User ID:</strong> ${userId}</div>
+                                <div><strong>Rang:</strong> <span class="user-rank rank-${member.rank}">${member.rankName}</span></div>
+                                <div><strong>Status:</strong> <span class="user-item-status ${statusClass}">${statusText}</span></div>
+                            </div>
+                        </div>
+                        <div class="user-item-actions">
+                            ${!isOwner && canManage && status !== 'banned' ? `
+                                <button class="action-btn ban" onclick="banUser('${userId}')">Ban</button>
+                            ` : ''}
+                            ${!isOwner && canManage && status !== 'kicked' && status !== 'banned' ? `
+                                <button class="action-btn kick" onclick="kickUser('${userId}')">Kick</button>
+                            ` : ''}
+                            ${!isOwner && canManage && status === 'banned' ? `
+                                <button class="action-btn unban" onclick="unbanUser('${userId}')">Unban</button>
+                            ` : ''}
+                            ${isOwner ? '<span style="color: #ef4444;">🔒 Owner</span>' : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function banUser(userId) {
+            showModal('warning', 'Benutzer bannen', 'Gib einen Grund für den Ban ein:', [
+                { text: 'Abbrechen', class: 'cancel', callback: null },
+                { text: 'Bannen', class: 'danger', callback: () => {
+                    const reason = prompt('Grund für den Ban:');
+                    if (reason) {
+                        bannedUsers[userId] = {
+                            status: 'banned',
+                            reason: reason,
+                            bannedBy: currentUser.username,
+                            date: new Date().toLocaleString('de-DE')
+                        };
+                        localStorage.setItem('bannedUsers', JSON.stringify(bannedUsers));
+                        updateUserList();
+                        showSuccess('Benutzer erfolgreich gebannt!');
+                    }
+                }}
+            ]);
+        }
+
+        function kickUser(userId) {
+            showConfirm('Möchtest du diesen Benutzer wirklich kicken?', () => {
+                bannedUsers[userId] = {
+                    status: 'kicked',
+                    kickedBy: currentUser.username,
+                    date: new Date().toLocaleString('de-DE')
+                };
+                localStorage.setItem('bannedUsers', JSON.stringify(bannedUsers));
+                updateUserList();
+                showSuccess('Benutzer erfolgreich gekickt!');
+            });
+        }
+
+        function unbanUser(userId) {
+            showConfirm('Möchtest du diesen Benutzer wirklich entbannen?', () => {
+                delete bannedUsers[userId];
+                localStorage.setItem('bannedUsers', JSON.stringify(bannedUsers));
+                updateUserList();
+                showSuccess('Benutzer erfolgreich entbannt!');
+            });
+        }
+
+        function updateRankList() {
+            const container = document.getElementById('rankList');
+            const ranks = Object.keys(customRanks);
+
+            if (ranks.length === 0) {
+                container.innerHTML = '<div class="no-logs">Keine benutzerdefinierten Ränge erstellt</div>';
+                return;
+            }
+
+            container.innerHTML = ranks.map(rankId => {
+                const rank = customRanks[rankId];
+                const canDelete = currentUser.id === OWNER_ID || currentUser.permissions.includes('create_rank');
+
+                return `
+                    <div class="rank-item">
+                        <div class="rank-item-info">
+                            <div>
+                                <div><strong>Name:</strong> <span class="user-rank rank-${rank.color}">${rank.name}</span></div>
+                                <div><strong>Berechtigungen:</strong> ${rank.permissions.join(', ')}</div>
+                            </div>
+                        </div>
+                        <div class="user-item-actions">
+                            ${canDelete ? `
+                                <button class="action-btn delete" onclick="deleteRank('${rankId}')">Löschen</button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function deleteRank(rankId) {
+            showConfirm('Möchtest du diesen Rang wirklich löschen?', () => {
+                delete customRanks[rankId];
+                localStorage.setItem('customRanks', JSON.stringify(customRanks));
+                updateRankList();
+                updateRankSelectOptions();
+                showSuccess('Rang erfolgreich gelöscht!');
+            });
+        }
+    </script>
 </body>
 </html>
