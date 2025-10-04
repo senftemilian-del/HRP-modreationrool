@@ -829,926 +829,76 @@
 
         // Prüfe ob OAuth Code in URL ist
         window.addEventListener('load', function() {
+            console.log('Seite geladen');
+            
             const urlParams = new URLSearchParams(window.location.search);
             const code = urlParams.get('code');
             
+            console.log('URL Parameters:', window.location.search);
+            console.log('OAuth Code:', code);
+            
             if (code) {
+                console.log('OAuth Code gefunden, starte Login...');
                 document.getElementById('loading').style.display = 'block';
                 handleDiscordCallback(code);
             } else {
+                console.log('Kein OAuth Code, prüfe Session...');
+                // Prüfe ob bereits eingeloggt
                 const savedUser = sessionStorage.getItem('currentUser');
+                console.log('Saved User:', savedUser);
+                
                 if (savedUser) {
-                    currentUser = JSON.parse(savedUser);
-                    showMainApp();
+                    try {
+                        currentUser = JSON.parse(savedUser);
+                        console.log('User aus Session geladen:', currentUser);
+                        showMainApp();
+                    } catch (e) {
+                        console.error('Fehler beim Laden des Users:', e);
+                        sessionStorage.removeItem('currentUser');
+                    }
+                } else {
+                    console.log('Kein User in Session, zeige Login');
                 }
             }
         });
 
         async function handleDiscordCallback(code) {
             try {
+                console.log('OAuth Code empfangen:', code);
                 const response = await fetch(`/api/discord-auth?code=${code}`);
                 const data = await response.json();
+                
+                console.log('API Response:', data);
                 
                 if (!response.ok) {
                     throw new Error(data.error || 'Login fehlgeschlagen');
                 }
                 
                 handleSuccessfulLogin(data);
-                window.history.replaceState({}, document.title, "/");
+                
+                // Entferne Code aus URL OHNE Reload
+                const newUrl = window.location.origin + window.location.pathname;
+                window.history.replaceState({}, document.title, newUrl);
                 
             } catch (error) {
                 console.error('Login Fehler:', error);
                 document.getElementById('loading').style.display = 'none';
-                const errorDiv = document.getElementById('errorMessage');
-                errorDiv.textContent = '❌ ' + error.message;
-                errorDiv.style.display = 'block';
+                showError('Login fehlgeschlagen: ' + error.message);
+                
+                // Entferne Code aus URL bei Fehler
+                setTimeout(() => {
+                    const newUrl = window.location.origin + window.location.pathname;
+                    window.history.replaceState({}, document.title, newUrl);
+                }, 3000);
             }
         }
 
         function handleSuccessfulLogin(discordUser) {
+            console.log('Login erfolgreich für User:', discordUser);
+            
             if (!teamMembers[discordUser.id]) {
                 document.getElementById('loading').style.display = 'none';
-                const errorDiv = document.getElementById('errorMessage');
-                errorDiv.textContent = '❌ Zugriff verweigert! Du bist nicht im Team.';
-                errorDiv.style.display = 'block';
-                return;
-            }
-            
-            const avatarUrl = discordUser.avatar
-                ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png?size=128`
-                <!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bestrafungs-Log System</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #0a0e27;
-            min-height: 100vh;
-            padding: 20px;
-            color: #e0e0e0;
-        }
-
-        /* Modal Overlay */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
-            z-index: 9999;
-            justify-content: center;
-            align-items: center;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-
-        .modal-box {
-            background: #1a1f3a;
-            border-radius: 15px;
-            padding: 30px;
-            max-width: 400px;
-            width: 90%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            border: 2px solid #2d3548;
-            animation: slideUp 0.3s ease;
-        }
-
-        @keyframes slideUp {
-            from {
-                transform: translateY(50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .modal-icon {
-            width: 60px;
-            height: 60px;
-            margin: 0 auto 20px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 30px;
-        }
-
-        .modal-icon.success {
-            background: linear-gradient(135deg, #00cc00 0%, #009900 100%);
-        }
-
-        .modal-icon.error {
-            background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
-        }
-
-        .modal-icon.warning {
-            background: linear-gradient(135deg, #ffaa00 0%, #ff8800 100%);
-        }
-
-        .modal-title {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #6c8fff;
-            text-align: center;
-            margin-bottom: 15px;
-        }
-
-        .modal-message {
-            color: #b0b8d4;
-            text-align: center;
-            line-height: 1.6;
-            margin-bottom: 25px;
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-
-        .modal-btn {
-            padding: 12px 30px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .modal-btn.success {
-            background: linear-gradient(135deg, #00cc00 0%, #009900 100%);
-            color: white;
-        }
-
-        .modal-btn.success:hover {
-            background: linear-gradient(135deg, #00dd00 0%, #00aa00 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(0, 204, 0, 0.4);
-        }
-
-        .modal-btn.danger {
-            background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
-            color: white;
-        }
-
-        .modal-btn.danger:hover {
-            background: linear-gradient(135deg, #ff6666 0%, #ff0000 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(255, 68, 68, 0.4);
-        }
-
-        .modal-btn.cancel {
-            background: #2d3548;
-            color: #b0b8d4;
-        }
-
-        .modal-btn.cancel:hover {
-            background: #3d4558;
-            transform: translateY(-2px);
-        }
-
-        .login-container {
-            max-width: 400px;
-            margin: 100px auto;
-            background: #1a1f3a;
-            border-radius: 15px;
-            padding: 40px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-            text-align: center;
-        }
-
-        .login-container h1 {
-            color: #6c8fff;
-            margin-bottom: 30px;
-        }
-
-        .discord-btn {
-            background: #5865F2;
-            color: white;
-            padding: 15px 30px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            width: 100%;
-            transition: all 0.3s;
-            text-decoration: none;
-        }
-
-        .discord-btn:hover {
-            background: #4752C4;
-            transform: translateY(-2px);
-        }
-
-        .loading {
-            display: none;
-            color: #6c8fff;
-            margin-top: 20px;
-        }
-
-        .error-message {
-            background: #ff4444;
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-            display: none;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: none;
-        }
-
-        .container.active {
-            display: block;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #1a1f3a 0%, #2d1b4e 100%);
-            color: white;
-            padding: 30px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .header-left h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            background: rgba(0,0,0,0.3);
-            padding: 15px 25px;
-            border-radius: 10px;
-        }
-
-        .user-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            border: 3px solid #6c8fff;
-        }
-
-        .user-details {
-            text-align: left;
-        }
-
-        .user-name {
-            font-weight: bold;
-            font-size: 1.1em;
-        }
-
-        .user-rank {
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 0.85em;
-            font-weight: bold;
-            display: inline-block;
-            margin-top: 5px;
-        }
-
-        .rank-owner {
-            background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
-        }
-
-        .rank-admin {
-            background: linear-gradient(135deg, #ff6b00 0%, #cc5500 100%);
-        }
-
-        .rank-moderator {
-            background: linear-gradient(135deg, #00cc00 0%, #009900 100%);
-        }
-
-        .rank-supporter {
-            background: linear-gradient(135deg, #0099ff 0%, #0066cc 100%);
-        }
-
-        .logout-btn {
-            background: #ff4444;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-left: 15px;
-            transition: all 0.3s;
-        }
-
-        .logout-btn:hover {
-            background: #cc0000;
-        }
-
-        .main-layout {
-            display: grid;
-            grid-template-columns: 350px 1fr;
-            gap: 20px;
-        }
-
-        .sidebar {
-            background: #1a1f3a;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            height: fit-content;
-            position: sticky;
-            top: 20px;
-        }
-
-        .content {
-            background: #1a1f3a;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-        }
-
-        .form-section h2 {
-            color: #6c8fff;
-            margin-bottom: 20px;
-            font-size: 1.5em;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: #b0b8d4;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        input[type="text"],
-        select,
-        textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #2d3548;
-            border-radius: 8px;
-            font-size: 14px;
-            background: #0f1425;
-            color: #e0e0e0;
-            transition: all 0.3s;
-        }
-
-        input[type="text"]:focus,
-        select:focus,
-        textarea:focus {
-            outline: none;
-            border-color: #6c8fff;
-            background: #151b2e;
-        }
-
-        input[type="text"]:disabled,
-        select:disabled,
-        textarea:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #6c8fff 0%, #4a5fc1 100%);
-            color: white;
-            padding: 12px 30px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s;
-            width: 100%;
-            font-weight: 600;
-        }
-
-        .btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(108, 143, 255, 0.4);
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .permission-notice {
-            background: #ff4444;
-            color: white;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            text-align: center;
-            font-size: 14px;
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, #2d1b4e 0%, #1a1f3a 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            border: 1px solid #2d3548;
-        }
-
-        .stat-number {
-            font-size: 2em;
-            font-weight: bold;
-            color: #6c8fff;
-        }
-
-        .stat-label {
-            font-size: 0.85em;
-            opacity: 0.8;
-            margin-top: 5px;
-        }
-
-        .logs-section h2 {
-            color: #6c8fff;
-            margin-bottom: 20px;
-            font-size: 1.8em;
-        }
-
-        .log-item {
-            background: #0f1425;
-            border: 2px solid #2d3548;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 15px;
-            transition: all 0.4s ease;
-            cursor: pointer;
-        }
-
-        .log-item:hover {
-            transform: translateX(5px);
-            border-color: #6c8fff;
-            background: #1a2844;
-            box-shadow: 0 5px 25px rgba(108, 143, 255, 0.2);
-        }
-
-        .log-item.clicked {
-            animation: clickPulse 0.6s ease;
-            background: #1a3d6e;
-            border-color: #4a7bc8;
-        }
-
-        @keyframes clickPulse {
-            0% {
-                background: #1a3d6e;
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(74, 123, 200, 0.7);
-            }
-            50% {
-                background: #2a4d7e;
-                transform: scale(1.02);
-                box-shadow: 0 0 0 10px rgba(74, 123, 200, 0);
-            }
-            100% {
-                background: #1a2844;
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(74, 123, 200, 0);
-            }
-        }
-
-        .log-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .log-type {
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        .log-type.ban {
-            background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
-            color: white;
-        }
-
-        .log-type.kick {
-            background: linear-gradient(135deg, #ffaa00 0%, #ff8800 100%);
-            color: white;
-        }
-
-        .log-type.warn {
-            background: linear-gradient(135deg, #ffdd00 0%, #ffaa00 100%);
-            color: #333;
-        }
-
-        .log-type.mute {
-            background: linear-gradient(135deg, #9933ff 0%, #6600cc 100%);
-            color: white;
-        }
-
-        .log-info {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .log-info-item {
-            font-size: 14px;
-            color: #b0b8d4;
-        }
-
-        .log-info-item strong {
-            color: #6c8fff;
-        }
-
-        .log-reason {
-            background: #0a0e1f;
-            padding: 12px;
-            border-radius: 8px;
-            margin-top: 10px;
-            font-size: 14px;
-            border-left: 3px solid #6c8fff;
-            color: #c0c8e0;
-        }
-
-        .delete-btn {
-            background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .delete-btn:hover:not(:disabled) {
-            background: linear-gradient(135deg, #ff6666 0%, #ff0000 100%);
-            transform: scale(1.05);
-        }
-
-        .delete-btn:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
-
-        .no-logs {
-            text-align: center;
-            padding: 60px;
-            color: #5a6378;
-            font-size: 1.2em;
-        }
-
-        @media (max-width: 1024px) {
-            .main-layout {
-                grid-template-columns: 1fr;
-            }
-            
-            .sidebar {
-                position: relative;
-                top: 0;
-            }
-            
-            .header {
-                flex-direction: column;
-                gap: 20px;
-            }
-        }
-
-        select option {
-            background: #0f1425;
-            color: #e0e0e0;
-        }
-
-        ::-webkit-scrollbar {
-            width: 10px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #0a0e1f;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #2d3548;
-            border-radius: 5px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #6c8fff;
-        }
-    </style>
-</head>
-<body>
-    <!-- Custom Modal -->
-    <div class="modal-overlay" id="modalOverlay">
-        <div class="modal-box">
-            <div class="modal-icon" id="modalIcon"></div>
-            <div class="modal-title" id="modalTitle"></div>
-            <div class="modal-message" id="modalMessage"></div>
-            <div class="modal-buttons" id="modalButtons"></div>
-        </div>
-    </div>
-
-    <!-- Login Seite -->
-    <div class="login-container" id="loginContainer">
-        <h1>⚖️ Bestrafungs-Log System</h1>
-        <p style="color: #b0b8d4; margin-bottom: 30px;">Melde dich mit Discord an, um fortzufahren</p>
-        <a href="https://discord.com/oauth2/authorize?client_id=1419243337826832406&response_type=code&redirect_uri=https%3A%2F%2Fhrp-moderationlogging.vercel.app%2F&scope=identify" class="discord-btn">
-            <svg width="24" height="24" viewBox="0 0 127.14 96.36" fill="currentColor">
-                <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/>
-            </svg>
-            Mit Discord anmelden
-        </a>
-        <div class="loading" id="loading">
-            <p>⏳ Autorisierung läuft...</p>
-        </div>
-        <div class="error-message" id="errorMessage"></div>
-    </div>
-
-    <!-- Haupt-App -->
-    <div class="container" id="mainContainer">
-        <div class="header">
-            <div class="header-left">
-                <h1>⚖️ Bestrafungs-Log System</h1>
-                <p>Verwaltung von Bestrafungen und Verwarnungen</p>
-            </div>
-            <div class="user-info">
-                <img src="" alt="Avatar" class="user-avatar" id="userAvatar">
-                <div class="user-details">
-                    <div class="user-name" id="userName"></div>
-                    <span class="user-rank" id="userRank"></span>
-                </div>
-                <button class="logout-btn" onclick="logout()">Abmelden</button>
-            </div>
-        </div>
-
-        <div class="main-layout">
-            <!-- Sidebar mit Formular -->
-            <div class="sidebar">
-                <h2>➕ Neue Bestrafung</h2>
-                
-                <!-- Statistiken -->
-                <div class="stats">
-                    <div class="stat-card">
-                        <div class="stat-number" id="totalLogs">0</div>
-                        <div class="stat-label">Gesamt</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="totalBans">0</div>
-                        <div class="stat-label">Bans</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="totalKicks">0</div>
-                        <div class="stat-label">Kicks</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="totalWarns">0</div>
-                        <div class="stat-label">Warnungen</div>
-                    </div>
-                </div>
-
-                <div id="permissionNotice"></div>
-
-                <form id="punishmentForm">
-                    <div class="form-group">
-                        <label for="punishmentType">Bestrafungsart:</label>
-                        <select id="punishmentType" required>
-                            <option value="">-- Bitte wählen --</option>
-                            <option value="ban">Ban</option>
-                            <option value="kick">Kick</option>
-                            <option value="warn">Warnung</option>
-                            <option value="mute">Mute</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="username">Benutzername:</label>
-                        <input type="text" id="username" required placeholder="z.B. MaxMustermann">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="reason">Grund:</label>
-                        <textarea id="reason" required placeholder="Beschreibe den Grund..."></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="duration">Dauer:</label>
-                        <input type="text" id="duration" placeholder="z.B. 7 Tage, Permanent">
-                    </div>
-
-                    <button type="submit" class="btn" id="submitBtn">Bestrafung hinzufügen</button>
-                </form>
-
-                <!-- Such- und Filterbereich -->
-                <div style="margin-top: 25px;">
-                    <h2 style="margin-bottom: 15px;">🔍 Suchen & Filtern</h2>
-                    <div class="form-group">
-                        <label for="searchUser">Nach Benutzer:</label>
-                        <input type="text" id="searchUser" placeholder="Benutzername...">
-                    </div>
-                    <div class="form-group">
-                        <label for="filterType">Nach Typ:</label>
-                        <select id="filterType">
-                            <option value="">Alle anzeigen</option>
-                            <option value="ban">Nur Bans</option>
-                            <option value="kick">Nur Kicks</option>
-                            <option value="warn">Nur Warnungen</option>
-                            <option value="mute">Nur Mutes</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="searchMod">Nach Moderator:</label>
-                        <input type="text" id="searchMod" placeholder="Moderator...">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Hauptbereich mit Logs -->
-            <div class="content">
-                <div class="logs-section">
-                    <h2>📋 Bestrafungs-Logs</h2>
-                    <div id="logsContainer"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Modal Functions
-        function showModal(type, title, message, buttons = []) {
-            const overlay = document.getElementById('modalOverlay');
-            const icon = document.getElementById('modalIcon');
-            const titleEl = document.getElementById('modalTitle');
-            const messageEl = document.getElementById('modalMessage');
-            const buttonsEl = document.getElementById('modalButtons');
-
-            // Set icon
-            icon.className = 'modal-icon ' + type;
-            if (type === 'success') icon.textContent = '✓';
-            else if (type === 'error') icon.textContent = '✕';
-            else if (type === 'warning') icon.textContent = '⚠';
-
-            titleEl.textContent = title;
-            messageEl.textContent = message;
-
-            // Create buttons
-            buttonsEl.innerHTML = '';
-            buttons.forEach(btn => {
-                const button = document.createElement('button');
-                button.className = 'modal-btn ' + btn.class;
-                button.textContent = btn.text;
-                button.onclick = () => {
-                    overlay.classList.remove('active');
-                    if (btn.callback) btn.callback();
-                };
-                buttonsEl.appendChild(button);
-            });
-
-            overlay.classList.add('active');
-        }
-
-        function showSuccess(message) {
-            showModal('success', 'Erfolg', message, [
-                { text: 'OK', class: 'success', callback: null }
-            ]);
-        }
-
-        function showError(message) {
-            showModal('error', 'Fehler', message, [
-                { text: 'OK', class: 'danger', callback: null }
-            ]);
-        }
-
-        function showWarning(message) {
-            showModal('warning', 'Warnung', message, [
-                { text: 'OK', class: 'success', callback: null }
-            ]);
-        }
-
-        function showConfirm(message, onConfirm) {
-            showModal('warning', 'Bestätigung', message, [
-                { text: 'Abbrechen', class: 'cancel', callback: null },
-                { text: 'Bestätigen', class: 'danger', callback: onConfirm }
-            ]);
-        }
-
-        // Close modal when clicking outside
-        document.getElementById('modalOverlay').addEventListener('click', function(e) {
-            if (e.target === this) {
-                this.classList.remove('active');
-            }
-        });
-
-        // Owner Discord ID
-        const OWNER_ID = '1072581651051315240';
-        
-        // Team-Mitglieder mit ihren Discord IDs und Rängen
-        const teamMembers = {
-            '1072581651051315240': {
-                rank: 'owner',
-                rankName: 'Owner',
-                permissions: ['ban', 'kick', 'warn', 'mute', 'delete']
-            }
-        };
-
-        let currentUser = null;
-        let punishments = [];
-        let nextId = 1;
-
-        // Prüfe ob OAuth Code in URL ist
-        window.addEventListener('load', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const code = urlParams.get('code');
-            
-            if (code) {
-                document.getElementById('loading').style.display = 'block';
-                handleDiscordCallback(code);
-            } else {
-                const savedUser = sessionStorage.getItem('currentUser');
-                if (savedUser) {
-                    currentUser = JSON.parse(savedUser);
-                    showMainApp();
-                }
-            }
-        });
-
-        async function handleDiscordCallback(code) {
-            try {
-                const response = await fetch(`/api/discord-auth?code=${code}`);
-                const data = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(data.error || 'Login fehlgeschlagen');
-                }
-                
-                handleSuccessfulLogin(data);
-                window.history.replaceState({}, document.title, "/");
-                
-            } catch (error) {
-                console.error('Login Fehler:', error);
-                document.getElementById('loading').style.display = 'none';
-                const errorDiv = document.getElementById('errorMessage');
-                errorDiv.textContent = '❌ ' + error.message;
-                errorDiv.style.display = 'block';
-            }
-        }
-
-        function handleSuccessfulLogin(discordUser) {
-            if (!teamMembers[discordUser.id]) {
-                document.getElementById('loading').style.display = 'none';
-                const errorDiv = document.getElementById('errorMessage');
-                errorDiv.textContent = '❌ Zugriff verweigert! Du bist nicht im Team.';
-                errorDiv.style.display = 'block';
+                showError('Zugriff verweigert! Du bist nicht im Team.');
                 return;
             }
             
@@ -1764,22 +914,52 @@
                 ...teamMembers[discordUser.id]
             };
             
-            sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+            console.log('CurrentUser gesetzt:', currentUser);
+            
+            // Speichere User in Session Storage
+            try {
+                sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+                console.log('User in sessionStorage gespeichert');
+            } catch (e) {
+                console.error('Fehler beim Speichern in sessionStorage:', e);
+            }
+            
+            // Verstecke Loading
+            document.getElementById('loading').style.display = 'none';
+            
+            // Zeige App
             showMainApp();
         }
 
         function showMainApp() {
-            document.getElementById('loginContainer').style.display = 'none';
-            document.getElementById('mainContainer').classList.add('active');
+            console.log('showMainApp aufgerufen');
             
+            if (!currentUser) {
+                console.error('Kein currentUser vorhanden!');
+                return;
+            }
+            
+            // Verstecke Login Container
+            document.getElementById('loginContainer').style.display = 'none';
+            
+            // Zeige Main Container
+            const mainContainer = document.getElementById('mainContainer');
+            mainContainer.style.display = 'block';
+            mainContainer.classList.add('active');
+            
+            // Setze User-Infos
             document.getElementById('userName').textContent = currentUser.username;
             document.getElementById('userAvatar').src = currentUser.avatar;
             document.getElementById('userRank').textContent = currentUser.rankName;
             document.getElementById('userRank').className = 'user-rank rank-' + currentUser.rank;
             
+            console.log('User-Infos gesetzt');
+            
             updatePermissions();
             updateDisplay();
             updateStats();
+            
+            console.log('App erfolgreich angezeigt');
         }
 
         function logout() {
