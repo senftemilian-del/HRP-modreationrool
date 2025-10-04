@@ -1,4 +1,22 @@
-<!DOCTYPE html>
+function handleSuccessfulLogin(discordUser) {
+            const avatarUrl = discordUser.avatar
+                ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png?size=128`
+                : `https://cdn.discordapp.com/embed/avatars/${parseInt(discordUser.discriminator || '0') % 5}.png`;
+
+            // Check if user already exists
+            if (teamMembers[discordUser.id]) {
+                currentUser = {
+                    id: discordUser.id,
+                    username: discordUser.global_name || discordUser.username,
+                    discriminator: discordUser.discriminator || '0',
+                    avatar: avatarUrl,
+                    ...teamMembers[discordUser.id]
+                };
+
+                sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+                checkUserStatus();
+            } else {
+                // Create access<!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -522,6 +540,59 @@
             margin-bottom: 15px;
         }
 
+        .log-user-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #0a0a0a;
+            border-radius: 10px;
+            border: 1px solid #1e3a8a;
+        }
+
+        .roblox-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            border: 3px solid #3b82f6;
+            background: #1a1a1a;
+        }
+
+        .log-user-info {
+            flex: 1;
+        }
+
+        .log-roblox-username {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #3b82f6;
+            margin-bottom: 5px;
+        }
+
+        .log-mod-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 8px;
+            border: 1px solid #1e3a8a;
+            margin-bottom: 10px;
+        }
+
+        .discord-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: 2px solid #3b82f6;
+        }
+
+        .log-mod-name {
+            font-weight: bold;
+            color: #3b82f6;
+        }
+
         .log-type {
             padding: 8px 16px;
             border-radius: 20px;
@@ -778,6 +849,147 @@
             font-size: 1.2em;
         }
 
+        /* Player Card */
+        .player-card {
+            background: #0a0a0a;
+            border: 2px solid #1e3a8a;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .player-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 5px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .player-info-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex: 1;
+        }
+
+        .player-avatars {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .player-avatar-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .player-details {
+            flex: 1;
+        }
+
+        .player-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #3b82f6;
+            margin-bottom: 8px;
+        }
+
+        .player-discord {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #b0b8d4;
+            margin-bottom: 5px;
+        }
+
+        .player-roles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .role-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: bold;
+            background: #3b82f6;
+            color: white;
+        }
+
+        .player-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Request Card */
+        .request-card {
+            background: #0a0a0a;
+            border: 2px solid #f59e0b;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+
+        .request-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 5px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .request-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .request-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .request-badge {
+            background: #f59e0b;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.85em;
+        }
+
+        .request-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .pending-notice {
+            background: rgba(245, 158, 11, 0.1);
+            border: 2px solid #f59e0b;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            margin: 50px auto;
+            max-width: 600px;
+        }
+
+        .pending-notice h2 {
+            color: #f59e0b;
+            margin-bottom: 15px;
+            font-size: 2em;
+        }
+
+        .pending-notice p {
+            color: #b0b8d4;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
         @media (max-width: 1024px) {
             .main-layout {
                 grid-template-columns: 1fr;
@@ -864,6 +1076,8 @@
         <!-- Tabs -->
         <div class="tabs">
             <div class="tab active" onclick="switchTab('logs')">📋 Bestrafungen</div>
+            <div class="tab" onclick="switchTab('players')">👥 Spielerliste</div>
+            <div class="tab" onclick="switchTab('requests')" id="requestsTab" style="display: none;">📨 Anfragen</div>
             <div class="tab" onclick="switchTab('admin')" id="adminTab" style="display: none;">⚙️ Admin Panel</div>
         </div>
 
@@ -905,8 +1119,8 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="username">Benutzername:</label>
-                            <input type="text" id="username" required placeholder="z.B. MaxMustermann">
+                            <label for="robloxUsername">Roblox Benutzername:</label>
+                            <input type="text" id="robloxUsername" required placeholder="z.B. MaxMustermann">
                         </div>
 
                         <div class="form-group">
@@ -914,7 +1128,7 @@
                             <textarea id="reason" required placeholder="Beschreibe den Grund..."></textarea>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" id="durationGroup" style="display: none;">
                             <label for="duration">Dauer:</label>
                             <input type="text" id="duration" placeholder="z.B. 7 Tage, Permanent">
                         </div>
@@ -925,8 +1139,8 @@
                     <div style="margin-top: 25px;">
                         <h2 style="margin-bottom: 15px;">🔍 Suchen & Filtern</h2>
                         <div class="form-group">
-                            <label for="searchUser">Nach Benutzer:</label>
-                            <input type="text" id="searchUser" placeholder="Benutzername...">
+                            <label for="searchUser">Nach Roblox Benutzer:</label>
+                            <input type="text" id="searchUser" placeholder="Roblox Benutzername...">
                         </div>
                         <div class="form-group">
                             <label for="filterType">Nach Typ:</label>
@@ -955,12 +1169,40 @@
             </div>
         </div>
 
+        <!-- Tab: Spielerliste -->
+        <div class="tab-content" id="playersTab">
+            <div class="content">
+                <h2>👥 Spielerliste</h2>
+                <div class="admin-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div>
+                            <input type="text" id="playerSearch" placeholder="Spieler suchen..." style="width: 300px;">
+                        </div>
+                        <div>
+                            <span style="color: #3b82f6; font-size: 1.2em;">Gesamt: <strong id="totalPlayers">0</strong> Spieler</span>
+                        </div>
+                    </div>
+                    <div id="playersContainer"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Anfragen -->
+        <div class="tab-content" id="requestsTab">
+            <div class="content">
+                <h2>📨 Zugangsanfragen</h2>
+                <div class="admin-section">
+                    <div id="requestsContainer"></div>
+                </div>
+            </div>
+        </div>
+
         <!-- Tab: Admin Panel -->
         <div class="tab-content" id="adminTab">
             <div class="admin-grid">
                 <!-- Benutzerverwaltung -->
                 <div class="admin-section">
-                    <h3>👥 Benutzerverwaltung</h3>
+                    <h3>👥 Team-Mitglieder</h3>
                     <div class="user-list" id="userList"></div>
                 </div>
 
@@ -1060,10 +1302,13 @@
             '1072581651051315240': {
                 rank: 'owner',
                 rankName: 'Owner',
-                permissions: ['ban', 'bolo', 'kick', 'warn', 'mundlich', 'delete', 'create_rank', 'manage_users']
+                permissions: ['ban', 'bolo', 'kick', 'warn', 'mundlich', 'delete', 'create_rank', 'manage_users'],
+                status: 'approved'
             }
         };
         let bannedUsers = {};
+        let accessRequests = {};
+        let players = {};
 
         // Modal Functions
         function showModal(type, title, message, buttons = []) {
@@ -1145,6 +1390,10 @@
             if (tabName === 'admin') {
                 updateUserList();
                 updateRankList();
+            } else if (tabName === 'players') {
+                updatePlayersList();
+            } else if (tabName === 'requests') {
+                updateRequestsList();
             }
         }
 
@@ -1158,6 +1407,8 @@
             const savedTeamMembers = localStorage.getItem('teamMembers');
             const savedBannedUsers = localStorage.getItem('bannedUsers');
             const savedPunishments = localStorage.getItem('punishments');
+            const savedRequests = localStorage.getItem('accessRequests');
+            const savedPlayers = localStorage.getItem('players');
 
             if (savedRanks) customRanks = JSON.parse(savedRanks);
             if (savedTeamMembers) {
@@ -1169,6 +1420,8 @@
                 punishments = JSON.parse(savedPunishments);
                 nextId = Math.max(...punishments.map(p => p.id), 0) + 1;
             }
+            if (savedRequests) accessRequests = JSON.parse(savedRequests);
+            if (savedPlayers) players = JSON.parse(savedPlayers);
 
             if (code) {
                 handleDiscordCallback(code);
@@ -1294,25 +1547,100 @@
                 return;
             }
 
+            const robloxUsername = document.getElementById('robloxUsername').value;
+
             const punishment = {
                 id: nextId++,
                 type: type,
-                username: document.getElementById('username').value,
-                moderator: currentUser.username,
+                robloxUsername: robloxUsername,
+                robloxUserId: null, // Wird durch API gefüllt
+                moderatorDiscord: currentUser.username,
+                moderatorAvatar: currentUser.avatar,
                 moderatorRank: currentUser.rankName,
                 reason: document.getElementById('reason').value,
-                duration: document.getElementById('duration').value || 'Nicht angegeben',
+                duration: type === 'ban' ? (document.getElementById('duration').value || 'Nicht angegeben') : null,
                 date: new Date().toLocaleString('de-DE')
             };
 
-            punishments.unshift(punishment);
-            localStorage.setItem('punishments', JSON.stringify(punishments));
-            
-            this.reset();
-            updateDisplay();
-            updateStats();
-            showSuccess('Bestrafung erfolgreich hinzugefügt!');
+            // Roblox API Call für Avatar
+            fetchRobloxUserData(robloxUsername).then(userData => {
+                if (userData) {
+                    punishment.robloxUserId = userData.id;
+                    punishment.robloxAvatar = userData.avatar;
+                }
+                
+                punishments.unshift(punishment);
+                localStorage.setItem('punishments', JSON.stringify(punishments));
+                
+                this.reset();
+                document.getElementById('durationGroup').style.display = 'none';
+                updateDisplay();
+                updateStats();
+                showSuccess('Bestrafung erfolgreich hinzugefügt!');
+            }).catch(() => {
+                // Falls API fehlschlägt, trotzdem speichern
+                punishments.unshift(punishment);
+                localStorage.setItem('punishments', JSON.stringify(punishments));
+                
+                this.reset();
+                document.getElementById('durationGroup').style.display = 'none';
+                updateDisplay();
+                updateStats();
+                showSuccess('Bestrafung hinzugefügt (Roblox Avatar konnte nicht geladen werden)');
+            });
         });
+
+        // Show/Hide duration field based on punishment type
+        document.getElementById('punishmentType').addEventListener('change', function() {
+            const durationGroup = document.getElementById('durationGroup');
+            if (this.value === 'ban') {
+                durationGroup.style.display = 'block';
+            } else {
+                durationGroup.style.display = 'none';
+                document.getElementById('duration').value = '';
+            }
+        });
+
+        // Roblox API Functions
+        async function fetchRobloxUserData(username) {
+            try {
+                // Hole User ID
+                const userResponse = await fetch(`https://users.roblox.com/v1/usernames/users`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        usernames: [username],
+                        excludeBannedUsers: false
+                    })
+                });
+
+                const userData = await userResponse.json();
+                if (!userData.data || userData.data.length === 0) {
+                    return null;
+                }
+
+                const userId = userData.data[0].id;
+
+                // Hole Avatar Thumbnail
+                const avatarResponse = await fetch(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png&isCircular=false`);
+                const avatarData = await avatarResponse.json();
+
+                let avatarUrl = null;
+                if (avatarData.data && avatarData.data.length > 0) {
+                    avatarUrl = avatarData.data[0].imageUrl;
+                }
+
+                return {
+                    id: userId,
+                    avatar: avatarUrl || `https://www.roblox.com/headshot-thumbnail/image?userId=${userId}&width=150&height=150&format=png`
+                };
+            } catch (error) {
+                console.error('Fehler beim Laden der Roblox Daten:', error);
+                return null;
+            }
+        }
 
         // Search and Filter
         document.getElementById('searchUser').addEventListener('input', updateDisplay);
@@ -1325,9 +1653,9 @@
             const searchMod = document.getElementById('searchMod').value.toLowerCase();
 
             const filtered = punishments.filter(p => {
-                const matchUser = p.username.toLowerCase().includes(searchUser);
+                const matchUser = p.robloxUsername.toLowerCase().includes(searchUser);
                 const matchType = !filterType || p.type === filterType;
-                const matchMod = p.moderator.toLowerCase().includes(searchMod);
+                const matchMod = p.moderatorDiscord.toLowerCase().includes(searchMod);
                 return matchUser && matchType && matchMod;
             });
 
@@ -1337,7 +1665,12 @@
                 return;
             }
 
-            container.innerHTML = filtered.map(p => `
+            container.innerHTML = filtered.map(p => {
+                const avatarUrl = p.robloxAvatar || 'https://via.placeholder.com/60?text=No+Avatar';
+                const durationHTML = p.type === 'ban' && p.duration ? 
+                    `<div class="log-info-item"><strong>Dauer:</strong> ${p.duration}</div>` : '';
+
+                return `
                 <div class="log-item">
                     <div class="log-header">
                         <span class="log-type ${p.type}">${getTypeLabel(p.type)}</span>
@@ -1346,16 +1679,32 @@
                             ${currentUser && currentUser.permissions.includes('delete') ? 'Löschen' : '🔒'}
                         </button>
                     </div>
+                    
+                    <div class="log-user-section">
+                        <img src="${avatarUrl}" alt="Roblox Avatar" class="roblox-avatar" onerror="this.src='https://via.placeholder.com/60?text=No+Avatar'">
+                        <div class="log-user-info">
+                            <div class="log-roblox-username">${p.robloxUsername}</div>
+                            ${p.robloxUserId ? `<div style="color: #b0b8d4; font-size: 0.9em;">User ID: ${p.robloxUserId}</div>` : ''}
+                        </div>
+                    </div>
+
+                    <div class="log-mod-section">
+                        <img src="${p.moderatorAvatar}" alt="Discord Avatar" class="discord-avatar">
+                        <div>
+                            <div style="color: #b0b8d4; font-size: 0.85em;">Bestraft von</div>
+                            <div class="log-mod-name">${p.moderatorDiscord}</div>
+                            <span class="user-rank rank-${p.moderatorRank.toLowerCase()}" style="font-size: 0.75em; padding: 2px 8px;">${p.moderatorRank}</span>
+                        </div>
+                    </div>
+
                     <div class="log-info">
-                        <div class="log-info-item"><strong>Benutzer:</strong> ${p.username}</div>
-                        <div class="log-info-item"><strong>Moderator:</strong> ${p.moderator}</div>
-                        <div class="log-info-item"><strong>Rang:</strong> ${p.moderatorRank}</div>
                         <div class="log-info-item"><strong>Datum:</strong> ${p.date}</div>
-                        <div class="log-info-item"><strong>Dauer:</strong> ${p.duration}</div>
+                        ${durationHTML}
                     </div>
                     <div class="log-reason"><strong>Grund:</strong> ${p.reason}</div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
         }
 
         function getTypeLabel(type) {
