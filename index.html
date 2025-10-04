@@ -1,22 +1,244 @@
-function handleSuccessfulLogin(discordUser) {
-            const avatarUrl = discordUser.avatar
-                ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png?size=128`
-                : `https://cdn.discordapp.com/embed/avatars/${parseInt(discordUser.discriminator || '0') % 5}.png`;
+function deleteRank(rankId) {
+            showConfirm('Möchtest du diesen Rang wirklich löschen?', () => {
+                delete customRanks[rankId];
+                localStorage.setItem('customRanks', JSON.stringify(customRanks));
+                updateRankList();
+                updateRankSelectOptions();
+                showSuccess('Rang erfolgreich gelöscht!');
+            });
+        }
 
-            // Check if user already exists
-            if (teamMembers[discordUser.id]) {
-                currentUser = {
-                    id: discordUser.id,
-                    username: discordUser.global_name || discordUser.username,
-                    discriminator: discordUser.discriminator || '0',
-                    avatar: avatarUrl,
-                    ...teamMembers[discordUser.id]
-                };
+        // Players List Functions
+        function updatePlayersList() {
+            const container = document.getElementById('playersContainer');
+            const playerIds = Object.keys(players);
 
-                sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
-                checkUserStatus();
-            } else {
-                // Create access<!DOCTYPE html>
+            document.getElementById('totalPlayers').textContent = playerIds.length;
+
+            if (playerIds.length === 0) {
+                container.innerHTML = '<div class="no-logs">Keine Spieler gefunden</div>';
+                return;
+            }
+
+            container.innerHTML = playerIds.map(playerId => {
+                const player = players[playerId];
+                const canManage = currentUser.id === OWNER_ID || currentUser.permissions.includes('manage_users');
+
+                return `
+                    <div class="player-card">
+                        <div class="player-info-section">
+                            <div class="player-avatars">
+                                <div class="player-avatar-group">
+                                    <img src="${player.discordAvatar}" alt="Discord" class="discord-avatar" style="width: 50px; height: 50px;">
+                                    ${player.robloxAvatar ? `<img src="${player.robloxAvatar}" alt="Roblox" class="roblox-avatar" style="width: 50px; height: 50px;">` : ''}
+                                </div>
+                            </div>
+                            <div class="player-details">
+                                <div class="player-name">
+                                    ${player.robloxUsername || 'Kein Roblox Account'}
+                                </div>
+                                <div class="player-discord">
+                                    <svg width="20" height="20" viewBox="0 0 127.14 96.36" fill="#5865F2">
+                                        <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/>
+                                    </svg>
+                                    ${player.discordName}
+                                </div>
+                                <div style="color: #888; font-size: 0.9em; margin-top: 5px;">
+                                    Beigetreten: ${player.joinDate}
+                                </div>
+                                <div class="player-roles">
+                                    ${player.roles.map(role => `<span class="role-badge">${role}</span>`).join('')}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="player-actions">
+                            ${canManage ? `
+                                <button class="action-btn edit" onclick="editPlayerRoles('${playerId}')">Rollen bearbeiten</button>
+                                <button class="action-btn edit" onclick="linkRobloxAccount('${playerId}')">Roblox verknüpfen</button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function editPlayerRoles(playerId) {
+            const player = players[playerId];
+            const availableRoles = ['Supporter', 'Moderator', 'Admin', 'Developer', 'Manager', 'VIP'];
+            
+            let rolesHTML = availableRoles.map(role => {
+                const checked = player.roles.includes(role) ? 'checked' : '';
+                return `
+                    <div class="permission-checkbox">
+                        <input type="checkbox" id="role_${role}_${playerId}" value="${role}" ${checked}>
+                        <label for="role_${role}_${playerId}">${role}</label>
+                    </div>
+                `;
+            }).join('');
+
+            const modalContent = `
+                <div style="text-align: left;">
+                    <h3 style="color: #3b82f6; margin-bottom: 15px;">Rollen für ${player.discordName}</h3>
+                    ${rolesHTML}
+                </div>
+            `;
+
+            document.getElementById('modalIcon').innerHTML = '🎭';
+            document.getElementById('modalIcon').className = 'modal-icon success';
+            document.getElementById('modalTitle').textContent = 'Rollen bearbeiten';
+            document.getElementById('modalMessage').innerHTML = modalContent;
+            
+            const buttonsEl = document.getElementById('modalButtons');
+            buttonsEl.innerHTML = '';
+            
+            const cancelBtn = document.createElement('button');
+            cancelBtn.className = 'modal-btn cancel';
+            cancelBtn.textContent = 'Abbrechen';
+            cancelBtn.onclick = () => document.getElementById('modalOverlay').classList.remove('active');
+            
+            const saveBtn = document.createElement('button');
+            saveBtn.className = 'modal-btn success';
+            saveBtn.textContent = 'Speichern';
+            saveBtn.onclick = () => {
+                const selectedRoles = [];
+                availableRoles.forEach(role => {
+                    const checkbox = document.getElementById(`role_${role}_${playerId}`);
+                    if (checkbox && checkbox.checked) {
+                        selectedRoles.push(role);
+                    }
+                });
+                
+                players[playerId].roles = selectedRoles;
+                localStorage.setItem('players', JSON.stringify(players));
+                document.getElementById('modalOverlay').classList.remove('active');
+                updatePlayersList();
+                showSuccess('Rollen erfolgreich aktualisiert!');
+            };
+            
+            buttonsEl.appendChild(cancelBtn);
+            buttonsEl.appendChild(saveBtn);
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+
+        function linkRobloxAccount(playerId) {
+            const robloxUsername = prompt('Gib den Roblox Benutzernamen ein:');
+            if (!robloxUsername) return;
+
+            fetchRobloxUserData(robloxUsername).then(userData => {
+                if (userData) {
+                    players[playerId].robloxUsername = robloxUsername;
+                    players[playerId].robloxAvatar = userData.avatar;
+                    players[playerId].robloxUserId = userData.id;
+                    localStorage.setItem('players', JSON.stringify(players));
+                    updatePlayersList();
+                    showSuccess('Roblox Account erfolgreich verknüpft!');
+                } else {
+                    showError('Roblox Benutzer nicht gefunden!');
+                }
+            });
+        }
+
+        document.getElementById('playerSearch').addEventListener('input', function() {
+            const search = this.value.toLowerCase();
+            document.querySelectorAll('.player-card').forEach(card => {
+                const text = card.textContent.toLowerCase();
+                card.style.display = text.includes(search) ? 'flex' : 'none';
+            });
+        });
+
+        // Access Requests Functions
+        function updateRequestsList() {
+            const container = document.getElementById('requestsContainer');
+            const requestIds = Object.keys(accessRequests).filter(id => accessRequests[id].status === 'pending');
+
+            if (requestIds.length === 0) {
+                container.innerHTML = '<div class="no-logs">Keine ausstehenden Anfragen</div>';
+                return;
+            }
+
+            container.innerHTML = requestIds.map(requestId => {
+                const request = accessRequests[requestId];
+                return `
+                    <div class="request-card">
+                        <div class="request-header">
+                            <div class="request-info">
+                                <img src="${request.avatar}" alt="Avatar" class="discord-avatar" style="width: 50px; height: 50px;">
+                                <div>
+                                    <div style="font-size: 1.2em; font-weight: bold; color: #3b82f6;">${request.username}</div>
+                                    <div style="color: #b0b8d4; font-size: 0.9em;">User ID: ${request.id}</div>
+                                    <div style="color: #888; font-size: 0.85em; margin-top: 5px;">Anfrage vom: ${request.requestDate}</div>
+                                </div>
+                            </div>
+                            <span class="request-badge">AUSSTEHEND</span>
+                        </div>
+                        <div class="request-actions">
+                            <button class="action-btn unban" onclick="approveRequest('${requestId}')">Genehmigen</button>
+                            <button class="action-btn ban" onclick="rejectRequest('${requestId}')">Ablehnen</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function approveRequest(userId) {
+            showModal('warning', 'Anfrage genehmigen', 'Welchen Rang möchtest du diesem Benutzer zuweisen?', [
+                { text: 'Abbrechen', class: 'cancel', callback: null },
+                { text: 'Supporter', class: 'success', callback: () => assignRankToRequest(userId, 'supporter', 'Supporter') },
+                { text: 'Moderator', class: 'success', callback: () => assignRankToRequest(userId, 'moderator', 'Moderator') }
+            ]);
+        }
+
+        function assignRankToRequest(userId, rankType, rankName) {
+            const request = accessRequests[userId];
+            
+            // Default permissions based on rank
+            let permissions = [];
+            if (rankType === 'supporter') {
+                permissions = ['warn', 'mundlich'];
+            } else if (rankType === 'moderator') {
+                permissions = ['ban', 'kick', 'warn', 'mundlich', 'bolo', 'delete'];
+            }
+
+            teamMembers[userId] = {
+                rank: rankType,
+                rankName: rankName,
+                permissions: permissions,
+                status: 'approved'
+            };
+
+            accessRequests[userId].status = 'approved';
+
+            // Add to players list
+            players[userId] = {
+                discordId: userId,
+                discordName: request.username,
+                discordAvatar: request.avatar,
+                roles: [rankName],
+                joinDate: new Date().toLocaleString('de-DE'),
+                robloxUsername: null,
+                robloxAvatar: null
+            };
+
+            localStorage.setItem('teamMembers', JSON.stringify(teamMembers));
+            localStorage.setItem('accessRequests', JSON.stringify(accessRequests));
+            localStorage.setItem('players', JSON.stringify(players));
+
+            updateRequestsList();
+            updatePlayersList();
+            showSuccess(`Anfrage genehmigt! ${request.username} wurde als ${rankName} hinzugefügt.`);
+        }
+
+        function rejectRequest(userId) {
+            showConfirm('Möchtest du diese Anfrage wirklich ablehnen?', () => {
+                delete accessRequests[userId];
+                localStorage.setItem('accessRequests', JSON.stringify(accessRequests));
+                updateRequestsList();
+                showSuccess('Anfrage wurde abgelehnt!');
+            });
+        }
+    </script>
+</body>
+</html><!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -1461,25 +1683,50 @@ function handleSuccessfulLogin(discordUser) {
         }
 
         function handleSuccessfulLogin(discordUser) {
-            if (!teamMembers[discordUser.id]) {
-                showError('Zugriff verweigert! Du bist nicht im Team.');
-                return;
-            }
-
             const avatarUrl = discordUser.avatar
                 ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png?size=128`
                 : `https://cdn.discordapp.com/embed/avatars/${parseInt(discordUser.discriminator || '0') % 5}.png`;
 
-            currentUser = {
-                id: discordUser.id,
-                username: discordUser.global_name || discordUser.username,
-                discriminator: discordUser.discriminator || '0',
-                avatar: avatarUrl,
-                ...teamMembers[discordUser.id]
-            };
+            // Check if user already exists
+            if (teamMembers[discordUser.id]) {
+                currentUser = {
+                    id: discordUser.id,
+                    username: discordUser.global_name || discordUser.username,
+                    discriminator: discordUser.discriminator || '0',
+                    avatar: avatarUrl,
+                    ...teamMembers[discordUser.id]
+                };
 
-            sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
-            checkUserStatus();
+                sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+                checkUserStatus();
+            } else {
+                // Create access request
+                accessRequests[discordUser.id] = {
+                    id: discordUser.id,
+                    username: discordUser.global_name || discordUser.username,
+                    discriminator: discordUser.discriminator || '0',
+                    avatar: avatarUrl,
+                    requestDate: new Date().toLocaleString('de-DE'),
+                    status: 'pending'
+                };
+                localStorage.setItem('accessRequests', JSON.stringify(accessRequests));
+
+                showPendingScreen();
+            }
+        }
+
+        function showPendingScreen() {
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('mainContainer').innerHTML = `
+                <div class="pending-notice">
+                    <h2>⏳ Anfrage ausstehend</h2>
+                    <p>Deine Zugangsanfrage wurde an die Administratoren gesendet.</p>
+                    <p>Bitte warte, bis ein Administrator oder höher deine Anfrage genehmigt.</p>
+                    <p style="margin-top: 20px;">Du kannst diese Seite schließen und später wiederkommen.</p>
+                    <button class="logout-btn" onclick="logout()" style="margin-top: 20px;">Zurück zum Login</button>
+                </div>
+            `;
+            document.getElementById('mainContainer').style.display = 'block';
         }
 
         function checkUserStatus() {
@@ -1513,6 +1760,12 @@ function handleSuccessfulLogin(discordUser) {
             document.getElementById('loginContainer').style.display = 'none';
             document.getElementById('mainContainer').style.display = 'block';
             document.getElementById('mainContainer').classList.add('active');
+            
+            // Reset innerHTML in case it was changed
+            if (!document.getElementById('logsTab')) {
+                location.reload();
+                return;
+            }
 
             document.getElementById('userName').textContent = currentUser.username;
             document.getElementById('userAvatar').src = currentUser.avatar;
@@ -1524,9 +1777,32 @@ function handleSuccessfulLogin(discordUser) {
                 document.querySelector('.tab[onclick="switchTab(\'admin\')"]').style.display = 'block';
             }
 
+            // Show requests tab if user can manage
+            const canManageRequests = currentUser.id === OWNER_ID || 
+                                     currentUser.permissions.includes('manage_users') || 
+                                     currentUser.rank === 'admin';
+            if (canManageRequests) {
+                document.getElementById('requestsTab').style.display = 'block';
+            }
+
+            // Add player to players list
+            if (!players[currentUser.id]) {
+                players[currentUser.id] = {
+                    discordId: currentUser.id,
+                    discordName: currentUser.username,
+                    discordAvatar: currentUser.avatar,
+                    roles: [currentUser.rankName],
+                    joinDate: new Date().toLocaleString('de-DE'),
+                    robloxUsername: null,
+                    robloxAvatar: null
+                };
+                localStorage.setItem('players', JSON.stringify(players));
+            }
+
             updateDisplay();
             updateStats();
             updateRankSelectOptions();
+            updatePlayersList();
         }
 
         function logout() {
