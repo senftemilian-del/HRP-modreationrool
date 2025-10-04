@@ -48,11 +48,27 @@
             gap: 10px;
             width: 100%;
             transition: all 0.3s;
+            text-decoration: none;
         }
 
         .discord-btn:hover {
             background: #4752C4;
             transform: translateY(-2px);
+        }
+
+        .loading {
+            display: none;
+            color: #6c8fff;
+            margin-top: 20px;
+        }
+
+        .error-message {
+            background: #ff4444;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
         }
 
         .container {
@@ -462,13 +478,16 @@
     <div class="login-container" id="loginContainer">
         <h1>⚖️ Bestrafungs-Log System</h1>
         <p style="color: #b0b8d4; margin-bottom: 30px;">Melde dich mit Discord an, um fortzufahren</p>
-        <button class="discord-btn" onclick="loginWithDiscord()">
+        <a href="https://discord.com/oauth2/authorize?client_id=1419243337826832406&response_type=code&redirect_uri=https%3A%2F%2Fhrp-modreationrool.vercel.app%2F&scope=identify" class="discord-btn">
             <svg width="24" height="24" viewBox="0 0 127.14 96.36" fill="currentColor">
                 <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/>
             </svg>
             Mit Discord anmelden
-        </button>
-        <p style="color: #7a8299; margin-top: 30px; font-size: 12px;">In einer echten Implementierung würde hier OAuth2 verwendet werden</p>
+        </a>
+        <div class="loading" id="loading">
+            <p>⏳ Autorisierung läuft...</p>
+        </div>
+        <div class="error-message" id="errorMessage"></div>
     </div>
 
     <!-- Haupt-App -->
@@ -590,51 +609,92 @@
                 rankName: 'Owner',
                 permissions: ['ban', 'kick', 'warn', 'mute', 'delete']
             }
-            // Weitere Team-Mitglieder können hier hinzugefügt werden
-            // 'DISCORD_ID': { rank: 'admin', rankName: 'Admin', permissions: [...] }
+            // Weitere Team-Mitglieder hier hinzufügen:
+            // 'DISCORD_ID': { rank: 'admin', rankName: 'Admin', permissions: ['ban', 'kick', 'warn', 'mute'] }
         };
 
         let currentUser = null;
         let punishments = [];
         let nextId = 1;
 
-        function loginWithDiscord() {
-            // In einer echten Implementierung würde hier Discord OAuth2 verwendet werden
-            // Für diese Demo simulieren wir den Login
+        // Prüfe ob OAuth Code in URL ist
+        window.addEventListener('load', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
             
-            // Simuliere Discord API Response (würde normalerweise von Discord kommen)
-            const discordUserId = prompt('Gib deine Discord User ID ein:');
-            
-            if (!discordUserId) {
-                alert('Login abgebrochen');
-                return;
+            if (code) {
+                document.getElementById('loading').style.display = 'block';
+                handleDiscordCallback(code);
+            } else {
+                // Prüfe ob bereits eingeloggt
+                const savedUser = sessionStorage.getItem('currentUser');
+                if (savedUser) {
+                    currentUser = JSON.parse(savedUser);
+                    showMainApp();
+                }
             }
-            
+        });
+
+        async function handleDiscordCallback(code) {
+            try {
+                // Rufe Backend API auf
+                const response = await fetch(`/api/discord-auth?code=${code}`);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Login fehlgeschlagen');
+                }
+                
+                // Discord Benutzer erfolgreich abgerufen
+                handleSuccessfulLogin(data);
+                
+                // Entferne Code aus URL
+                window.history.replaceState({}, document.title, "/");
+                
+            } catch (error) {
+                console.error('Login Fehler:', error);
+                document.getElementById('loading').style.display = 'none';
+                const errorDiv = document.getElementById('errorMessage');
+                errorDiv.textContent = '❌ ' + error.message;
+                errorDiv.style.display = 'block';
+            }
+        }
+
+        function handleSuccessfulLogin(discordUser) {
             // Prüfe ob Benutzer im Team ist
-            if (!teamMembers[discordUserId]) {
-                alert('❌ Zugriff verweigert!\n\nDu bist nicht im Team. Nur autorisierte Team-Mitglieder haben Zugriff auf dieses System.');
+            if (!teamMembers[discordUser.id]) {
+                document.getElementById('loading').style.display = 'none';
+                const errorDiv = document.getElementById('errorMessage');
+                errorDiv.textContent = '❌ Zugriff verweigert! Du bist nicht im Team.';
+                errorDiv.style.display = 'block';
                 return;
             }
             
-            // Simuliere Benutzerdaten (würde normalerweise von Discord API kommen)
-            const isOwner = discordUserId === OWNER_ID;
-            const username = isOwner ? 'Owner' : 'TeamMitglied';
-            const discriminator = Math.floor(Math.random() * 9999).toString().padStart(4, '0');
-            const avatarIndex = Math.floor(Math.random() * 5);
+            // Erstelle Avatar URL
+            const avatarUrl = discordUser.avatar
+                ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png?size=128`
+                : `https://cdn.discordapp.com/embed/avatars/${parseInt(discordUser.discriminator || '0') % 5}.png`;
             
+            // Erstelle Benutzer-Objekt
             currentUser = {
-                id: discordUserId,
-                username: username,
-                discriminator: discriminator,
-                avatar: `https://cdn.discordapp.com/embed/avatars/${avatarIndex}.png`,
-                ...teamMembers[discordUserId]
+                id: discordUser.id,
+                username: discordUser.global_name || discordUser.username,
+                discriminator: discordUser.discriminator || '0',
+                avatar: avatarUrl,
+                ...teamMembers[discordUser.id]
             };
             
+            // Speichere Login-Status
+            sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+            
+            showMainApp();
+        }
+
+        function showMainApp() {
             document.getElementById('loginContainer').style.display = 'none';
             document.getElementById('mainContainer').classList.add('active');
             
-            // Benutzer-Info anzeigen
-            document.getElementById('userName').textContent = currentUser.username + '#' + currentUser.discriminator;
+            document.getElementById('userName').textContent = currentUser.username;
             document.getElementById('userAvatar').src = currentUser.avatar;
             document.getElementById('userRank').textContent = currentUser.rankName;
             document.getElementById('userRank').className = 'user-rank rank-' + currentUser.rank;
@@ -646,8 +706,11 @@
 
         function logout() {
             currentUser = null;
+            sessionStorage.removeItem('currentUser');
             document.getElementById('mainContainer').classList.remove('active');
             document.getElementById('loginContainer').style.display = 'block';
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
         }
 
         function updatePermissions() {
@@ -656,16 +719,14 @@
             const submitBtn = document.getElementById('submitBtn');
             const noticeDiv = document.getElementById('permissionNotice');
             
-            // Alle Optionen zuerst aktivieren
             Array.from(typeSelect.options).forEach(option => {
                 if (option.value) {
                     option.disabled = !currentUser.permissions.includes(option.value);
                 }
             });
             
-            // Prüfe ob Benutzer überhaupt Rechte hat
             if (currentUser.permissions.length === 0) {
-                noticeDiv.innerHTML = '<div class="permission-notice">⚠️ Du hast keine Berechtigungen um Bestrafungen zu erstellen</div>';
+                noticeDiv.innerHTML = '<div class="permission-notice">⚠️ Du hast keine Berechtigungen</div>';
                 form.style.opacity = '0.5';
                 submitBtn.disabled = true;
             } else {
@@ -674,15 +735,13 @@
             }
         }
 
-        // Formular absenden
         document.getElementById('punishmentForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const type = document.getElementById('punishmentType').value;
             
-            // Berechtigungsprüfung
             if (!currentUser.permissions.includes(type)) {
-                alert('⚠️ Du hast keine Berechtigung für diese Bestrafungsart!');
+                alert('⚠️ Keine Berechtigung!');
                 return;
             }
             
@@ -690,7 +749,7 @@
                 id: nextId++,
                 type: type,
                 username: document.getElementById('username').value,
-                moderator: currentUser.username + '#' + currentUser.discriminator,
+                moderator: currentUser.username,
                 moderatorRank: currentUser.rankName,
                 reason: document.getElementById('reason').value,
                 duration: document.getElementById('duration').value || 'Nicht angegeben',
@@ -698,16 +757,11 @@
             };
 
             punishments.unshift(punishment);
-            
-            // Formular zurücksetzen
             this.reset();
-            
-            // Anzeige aktualisieren
             updateDisplay();
             updateStats();
         });
 
-        // Such- und Filterfunktionen
         document.getElementById('searchUser').addEventListener('input', updateDisplay);
         document.getElementById('filterType').addEventListener('change', updateDisplay);
         document.getElementById('searchMod').addEventListener('input', updateDisplay);
@@ -742,53 +796,34 @@
                         </button>
                     </div>
                     <div class="log-info">
-                        <div class="log-info-item">
-                            <strong>Benutzer:</strong> ${p.username}
-                        </div>
-                        <div class="log-info-item">
-                            <strong>Moderator:</strong> ${p.moderator}
-                        </div>
-                        <div class="log-info-item">
-                            <strong>Rang:</strong> ${p.moderatorRank}
-                        </div>
-                        <div class="log-info-item">
-                            <strong>Datum:</strong> ${p.date}
-                        </div>
-                        <div class="log-info-item">
-                            <strong>Dauer:</strong> ${p.duration}
-                        </div>
+                        <div class="log-info-item"><strong>Benutzer:</strong> ${p.username}</div>
+                        <div class="log-info-item"><strong>Moderator:</strong> ${p.moderator}</div>
+                        <div class="log-info-item"><strong>Rang:</strong> ${p.moderatorRank}</div>
+                        <div class="log-info-item"><strong>Datum:</strong> ${p.date}</div>
+                        <div class="log-info-item"><strong>Dauer:</strong> ${p.duration}</div>
                     </div>
-                    <div class="log-reason">
-                        <strong>Grund:</strong> ${p.reason}
-                    </div>
+                    <div class="log-reason"><strong>Grund:</strong> ${p.reason}</div>
                 </div>
             `).join('');
         }
 
         function handleLogClick(element) {
             element.classList.add('clicked');
-            setTimeout(() => {
-                element.classList.remove('clicked');
-            }, 600);
+            setTimeout(() => element.classList.remove('clicked'), 600);
         }
 
         function getTypeLabel(type) {
-            const labels = {
-                'ban': 'BAN',
-                'kick': 'KICK',
-                'warn': 'WARNUNG',
-                'mute': 'MUTE'
-            };
+            const labels = { 'ban': 'BAN', 'kick': 'KICK', 'warn': 'WARNUNG', 'mute': 'MUTE' };
             return labels[type] || type.toUpperCase();
         }
 
         function deletePunishment(id) {
             if (!currentUser.permissions.includes('delete')) {
-                alert('⚠️ Du hast keine Berechtigung zum Löschen!');
+                alert('⚠️ Keine Berechtigung zum Löschen!');
                 return;
             }
             
-            if (confirm('Möchtest du diesen Eintrag wirklich löschen?')) {
+            if (confirm('Eintrag wirklich löschen?')) {
                 punishments = punishments.filter(p => p.id !== id);
                 updateDisplay();
                 updateStats();
@@ -798,9 +833,3 @@
         function updateStats() {
             document.getElementById('totalLogs').textContent = punishments.length;
             document.getElementById('totalBans').textContent = punishments.filter(p => p.type === 'ban').length;
-            document.getElementById('totalKicks').textContent = punishments.filter(p => p.type === 'kick').length;
-            document.getElementById('totalWarns').textContent = punishments.filter(p => p.type === 'warn').length;
-        }
-    </script>
-</body>
-</html>
