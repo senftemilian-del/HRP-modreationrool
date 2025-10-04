@@ -506,6 +506,16 @@
             color: white;
         }
 
+        .log-type.bolo {
+            background: linear-gradient(135deg, #9933ff 0%, #6600cc 100%);
+            color: white;
+        }
+
+        .log-type.mundlich {
+            background: linear-gradient(135deg, #00ccff 0%, #0088cc 100%);
+            color: white;
+        }
+
         .log-type.warn {
             background: linear-gradient(135deg, #ffdd00 0%, #ffaa00 100%);
             color: #333;
@@ -687,9 +697,10 @@
                         <select id="punishmentType" required>
                             <option value="">-- Bitte wählen --</option>
                             <option value="ban">Ban</option>
+                            <option value="bolo">Bolo</option>
                             <option value="kick">Kick</option>
                             <option value="warn">Warnung</option>
-                            <option value="mute">Mute</option>
+                            <option value="mundlich">Mündliche Warnung</option>
                         </select>
                     </div>
 
@@ -723,9 +734,10 @@
                         <select id="filterType">
                             <option value="">Alle anzeigen</option>
                             <option value="ban">Nur Bans</option>
+                            <option value="bolo">Nur Bolos</option>
                             <option value="kick">Nur Kicks</option>
                             <option value="warn">Nur Warnungen</option>
-                            <option value="mute">Nur Mutes</option>
+                            <option value="mundlich">Nur Mündliche Warnungen</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -819,7 +831,7 @@
             '1072581651051315240': {
                 rank: 'owner',
                 rankName: 'Owner',
-                permissions: ['ban', 'kick', 'warn', 'mute', 'delete']
+                permissions: ['ban', 'bolo', 'kick', 'warn', 'mundlich', 'delete']
             }
         };
 
@@ -1072,7 +1084,13 @@
         }
 
         function getTypeLabel(type) {
-            const labels = { 'ban': 'BAN', 'kick': 'KICK', 'warn': 'WARNUNG', 'mute': 'MUTE' };
+            const labels = { 
+                'ban': 'BAN', 
+                'bolo': 'BOLO',
+                'kick': 'KICK', 
+                'warn': 'WARNUNG',
+                'mundlich': 'MÜNDLICHE WARNUNG'
+            };
             return labels[type] || type.toUpperCase();
         }
 
