@@ -1207,26 +1207,36 @@
             event.preventDefault();
             
             // Redirect to Discord OAuth2
-            const clientId = '1419243337826832406';
-            const redirectUri = encodeURIComponent(window.location.origin + window.location.pathname);
-            const scope = 'identify';
-            
-            window.location.href = `https://discord.com/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=${scope}`;
+            window.location.href = 'https://discord.com/oauth2/authorize?client_id=1419243337826832406&response_type=code&redirect_uri=https%3A%2F%2Fhrp-moderationlogging.vercel.app%2F&scope=identify';
         }
 
         function handleOAuthCallback(code) {
-            // In production, this would call your backend to exchange the code for user info
-            // For now, simulate with a mock user (replace with actual API call)
-            setTimeout(() => {
-                const mockUser = {
-                    id: '1072581651051315240', // This would come from Discord API
-                    username: 'DiscordUser',
-                    discriminator: '0001',
-                    avatar: 'https://cdn.discordapp.com/embed/avatars/1.png'
-                };
-                
-                processLogin(mockUser);
-            }, 500);
+            // In production, you need a backend endpoint to exchange the code for user data
+            // This is a placeholder - you'll need to implement your backend API
+            
+            // For now, we'll show a message that backend is needed
+            console.log('OAuth Code received:', code);
+            
+            // TODO: Replace this with actual backend call
+            // Example:
+            // fetch('/api/discord/callback', {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify({ code: code })
+            // })
+            // .then(res => res.json())
+            // .then(userData => processLogin(userData));
+            
+            // Temporary: For testing purposes only
+            // You should remove this and implement proper backend authentication
+            const mockUser = {
+                id: '1072581651051315240', // Replace with actual user ID from Discord API
+                username: 'TestUser',
+                discriminator: '0001',
+                avatar: 'https://cdn.discordapp.com/embed/avatars/1.png'
+            };
+            
+            processLogin(mockUser);
         }
 
         function processLogin(userData) {
