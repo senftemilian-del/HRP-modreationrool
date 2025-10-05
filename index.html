@@ -1205,30 +1205,23 @@
 
         function handleDiscordLogin(event) {
             event.preventDefault();
-            // Simulate login with test user
-            simulateLogin();
-        }
-
-        function simulateLogin() {
-            // For testing - you can change the ID here
-            const testUserId = '1072581651051315240'; // Change this to test different users
             
-            const mockUser = {
-                id: testUserId,
-                username: 'TestUser',
-                discriminator: '1234',
-                avatar: 'https://cdn.discordapp.com/embed/avatars/' + Math.floor(Math.random() * 6) + '.png'
-            };
+            // Redirect to Discord OAuth2
+            const clientId = '1419243337826832406';
+            const redirectUri = encodeURIComponent(window.location.origin + window.location.pathname);
+            const scope = 'identify';
             
-            processLogin(mockUser);
+            window.location.href = `https://discord.com/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=${scope}`;
         }
 
         function handleOAuthCallback(code) {
+            // In production, this would call your backend to exchange the code for user info
+            // For now, simulate with a mock user (replace with actual API call)
             setTimeout(() => {
                 const mockUser = {
-                    id: '234567890123456789',
+                    id: '1072581651051315240', // This would come from Discord API
                     username: 'DiscordUser',
-                    discriminator: '5678',
+                    discriminator: '0001',
                     avatar: 'https://cdn.discordapp.com/embed/avatars/1.png'
                 };
                 
@@ -1428,19 +1421,39 @@
 
         function loadUsersList() {
             const listContainer = document.getElementById('usersList');
-            const allUsers = Object.keys(approvedUsers).map(userId => ({
-                id: userId,
-                ...approvedUsers[userId],
-                status: blacklistedUsers[userId] ? 'blacklisted' : 'approved'
-            }));
+            
+            // Get all approved users
+            const allUsers = Object.keys(approvedUsers).map(userId => {
+                const user = approvedUsers[userId];
+                return {
+                    id: userId,
+                    ...user,
+                    status: blacklistedUsers[userId] ? 'blacklisted' : 'approved'
+                };
+            });
+            
+            // Add blacklisted users who aren't in approved list
+            Object.keys(blacklistedUsers).forEach(userId => {
+                if (!approvedUsers[userId]) {
+                    allUsers.push({
+                        id: userId,
+                        username: blacklistedUsers[userId].username || 'Unbekannt',
+                        rank: 'blacklisted',
+                        status: 'blacklisted',
+                        approvedAt: blacklistedUsers[userId].blacklistedAt,
+                        approvedBy: blacklistedUsers[userId].blacklistedBy,
+                        avatar: blacklistedUsers[userId].avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'
+                    });
+                }
+            });
             
             if (allUsers.length === 0) {
-                listContainer.innerHTML = '<div class="no-logs">Keine genehmigten Benutzer vorhanden</div>';
+                listContainer.innerHTML = '<div class="no-logs">Keine Benutzer vorhanden</div>';
                 return;
             }
             
             listContainer.innerHTML = allUsers.map(user => `
-                <div class="user-card" data-username="${(user.username || user.id).toLowerCase()}">
+                <div class="user-card" data-username="${(user.username || user.id).toLowerCase()}" data-id="${user.id}">
                     <div class="user-header">
                         <img src="${user.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="Avatar" class="user-avatar">
                         <div class="user-info">
@@ -1452,13 +1465,13 @@
                             </h3>
                             <small>Discord ID: ${user.id}</small>
                             <div style="margin-top: 5px;">
-                                <span class="user-rank rank-${user.rank}">${user.rank}</span>
+                                <span class="user-rank rank-${user.rank}">${user.rank === 'blacklisted' ? 'Blacklisted' : user.rank}</span>
                             </div>
                         </div>
                     </div>
                     <div style="font-size: 0.85em; color: #6b7280; margin: 15px 0;">
-                        📅 Genehmigt am: ${new Date(user.approvedAt).toLocaleString('de-DE')}<br>
-                        👤 Genehmigt von: ${user.approvedBy === OWNER_ID ? 'Owner' : user.approvedBy}
+                        📅 ${user.status === 'blacklisted' ? 'Blacklisted' : 'Genehmigt'} am: ${new Date(user.approvedAt).toLocaleString('de-DE')}<br>
+                        👤 Von: ${user.approvedBy === OWNER_ID ? 'Owner' : user.approvedBy}
                     </div>
                     <div class="user-actions">
                         ${user.status !== 'blacklisted' ? `
@@ -1544,16 +1557,28 @@
         function blacklistUser(userId, username) {
             if (!confirm(`Möchtest du ${username || 'diesen Benutzer'} wirklich blacklisten? Er kann keine Anfragen mehr stellen.`)) return;
             
+            const user = approvedUsers[userId];
+            
             blacklistedUsers[userId] = {
                 blacklistedAt: new Date().toISOString(),
                 blacklistedBy: currentUser.id,
-                type: 'blacklist'
+                type: 'blacklist',
+                username: username,
+                avatar: user ? user.avatar : 'https://cdn.discordapp.com/embed/avatars/0.png'
             };
             
             delete approvedUsers[userId];
             
             localStorage.setItem('blacklistedUsers', JSON.stringify(blacklistedUsers));
             localStorage.setItem('approvedUsers', JSON.stringify(approvedUsers));
+            
+            // Update requests list
+            accessRequests.forEach(req => {
+                if (req.userId === userId) {
+                    req.status = 'blacklisted';
+                }
+            });
+            localStorage.setItem('accessRequests', JSON.stringify(accessRequests));
             
             loadAccessRequests();
             loadUsersList();
@@ -1630,25 +1655,48 @@
         }
 
         // Punishment Form Handler
-        const punishmentForm = document.getElementById('punishmentForm');
-        if (punishmentForm) {
-            punishmentForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const type = document.getElementById('punishmentType').value;
-                const username = document.getElementById('robloxUsername').value;
-                const reason = document.getElementById('reason').value;
-                
-                if (!type || !username || !reason) {
-                    alert('❌ Bitte fülle alle Felder aus!');
-                    return;
-                }
-                
-                alert(`✅ Bestrafung hinzugefügt!\n\n📋 Typ: ${type}\n👤 Benutzer: ${username}\n📝 Grund: ${reason}`);
-                
-                this.reset();
-            });
-        }
+        document.addEventListener('DOMContentLoaded', function() {
+            const punishmentForm = document.getElementById('punishmentForm');
+            if (punishmentForm) {
+                punishmentForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const type = document.getElementById('punishmentType').value;
+                    const username = document.getElementById('robloxUsername').value.trim();
+                    const reason = document.getElementById('reason').value.trim();
+                    
+                    if (!type || !username || !reason) {
+                        alert('❌ Bitte fülle alle Felder aus!');
+                        return;
+                    }
+                    
+                    if (reason.length < 10) {
+                        alert('❌ Der Grund muss mindestens 10 Zeichen lang sein!');
+                        return;
+                    }
+                    
+                    // Save punishment
+                    const punishment = {
+                        id: Date.now(),
+                        type: type,
+                        username: username,
+                        reason: reason,
+                        moderator: currentUser.username,
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    // Get existing punishments
+                    let punishments = JSON.parse(localStorage.getItem('punishments') || '[]');
+                    punishments.unshift(punishment);
+                    localStorage.setItem('punishments', JSON.stringify(punishments));
+                    
+                    alert(`✅ Bestrafung hinzugefügt!\n\n📋 Typ: ${type}\n👤 Benutzer: ${username}\n📝 Grund: ${reason}`);
+                    
+                    this.reset();
+                    loadPunishments();
+                });
+            }
+        });
     </script>
 </body>
 </html>
