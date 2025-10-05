@@ -1360,14 +1360,15 @@
             if (currentUser.rank === 'owner' || currentUser.rank === 'admin') {
                 document.getElementById('navRequests').style.display = 'flex';
                 document.getElementById('navAdmin').style.display = 'flex';
-                loadAccessRequests();
-                loadUsersList();
             }
             
             document.getElementById('pendingContainer').classList.remove('active');
             document.getElementById('logsContainer').classList.add('active');
             
+            // Load all data
             loadPunishments();
+            loadAccessRequests();
+            loadUsersList();
         }
 
         function updateUserProfile() {
@@ -1391,10 +1392,12 @@
 
         function loadAccessRequests() {
             const listContainer = document.getElementById('requestsList');
+            if (!listContainer) return;
+            
             const pendingRequests = accessRequests.filter(r => r.status === 'pending');
             
             if (pendingRequests.length === 0) {
-                listContainer.innerHTML = '<div class="no-logs">Keine offenen Anfragen vorhanden</div>';
+                listContainer.innerHTML = '<div class="no-logs">📭 Keine offenen Anfragen vorhanden</div>';
                 return;
             }
             
@@ -1402,17 +1405,19 @@
                 <div class="request-card" data-username="${request.username.toLowerCase()}">
                     <div class="request-header">
                         <img src="${request.avatar}" alt="Avatar" class="request-avatar">
-                        <div class="request-info">
+                        <div class="request-info" style="flex: 1;">
                             <h3>${request.username}</h3>
-                            <small>Discord ID: ${request.userId}</small>
+                            <small style="display: block; margin-top: 3px;">
+                                <strong style="color: #3b82f6;">Discord ID:</strong> ${request.userId}
+                            </small>
+                            <small style="display: block; margin-top: 3px; color: #6b7280;">
+                                📅 Angefragt am: ${new Date(request.timestamp).toLocaleString('de-DE')}
+                            </small>
                         </div>
                     </div>
                     <div class="request-reason">
-                        <strong style="color: #3b82f6;">Grund:</strong><br>
+                        <strong style="color: #3b82f6; display: block; margin-bottom: 8px;">📝 Grund der Anfrage:</strong>
                         ${request.reason}
-                    </div>
-                    <div style="font-size: 0.85em; color: #6b7280; margin-bottom: 15px;">
-                        📅 Angefragt am: ${new Date(request.timestamp).toLocaleString('de-DE')}
                     </div>
                     <div class="request-actions">
                         <button class="action-btn approve" onclick="approveRequest(${request.id})">
@@ -1421,7 +1426,7 @@
                         <button class="action-btn reject" onclick="rejectRequest(${request.id})">
                             ✗ Ablehnen
                         </button>
-                        <button class="action-btn blacklist" onclick="blacklistUser('${request.userId}', '${request.username}')">
+                        <button class="action-btn blacklist" onclick="blacklistUser('${request.userId}', '${request.username.replace(/'/g, "\\'")}')">
                             🚫 Blacklisten
                         </button>
                     </div>
@@ -1431,6 +1436,7 @@
 
         function loadUsersList() {
             const listContainer = document.getElementById('usersList');
+            if (!listContainer) return;
             
             // Get all approved users
             const allUsers = Object.keys(approvedUsers).map(userId => {
@@ -1458,7 +1464,7 @@
             });
             
             if (allUsers.length === 0) {
-                listContainer.innerHTML = '<div class="no-logs">Keine Benutzer vorhanden</div>';
+                listContainer.innerHTML = '<div class="no-logs">👥 Keine Benutzer im System vorhanden</div>';
                 return;
             }
             
@@ -1466,22 +1472,28 @@
                 <div class="user-card" data-username="${(user.username || user.id).toLowerCase()}" data-id="${user.id}">
                     <div class="user-header">
                         <img src="${user.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="Avatar" class="user-avatar">
-                        <div class="user-info">
+                        <div class="user-info" style="flex: 1;">
                             <h3>
                                 ${user.username || 'Unbekannt'}
                                 <span class="user-status status-${user.status}">
                                     ${user.status === 'blacklisted' ? '🚫 Blacklisted' : '✅ Aktiv'}
                                 </span>
                             </h3>
-                            <small>Discord ID: ${user.id}</small>
-                            <div style="margin-top: 5px;">
-                                <span class="user-rank rank-${user.rank}">${user.rank === 'blacklisted' ? 'Blacklisted' : user.rank}</span>
+                            <small style="display: block; margin-top: 5px;">
+                                <strong style="color: #3b82f6;">Discord ID:</strong> ${user.id}
+                            </small>
+                            <div style="margin-top: 8px;">
+                                <span class="user-rank rank-${user.rank}">${user.rank === 'blacklisted' ? 'Blacklisted' : user.rank.charAt(0).toUpperCase() + user.rank.slice(1)}</span>
                             </div>
                         </div>
                     </div>
-                    <div style="font-size: 0.85em; color: #6b7280; margin: 15px 0;">
-                        📅 ${user.status === 'blacklisted' ? 'Blacklisted' : 'Genehmigt'} am: ${new Date(user.approvedAt).toLocaleString('de-DE')}<br>
-                        👤 Von: ${user.approvedBy === OWNER_ID ? 'Owner' : user.approvedBy}
+                    <div style="font-size: 0.9em; color: #6b7280; margin: 15px 0; padding: 12px; background: rgba(59, 130, 246, 0.05); border-radius: 10px; border-left: 3px solid #3b82f6;">
+                        <div style="margin-bottom: 5px;">
+                            📅 <strong>${user.status === 'blacklisted' ? 'Blacklisted' : 'Genehmigt'}</strong> am: ${new Date(user.approvedAt).toLocaleString('de-DE')}
+                        </div>
+                        <div>
+                            👤 <strong>Von:</strong> ${user.approvedBy === OWNER_ID ? 'Owner' : user.approvedBy}
+                        </div>
                     </div>
                     <div class="user-actions">
                         ${user.status !== 'blacklisted' ? `
@@ -1491,7 +1503,7 @@
                             <button class="action-btn ban" onclick="banUser('${user.id}')">
                                 🚫 Bannen
                             </button>
-                            <button class="action-btn blacklist" onclick="blacklistUser('${user.id}', '${user.username}')">
+                            <button class="action-btn blacklist" onclick="blacklistUser('${user.id}', '${(user.username || 'Unbekannt').replace(/'/g, "\\'")}')">
                                 ⛔ Blacklisten
                             </button>
                         ` : `
@@ -1524,7 +1536,7 @@
             loadAccessRequests();
             loadUsersList();
             
-            alert(`✅ Zugriff für ${request.username} wurde genehmigt!`);
+            alert(`✅ Zugriff für ${request.username} wurde genehmigt!\n\n👤 Benutzer: ${request.username}\n🆔 Discord ID: ${request.userId}\n🎖️ Rang: Moderator`);
         }
 
         function rejectRequest(requestId) {
