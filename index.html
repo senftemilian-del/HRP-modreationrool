@@ -20,7 +20,6 @@
             position: relative;
         }
 
-        /* Base dark gradient */
         body::before {
             content: '';
             position: fixed;
@@ -32,7 +31,6 @@
             z-index: 0;
         }
 
-        /* Animated circuit board pattern */
         body::after {
             content: '';
             position: fixed;
@@ -43,98 +41,17 @@
             z-index: 0;
             background-image:
                 linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px),
-                radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.1) 0%, transparent 15%),
-                radial-gradient(circle at 75% 75%, rgba(37, 99, 235, 0.08) 0%, transparent 15%);
-            background-size: 50px 50px, 50px 50px, 200% 200%, 200% 200%;
-            animation: circuitMove 30s linear infinite, pulseGlow 8s ease-in-out infinite;
+                linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: circuitMove 30s linear infinite;
             opacity: 0.6;
         }
 
         @keyframes circuitMove {
-            0% { background-position: 0 0, 0 0, 0% 0%, 100% 100%; }
-            100% { background-position: 50px 50px, 50px 50px, 100% 100%, 0% 0%; }
+            0% { background-position: 0 0; }
+            100% { background-position: 50px 50px; }
         }
 
-        @keyframes pulseGlow {
-            0%, 100% { opacity: 0.4; }
-            50% { opacity: 0.7; }
-        }
-
-        /* Matrix rain effect */
-        .matrix-rain {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-            overflow: hidden;
-        }
-
-        .matrix-column {
-            position: absolute;
-            top: -100%;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            color: rgba(59, 130, 246, 0.8);
-            text-shadow: 0 0 8px rgba(59, 130, 246, 0.8);
-            animation: matrixFall linear infinite;
-            white-space: nowrap;
-        }
-
-        @keyframes matrixFall {
-            0% {
-                top: -100%;
-                opacity: 0;
-            }
-            5% {
-                opacity: 1;
-            }
-            95% {
-                opacity: 1;
-            }
-            100% {
-                top: 100%;
-                opacity: 0;
-            }
-        }
-
-        /* Hexagon grid */
-        .hex-grid {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-            opacity: 0.15;
-        }
-
-        .hexagon {
-            position: absolute;
-            width: 100px;
-            height: 57.74px;
-            background: transparent;
-            border: 1px solid rgba(59, 130, 246, 0.3);
-            clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-            animation: hexPulse 6s ease-in-out infinite;
-        }
-
-        @keyframes hexPulse {
-            0%, 100% {
-                opacity: 0.2;
-                transform: scale(1);
-            }
-            50% {
-                opacity: 0.6;
-                transform: scale(1.05);
-            }
-        }
-
-        /* Energy orbs - enhanced */
         .orb {
             position: fixed;
             border-radius: 50%;
@@ -148,7 +65,7 @@
         .orb-1 {
             width: 500px;
             height: 500px;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.6) 0%, rgba(37, 99, 235, 0.3) 40%, transparent 70%);
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.6) 0%, transparent 70%);
             top: -10%;
             left: 10%;
             animation: orbitFloat1 35s ease-in-out infinite;
@@ -157,132 +74,22 @@
         .orb-2 {
             width: 400px;
             height: 400px;
-            background: radial-gradient(circle, rgba(37, 99, 235, 0.5) 0%, rgba(29, 78, 216, 0.3) 40%, transparent 70%);
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.5) 0%, transparent 70%);
             top: 50%;
             right: 5%;
             animation: orbitFloat2 40s ease-in-out infinite;
         }
 
-        .orb-3 {
-            width: 450px;
-            height: 450px;
-            background: radial-gradient(circle, rgba(29, 78, 216, 0.55) 0%, rgba(59, 130, 246, 0.25) 40%, transparent 70%);
-            bottom: -5%;
-            left: 40%;
-            animation: orbitFloat3 30s ease-in-out infinite;
-        }
-
         @keyframes orbitFloat1 {
-            0%, 100% {
-                transform: translate(0, 0) rotate(0deg) scale(1);
-            }
-            25% {
-                transform: translate(100px, -120px) rotate(90deg) scale(1.15);
-            }
-            50% {
-                transform: translate(50px, 80px) rotate(180deg) scale(0.9);
-            }
-            75% {
-                transform: translate(-80px, -50px) rotate(270deg) scale(1.1);
-            }
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(100px, 80px); }
         }
 
         @keyframes orbitFloat2 {
-            0%, 100% {
-                transform: translate(0, 0) rotate(0deg) scale(1);
-            }
-            33% {
-                transform: translate(-120px, 100px) rotate(120deg) scale(1.2);
-            }
-            66% {
-                transform: translate(80px, -80px) rotate(240deg) scale(0.85);
-            }
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(-100px, -80px); }
         }
 
-        @keyframes orbitFloat3 {
-            0%, 100% {
-                transform: translate(0, 0) rotate(0deg) scale(1);
-            }
-            50% {
-                transform: translate(-100px, -150px) rotate(180deg) scale(1.25);
-            }
-        }
-
-        /* Enhanced particles with glow */
-        .particle {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: rgba(59, 130, 246, 0.9);
-            border-radius: 50%;
-            box-shadow: 0 0 10px rgba(59, 130, 246, 0.8), 0 0 20px rgba(59, 130, 246, 0.4);
-            animation: enhancedRise 20s linear infinite;
-        }
-
-        @keyframes enhancedRise {
-            0% {
-                transform: translateY(100vh) translateX(0) scale(0) rotate(0deg);
-                opacity: 0;
-            }
-            5% {
-                opacity: 1;
-            }
-            90% {
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-150px) translateX(200px) scale(1.5) rotate(360deg);
-                opacity: 0;
-            }
-        }
-
-        /* Scan lines effect */
-        .scanlines {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1;
-            background: repeating-linear-gradient(
-                0deg,
-                rgba(0, 0, 0, 0.15) 0px,
-                transparent 1px,
-                transparent 2px,
-                rgba(0, 0, 0, 0.15) 3px
-            );
-            animation: scanlineMove 8s linear infinite;
-            opacity: 0.3;
-        }
-
-        @keyframes scanlineMove {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(10px); }
-        }
-
-        /* Lightning strikes */
-        .lightning {
-            position: fixed;
-            width: 2px;
-            height: 100%;
-            background: linear-gradient(to bottom, transparent, rgba(59, 130, 246, 0.8), transparent);
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.8);
-            opacity: 0;
-            pointer-events: none;
-            z-index: 0;
-            animation: strike 15s ease-in-out infinite;
-        }
-
-        @keyframes strike {
-            0%, 100% { opacity: 0; }
-            48%, 52% { opacity: 0; }
-            49% { opacity: 1; }
-            50% { opacity: 0.5; }
-            51% { opacity: 1; }
-        }
-
-        /* Modal */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -309,6 +116,8 @@
             width: 90%;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
             border: 1px solid #1a1a1a;
+            position: relative;
+            z-index: 10000;
         }
 
         .modal-icon {
@@ -359,26 +168,13 @@
         }
 
         .modal-btn.success {
-            background: #1a1a1a;
+            background: #3b82f6;
             color: white;
-            border: 1px solid #333;
         }
 
         .modal-btn.success:hover {
-            background: #1e3a8a;
-            border-color: #1a1a1a;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.8);
-        }
-
-        .modal-btn.danger {
-            background: #1a1a1a;
-            color: white;
-            border: 1px solid #333;
-        }
-
-        .modal-btn.danger:hover {
-            background: #ef4444;
-            border-color: #ef4444;
+            background: #2563eb;
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
         }
 
         .modal-btn.cancel {
@@ -388,11 +184,9 @@
         }
 
         .modal-btn.cancel:hover {
-            background: #1e3a8a;
-            border-color: #1a1a1a;
+            background: #333;
         }
 
-        /* Login */
         .login-container {
             max-width: 400px;
             margin: 100px auto;
@@ -413,10 +207,10 @@
         }
 
         .discord-btn {
-            background: #1a1a1a;
+            background: #5865F2;
             color: white;
             padding: 15px 30px;
-            border: 1px solid #333;
+            border: none;
             border-radius: 8px;
             font-size: 16px;
             cursor: pointer;
@@ -427,33 +221,15 @@
             width: 100%;
             transition: all 0.3s;
             text-decoration: none;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .discord-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.3), transparent);
-            transition: left 0.5s;
-        }
-
-        .discord-btn:hover::before {
-            left: 100%;
+            font-weight: 600;
         }
 
         .discord-btn:hover {
-            background: #1e3a8a;
-            border-color: #1a1a1a;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.8);
+            background: #4752C4;
             transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(88, 101, 242, 0.4);
         }
 
-        /* Sidebar Navigation */
         .sidebar-nav {
             position: fixed;
             left: 0;
@@ -496,15 +272,15 @@
         }
 
         .nav-item:hover {
-            background: #1e3a8a;
+            background: #1a1a1a;
             color: white;
-            border-left-color: #1a1a1a;
+            border-left-color: #3b82f6;
         }
 
         .nav-item.active {
             background: #1a1a1a;
             color: #3b82f6;
-            border-left-color: #1a1a1a;
+            border-left-color: #3b82f6;
         }
 
         .nav-icon {
@@ -513,7 +289,6 @@
             text-align: center;
         }
 
-        /* Top Bar */
         .top-bar {
             position: fixed;
             left: 280px;
@@ -538,14 +313,13 @@
             width: 45px;
             height: 45px;
             border-radius: 50%;
-            border: 1px solid #1a1a1a;
+            border: 2px solid #3b82f6;
             transition: all 0.3s;
         }
 
         .user-avatar-top:hover {
             transform: scale(1.1);
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
-            border-color: #1a1a1a;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
         }
 
         .user-info-popup {
@@ -572,7 +346,7 @@
             width: 80px;
             height: 80px;
             border-radius: 50%;
-            border: 2px solid #1a1a1a;
+            border: 2px solid #3b82f6;
             margin: 0 auto 15px;
             display: block;
         }
@@ -601,7 +375,6 @@
         .rank-owner { background: #ef4444; color: white; }
         .rank-admin { background: #f59e0b; color: white; }
         .rank-moderator { background: #10b981; color: white; }
-        .rank-supporter { background: #3b82f6; color: white; }
 
         .popup-info {
             font-size: 0.9em;
@@ -615,9 +388,9 @@
 
         .logout-btn {
             width: 100%;
-            background: #1a1a1a;
+            background: #ef4444;
             color: white;
-            border: 1px solid #333;
+            border: none;
             padding: 10px;
             border-radius: 8px;
             cursor: pointer;
@@ -626,11 +399,9 @@
         }
 
         .logout-btn:hover {
-            background: #ef4444;
-            border-color: #ef4444;
+            background: #dc2626;
         }
 
-        /* Main Content */
         .main-content {
             margin-left: 280px;
             margin-top: 70px;
@@ -646,7 +417,6 @@
             display: block;
         }
 
-        /* Content Sections */
         .content-header {
             margin-bottom: 30px;
         }
@@ -671,7 +441,6 @@
             margin-bottom: 20px;
         }
 
-        /* Form Styles */
         .form-group {
             margin-bottom: 15px;
         }
@@ -685,7 +454,6 @@
         }
 
         input[type="text"],
-        input[type="number"],
         select,
         textarea {
             width: 100%;
@@ -699,30 +467,23 @@
         }
 
         input[type="text"]:focus,
-        input[type="number"]:focus,
         select:focus,
         textarea:focus {
             outline: none;
-            border-color: #1a1a1a;
-            box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.3);
-        }
-
-        input[type="text"]:hover,
-        select:hover,
-        textarea:hover {
-            border-color: #1a1a1a;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
         textarea {
             resize: vertical;
-            min-height: 80px;
+            min-height: 120px;
         }
 
         .btn {
-            background: #1a1a1a;
+            background: #3b82f6;
             color: white;
             padding: 12px 30px;
-            border: 1px solid #333;
+            border: none;
             border-radius: 8px;
             font-size: 16px;
             cursor: pointer;
@@ -732,9 +493,8 @@
         }
 
         .btn:hover:not(:disabled) {
-            background: #1e3a8a;
-            border-color: #1a1a1a;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.8);
+            background: #2563eb;
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
         }
 
         .btn:disabled {
@@ -742,7 +502,6 @@
             cursor: not-allowed;
         }
 
-        /* Stats */
         .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -751,19 +510,19 @@
         }
 
         .stat-card {
-            background: #000;
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
             color: white;
             padding: 20px;
             border-radius: 10px;
             text-align: center;
-            border: 1px solid #1a1a1a;
             transition: all 0.3s;
         }
 
         .stat-card:hover {
-            border-color: #1a1a1a;
+            border-color: #3b82f6;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.2);
         }
 
         .stat-number {
@@ -776,209 +535,6 @@
             font-size: 0.85em;
             opacity: 0.8;
             margin-top: 5px;
-        }
-
-        /* Log Items */
-        .log-item {
-            background: #000;
-            border: 1px solid #1a1a1a;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 15px;
-            transition: all 0.3s;
-        }
-
-        .log-item:hover {
-            border-color: #1a1a1a;
-            transform: translateX(5px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-        }
-
-        .log-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .log-user-section {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
-            padding: 15px;
-            background: #0a0a0a;
-            border-radius: 10px;
-            border: 1px solid #1a1a1a;
-        }
-
-        .roblox-avatar {
-            width: 60px;
-            height: 60px;
-            border-radius: 10px;
-            border: 1px solid #1a1a1a;
-        }
-
-        .log-roblox-username {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #3b82f6;
-            margin-bottom: 5px;
-        }
-
-        .log-mod-section {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 15px;
-            background: rgba(59, 130, 246, 0.1);
-            border-radius: 8px;
-            border: 1px solid #1a1a1a;
-            margin-bottom: 10px;
-        }
-
-        .discord-avatar {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            border: 1px solid #1a1a1a;
-        }
-
-        .log-type {
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        .log-type.ban { background: #ef4444; color: white; }
-        .log-type.kick { background: #f59e0b; color: white; }
-        .log-type.bolo { background: #8b5cf6; color: white; }
-        .log-type.mundlich { background: #06b6d4; color: white; }
-        .log-type.warn { background: #eab308; color: #000; }
-
-        .log-info {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .log-info-item {
-            font-size: 14px;
-            color: #b0b8d4;
-        }
-
-        .log-info-item strong {
-            color: #3b82f6;
-        }
-
-        .log-reason {
-            background: #0a0a0a;
-            padding: 12px;
-            border-radius: 8px;
-            margin-top: 10px;
-            font-size: 14px;
-            border-left: 3px solid #3b82f6;
-            color: #c0c8e0;
-        }
-
-        .delete-btn {
-            background: #1a1a1a;
-            color: white;
-            border: 1px solid #333;
-            padding: 8px 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .delete-btn:hover:not(:disabled) {
-            background: #ef4444;
-            border-color: #ef4444;
-        }
-
-        .delete-btn:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
-
-        /* Players & Requests */
-        .player-card, .request-card {
-            background: #000;
-            border: 1px solid #1a1a1a;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 15px;
-            transition: all 0.3s;
-        }
-
-        .player-card:hover, .request-card:hover {
-            border-color: #1a1a1a;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-        }
-
-        .action-btn {
-            padding: 8px 16px;
-            border: 1px solid #333;
-            border-radius: 6px;
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 600;
-            background: #1a1a1a;
-            color: white;
-        }
-
-        .action-btn:hover {
-            background: #1e3a8a;
-            border-color: #1a1a1a;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.8);
-        }
-
-        .action-btn.ban:hover {
-            background: #ef4444;
-            border-color: #ef4444;
-        }
-
-        .action-btn.kick:hover {
-            background: #f59e0b;
-            border-color: #f59e0b;
-        }
-
-        .action-btn.unban:hover {
-            background: #10b981;
-            border-color: #10b981;
-        }
-
-        .permission-checkbox {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            background: #000;
-            border-radius: 6px;
-            margin-bottom: 8px;
-            border: 1px solid #1a1a1a;
-        }
-
-        .permission-checkbox:hover {
-            border-color: #1a1a1a;
-            background: rgba(26, 26, 26, 0.3);
-        }
-
-        .permission-checkbox input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-            accent-color: #3b82f6;
-        }
-
-        .permission-checkbox label {
-            margin: 0;
-            cursor: pointer;
         }
 
         .pending-notice {
@@ -997,9 +553,85 @@
             font-size: 2em;
         }
 
-        .pending-notice h2::before {
-            content: '📘 ';
-            font-size: 1.2em;
+        .pending-notice p {
+            color: #b0b8d4;
+            line-height: 1.6;
+        }
+
+        .request-card {
+            background: #000;
+            border: 1px solid #1a1a1a;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+
+        .request-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.2);
+        }
+
+        .request-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .request-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid #3b82f6;
+        }
+
+        .request-info h3 {
+            color: #3b82f6;
+            margin-bottom: 5px;
+        }
+
+        .request-reason {
+            background: #0a0a0a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            color: #b0b8d4;
+            border-left: 3px solid #3b82f6;
+        }
+
+        .request-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .action-btn.approve {
+            background: #10b981;
+            color: white;
+        }
+
+        .action-btn.approve:hover {
+            background: #059669;
+        }
+
+        .action-btn.reject {
+            background: #ef4444;
+            color: white;
+        }
+
+        .action-btn.reject:hover {
+            background: #dc2626;
         }
 
         .no-logs {
@@ -1007,72 +639,6 @@
             padding: 60px;
             color: #5a6378;
             font-size: 1.2em;
-        }
-
-        .player-info-section {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            flex: 1;
-        }
-
-        .player-name {
-            font-size: 1.3em;
-            font-weight: bold;
-            color: #3b82f6;
-        }
-
-        .player-roles {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        .role-badge {
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 0.85em;
-            font-weight: bold;
-            background: #3b82f6;
-            color: white;
-        }
-
-        .request-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .request-badge {
-            background: #f59e0b;
-            color: white;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 0.85em;
-        }
-
-        .user-list, .rank-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .user-item, .rank-item {
-            background: #000;
-            border: 1px solid #1a1a1a;
-            border-radius: 8px;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.3s;
-        }
-
-        .user-item:hover, .rank-item:hover {
-            border-color: #1a1a1a;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
         }
 
         @media (max-width: 1024px) {
@@ -1101,29 +667,44 @@
     </style>
 </head>
 <body>
-    <div class="modal-overlay" id="modalOverlay">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <!-- Access Request Modal -->
+    <div class="modal-overlay" id="accessRequestModal">
         <div class="modal-box">
-            <div class="modal-icon" id="modalIcon"></div>
-            <div class="modal-title" id="modalTitle"></div>
-            <div class="modal-message" id="modalMessage"></div>
-            <div class="modal-buttons" id="modalButtons"></div>
+            <div class="modal-icon success">✉️</div>
+            <div class="modal-title">Zugriff anfragen</div>
+            <div class="modal-message">
+                <p style="margin-bottom: 15px;">Du hast noch keinen Zugriff auf das System. Bitte beschreibe kurz, warum du Zugriff benötigst:</p>
+                <textarea id="accessRequestReason" placeholder="z.B. Ich bin Moderator und möchte Bestrafungen eintragen..." style="width: 100%; min-height: 120px; margin-bottom: 15px; padding: 12px; border: 1px solid #1a1a1a; border-radius: 8px; background: #000; color: #e0e0e0;"></textarea>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn success" onclick="submitAccessRequest()">Anfrage senden</button>
+                <button class="modal-btn cancel" onclick="cancelAccessRequest()">Abbrechen</button>
+            </div>
         </div>
     </div>
 
-    <div class="matrix-rain" id="matrixRain"></div>
-    <div class="hex-grid" id="hexGrid"></div>
-    <div class="scanlines"></div>
-    
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
+    <!-- Success Modal -->
+    <div class="modal-overlay" id="successModal">
+        <div class="modal-box">
+            <div class="modal-icon success">✅</div>
+            <div class="modal-title">Anfrage gesendet!</div>
+            <div class="modal-message">
+                <p>Deine Zugangsanfrage wurde erfolgreich gesendet. Ein Administrator wird sie in Kürze prüfen.</p>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn success" onclick="closeSuccessModal()">OK</button>
+            </div>
+        </div>
+    </div>
 
-    <div class="particles" id="particles"></div>
-
+    <!-- Login Container -->
     <div class="login-container" id="loginContainer">
         <h1>📘 Bestrafungs-Log System</h1>
         <p style="color: #b0b8d4; margin-bottom: 30px;">Melde dich mit Discord an, um fortzufahren</p>
-        <a href="https://discord.com/oauth2/authorize?client_id=1419243337826832406&response_type=code&redirect_uri=https%3A%2F%2Fhrp-moderationlogging.vercel.app%2F&scope=identify" class="discord-btn">
+        <a href="#" class="discord-btn" onclick="handleDiscordLogin(event)">
             <svg width="24" height="24" viewBox="0 0 127.14 96.36" fill="currentColor">
                 <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/>
             </svg>
@@ -1131,6 +712,7 @@
         </a>
     </div>
 
+    <!-- App Container -->
     <div id="appContainer" style="display: none;">
         <nav class="sidebar-nav">
             <div class="nav-header">
@@ -1167,7 +749,7 @@
                     </div>
                     <div class="popup-info">
                         <div><strong>Discord ID:</strong> <span id="popupId"></span></div>
-                        <div><strong>Berechtigungen:</strong> <span id="popupPerms"></span></div>
+                        <div><strong>Status:</strong> <span id="popupStatus"></span></div>
                     </div>
                     <button class="logout-btn" onclick="logout()">Abmelden</button>
                 </div>
@@ -1175,7 +757,17 @@
         </div>
 
         <div class="main-content">
-            <div class="container active" id="logsContainer">
+            <!-- Pending Access Container -->
+            <div class="container active" id="pendingContainer">
+                <div class="pending-notice">
+                    <h2>⏳ Zugriff ausstehend</h2>
+                    <p>Deine Zugangsanfrage wurde gesendet und wird derzeit von einem Administrator geprüft. Du wirst benachrichtigt, sobald eine Entscheidung getroffen wurde.</p>
+                    <p style="margin-top: 15px; font-size: 0.9em;">Bitte habe etwas Geduld. Dies kann einige Zeit in Anspruch nehmen.</p>
+                </div>
+            </div>
+
+            <!-- Logs Container -->
+            <div class="container" id="logsContainer">
                 <div class="content-header">
                     <h1>📋 Bestrafungen</h1>
                 </div>
@@ -1199,25 +791,421 @@
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px;">
-                    <div class="content-section">
-                        <h2 class="section-title">➕ Neue Bestrafung</h2>
-                        <form id="punishmentForm">
-                            <div class="form-group">
-                                <label for="punishmentType">Bestrafungsart:</label>
-                                <select id="punishmentType" required>
-                                    <option value="">-- Bitte wählen --</option>
-                                    <option value="ban">Ban</option>
-                                    <option value="bolo">Bolo</option>
-                                    <option value="kick">Kick</option>
-                                    <option value="warn">Warnung</option>
-                                    <option value="mundlich">Mündliche Warnung</option>
-                                </select>
-                            </div>
+                <div class="content-section">
+                    <h2 class="section-title">➕ Neue Bestrafung</h2>
+                    <form id="punishmentForm">
+                        <div class="form-group">
+                            <label for="punishmentType">Bestrafungsart:</label>
+                            <select id="punishmentType" required>
+                                <option value="">-- Bitte wählen --</option>
+                                <option value="ban">Ban</option>
+                                <option value="kick">Kick</option>
+                                <option value="warn">Warnung</option>
+                            </select>
+                        </div>
 
-                            <div class="form-group">
-                                <label for="robloxUsername">Roblox Benutzername:</label>
-                                <input type="text" id="robloxUsername" required placeholder="z.B. MaxMustermann">
-                            </div>
+                        <div class="form-group">
+                            <label for="robloxUsername">Roblox Benutzername:</label>
+                            <input type="text" id="robloxUsername" required placeholder="z.B. MaxMustermann">
+                        </div>
 
-                            <div class="form-group">
+                        <div class="form-group">
+                            <label for="reason">Grund:</label>
+                            <textarea id="reason" required placeholder="Detaillierte Beschreibung des Grundes..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn">Bestrafung hinzufügen</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Players Container -->
+            <div class="container" id="playersContainer">
+                <div class="content-header">
+                    <h1>👥 Spielerliste</h1>
+                </div>
+                <div class="content-section">
+                    <div class="no-logs">Keine Spieler vorhanden</div>
+                </div>
+            </div>
+
+            <!-- Requests Container -->
+            <div class="container" id="requestsContainer">
+                <div class="content-header">
+                    <h1>📨 Zugriffs-Anfragen</h1>
+                </div>
+                <div class="content-section">
+                    <div id="requestsList">
+                        <div class="no-logs">Keine Anfragen vorhanden</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Container -->
+            <div class="container" id="adminContainer">
+                <div class="content-header">
+                    <h1>⚙️ Admin Panel</h1>
+                </div>
+                <div class="content-section">
+                    <h2 class="section-title">Benutzerverwaltung</h2>
+                    <div class="no-logs">Admin-Funktionen in Entwicklung</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // WICHTIG: Ersetze dies mit deiner eigenen Discord ID
+        const OWNER_ID = '123456789012345678'; // Deine Discord Owner ID hier eintragen!
+
+        // Simulated database
+        let currentUser = null;
+        let accessRequests = [];
+        let approvedUsers = {};
+
+        // Initialize on page load
+        window.onload = function() {
+            // Check if returning from OAuth2
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            
+            if (code) {
+                // Simulate OAuth2 callback - In production, this would call your backend
+                handleOAuthCallback(code);
+            } else {
+                // Check if user is already logged in
+                checkExistingSession();
+            }
+        };
+
+        function handleDiscordLogin(event) {
+            event.preventDefault();
+            // Simulate Discord OAuth2 - replace with your actual OAuth2 URL
+            const clientId = '1419243337826832406';
+            const redirectUri = encodeURIComponent('https://hrp-moderationlogging.vercel.app/');
+            const scope = 'identify';
+            
+            window.location.href = `https://discord.com/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=${scope}`;
+        }
+
+        function handleOAuthCallback(code) {
+            // Simulate fetching user data from Discord
+            // In production, send this code to your backend to exchange for user info
+            
+            // Simulated user data (replace with actual API call)
+            setTimeout(() => {
+                const mockUser = {
+                    id: '234567890123456789', // Simulated Discord ID
+                    username: 'TestUser',
+                    discriminator: '1234',
+                    avatar: 'https://cdn.discordapp.com/embed/avatars/0.png'
+                };
+                
+                processLogin(mockUser);
+            }, 500);
+        }
+
+        function processLogin(userData) {
+            currentUser = {
+                id: userData.id,
+                username: userData.username + '#' + userData.discriminator,
+                avatar: userData.avatar,
+                rank: userData.id === OWNER_ID ? 'owner' : 'pending',
+                status: userData.id === OWNER_ID ? 'approved' : 'pending'
+            };
+
+            // Save to session
+            sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+            // Check if user is owner or needs to request access
+            if (currentUser.id === OWNER_ID) {
+                // Owner gets immediate access
+                showApp();
+            } else {
+                // Check if user already has access
+                if (approvedUsers[currentUser.id]) {
+                    currentUser.rank = approvedUsers[currentUser.id].rank;
+                    currentUser.status = 'approved';
+                    showApp();
+                } else {
+                    // Check if user already requested access
+                    const existingRequest = accessRequests.find(r => r.userId === currentUser.id);
+                    if (existingRequest) {
+                        showPendingScreen();
+                    } else {
+                        showAccessRequestModal();
+                    }
+                }
+            }
+        }
+
+        function checkExistingSession() {
+            const savedUser = sessionStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                
+                if (currentUser.status === 'approved') {
+                    showApp();
+                } else {
+                    showPendingScreen();
+                }
+            }
+        }
+
+        function showAccessRequestModal() {
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'block';
+            document.getElementById('accessRequestModal').classList.add('active');
+        }
+
+        function submitAccessRequest() {
+            const reason = document.getElementById('accessRequestReason').value.trim();
+            
+            if (!reason) {
+                alert('Bitte gib einen Grund für deine Anfrage an.');
+                return;
+            }
+
+            // Create access request
+            const request = {
+                id: Date.now(),
+                userId: currentUser.id,
+                username: currentUser.username,
+                avatar: currentUser.avatar,
+                reason: reason,
+                timestamp: new Date().toISOString(),
+                status: 'pending'
+            };
+
+            accessRequests.push(request);
+            
+            // Save to localStorage (simulated database)
+            localStorage.setItem('accessRequests', JSON.stringify(accessRequests));
+
+            // Close modal and show pending screen
+            document.getElementById('accessRequestModal').classList.remove('active');
+            document.getElementById('successModal').classList.add('active');
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.remove('active');
+            showPendingScreen();
+        }
+
+        function cancelAccessRequest() {
+            document.getElementById('accessRequestModal').classList.remove('active');
+            logout();
+        }
+
+        function showPendingScreen() {
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'block';
+            
+            // Update user profile
+            updateUserProfile();
+            
+            // Show only pending container
+            document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
+            document.getElementById('pendingContainer').classList.add('active');
+        }
+
+        function showApp() {
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'block';
+            
+            // Update user profile
+            updateUserProfile();
+            
+            // Show appropriate navigation items based on rank
+            if (currentUser.rank === 'owner' || currentUser.rank === 'admin') {
+                document.getElementById('navRequests').style.display = 'flex';
+                document.getElementById('navAdmin').style.display = 'flex';
+                loadAccessRequests();
+            }
+            
+            // Hide pending container, show logs
+            document.getElementById('pendingContainer').classList.remove('active');
+            document.getElementById('logsContainer').classList.add('active');
+            
+            // Load data
+            loadPunishments();
+        }
+
+        function updateUserProfile() {
+            // Update avatar
+            document.getElementById('userAvatarTop').src = currentUser.avatar;
+            document.getElementById('popupAvatar').src = currentUser.avatar;
+            
+            // Update name
+            document.getElementById('popupName').textContent = currentUser.username;
+            
+            // Update rank
+            const rankElement = document.getElementById('popupRank');
+            const rankText = {
+                'owner': 'Owner',
+                'admin': 'Administrator',
+                'moderator': 'Moderator',
+                'pending': 'Ausstehend'
+            };
+            rankElement.textContent = rankText[currentUser.rank] || 'Benutzer';
+            rankElement.className = 'user-rank rank-' + currentUser.rank;
+            
+            // Update ID
+            document.getElementById('popupId').textContent = currentUser.id;
+            
+            // Update status
+            document.getElementById('popupStatus').textContent = currentUser.status === 'approved' ? 'Genehmigt' : 'Ausstehend';
+        }
+
+        function loadAccessRequests() {
+            const saved = localStorage.getItem('accessRequests');
+            if (saved) {
+                accessRequests = JSON.parse(saved);
+            }
+            
+            const listContainer = document.getElementById('requestsList');
+            
+            if (accessRequests.length === 0) {
+                listContainer.innerHTML = '<div class="no-logs">Keine Anfragen vorhanden</div>';
+                return;
+            }
+            
+            listContainer.innerHTML = accessRequests.map(request => `
+                <div class="request-card">
+                    <div class="request-header">
+                        <img src="${request.avatar}" alt="Avatar" class="request-avatar">
+                        <div class="request-info">
+                            <h3>${request.username}</h3>
+                            <small style="color: #b0b8d4;">Discord ID: ${request.userId}</small>
+                        </div>
+                    </div>
+                    <div class="request-reason">
+                        <strong style="color: #3b82f6;">Grund:</strong><br>
+                        ${request.reason}
+                    </div>
+                    <div style="font-size: 0.85em; color: #5a6378; margin-bottom: 15px;">
+                        Angefragt am: ${new Date(request.timestamp).toLocaleString('de-DE')}
+                    </div>
+                    <div class="request-actions">
+                        <button class="action-btn approve" onclick="approveRequest(${request.id})">
+                            ✓ Genehmigen
+                        </button>
+                        <button class="action-btn reject" onclick="rejectRequest(${request.id})">
+                            ✗ Ablehnen
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function approveRequest(requestId) {
+            const request = accessRequests.find(r => r.id === requestId);
+            if (!request) return;
+            
+            // Add to approved users
+            approvedUsers[request.userId] = {
+                rank: 'moderator',
+                approvedBy: currentUser.id,
+                approvedAt: new Date().toISOString()
+            };
+            
+            // Remove from requests
+            accessRequests = accessRequests.filter(r => r.id !== requestId);
+            
+            // Save changes
+            localStorage.setItem('approvedUsers', JSON.stringify(approvedUsers));
+            localStorage.setItem('accessRequests', JSON.stringify(accessRequests));
+            
+            // Reload requests
+            loadAccessRequests();
+            
+            alert(`Zugriff für ${request.username} wurde genehmigt!`);
+        }
+
+        function rejectRequest(requestId) {
+            const request = accessRequests.find(r => r.id === requestId);
+            if (!request) return;
+            
+            if (confirm(`Möchtest du die Anfrage von ${request.username} wirklich ablehnen?`)) {
+                accessRequests = accessRequests.filter(r => r.id !== requestId);
+                localStorage.setItem('accessRequests', JSON.stringify(accessRequests));
+                loadAccessRequests();
+                alert('Anfrage wurde abgelehnt.');
+            }
+        }
+
+        function loadPunishments() {
+            // Simulated punishment data
+            document.getElementById('totalLogs').textContent = '0';
+            document.getElementById('totalBans').textContent = '0';
+            document.getElementById('totalKicks').textContent = '0';
+            document.getElementById('totalWarns').textContent = '0';
+        }
+
+        function navigateTo(page) {
+            // Update active nav item
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.closest('.nav-item').classList.add('active');
+            
+            // Show correct container
+            document.querySelectorAll('.container').forEach(container => {
+                container.classList.remove('active');
+            });
+            
+            const containerMap = {
+                'logs': 'logsContainer',
+                'players': 'playersContainer',
+                'requests': 'requestsContainer',
+                'admin': 'adminContainer'
+            };
+            
+            document.getElementById(containerMap[page]).classList.add('active');
+        }
+
+        function logout() {
+            if (confirm('Möchtest du dich wirklich abmelden?')) {
+                sessionStorage.removeItem('currentUser');
+                currentUser = null;
+                
+                document.getElementById('appContainer').style.display = 'none';
+                document.getElementById('loginContainer').style.display = 'block';
+                
+                // Clear URL parameters
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+
+        // Punishment Form Handler
+        document.getElementById('punishmentForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const type = document.getElementById('punishmentType').value;
+            const username = document.getElementById('robloxUsername').value;
+            const reason = document.getElementById('reason').value;
+            
+            if (!type || !username || !reason) {
+                alert('Bitte fülle alle Felder aus!');
+                return;
+            }
+            
+            alert(`Bestrafung hinzugefügt!\n\nTyp: ${type}\nBenutzer: ${username}\nGrund: ${reason}`);
+            
+            // Reset form
+            this.reset();
+        });
+
+        // Load saved data on init
+        const savedApproved = localStorage.getItem('approvedUsers');
+        if (savedApproved) {
+            approvedUsers = JSON.parse(savedApproved);
+        }
+
+        const savedRequests = localStorage.getItem('accessRequests');
+        if (savedRequests) {
+            accessRequests = JSON.parse(savedRequests);
+        }
+    </script>
+</body>
+</html>
