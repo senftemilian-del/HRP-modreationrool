@@ -15,10 +15,274 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #000000;
             min-height: 100vh;
-            padding: 20px;
             color: #e0e0e0;
+            overflow-x: hidden;
+            position: relative;
         }
 
+        /* Base dark gradient */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, #0f1729 0%, #000000 100%);
+            z-index: 0;
+        }
+
+        /* Animated circuit board pattern */
+        body::after {
+            content: '';
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0;
+            background-image:
+                linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+                radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.1) 0%, transparent 15%),
+                radial-gradient(circle at 75% 75%, rgba(37, 99, 235, 0.08) 0%, transparent 15%);
+            background-size: 50px 50px, 50px 50px, 200% 200%, 200% 200%;
+            animation: circuitMove 30s linear infinite, pulseGlow 8s ease-in-out infinite;
+            opacity: 0.6;
+        }
+
+        @keyframes circuitMove {
+            0% { background-position: 0 0, 0 0, 0% 0%, 100% 100%; }
+            100% { background-position: 50px 50px, 50px 50px, 100% 100%, 0% 0%; }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Matrix rain effect */
+        .matrix-rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .matrix-column {
+            position: absolute;
+            top: -100%;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: rgba(59, 130, 246, 0.8);
+            text-shadow: 0 0 8px rgba(59, 130, 246, 0.8);
+            animation: matrixFall linear infinite;
+            white-space: nowrap;
+        }
+
+        @keyframes matrixFall {
+            0% {
+                top: -100%;
+                opacity: 0;
+            }
+            5% {
+                opacity: 1;
+            }
+            95% {
+                opacity: 1;
+            }
+            100% {
+                top: 100%;
+                opacity: 0;
+            }
+        }
+
+        /* Hexagon grid */
+        .hex-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.15;
+        }
+
+        .hexagon {
+            position: absolute;
+            width: 100px;
+            height: 57.74px;
+            background: transparent;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+            animation: hexPulse 6s ease-in-out infinite;
+        }
+
+        @keyframes hexPulse {
+            0%, 100% {
+                opacity: 0.2;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.6;
+                transform: scale(1.05);
+            }
+        }
+
+        /* Energy orbs - enhanced */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(70px);
+            opacity: 0.5;
+            pointer-events: none;
+            z-index: 0;
+            mix-blend-mode: screen;
+        }
+
+        .orb-1 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.6) 0%, rgba(37, 99, 235, 0.3) 40%, transparent 70%);
+            top: -10%;
+            left: 10%;
+            animation: orbitFloat1 35s ease-in-out infinite;
+        }
+
+        .orb-2 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.5) 0%, rgba(29, 78, 216, 0.3) 40%, transparent 70%);
+            top: 50%;
+            right: 5%;
+            animation: orbitFloat2 40s ease-in-out infinite;
+        }
+
+        .orb-3 {
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(29, 78, 216, 0.55) 0%, rgba(59, 130, 246, 0.25) 40%, transparent 70%);
+            bottom: -5%;
+            left: 40%;
+            animation: orbitFloat3 30s ease-in-out infinite;
+        }
+
+        @keyframes orbitFloat1 {
+            0%, 100% {
+                transform: translate(0, 0) rotate(0deg) scale(1);
+            }
+            25% {
+                transform: translate(100px, -120px) rotate(90deg) scale(1.15);
+            }
+            50% {
+                transform: translate(50px, 80px) rotate(180deg) scale(0.9);
+            }
+            75% {
+                transform: translate(-80px, -50px) rotate(270deg) scale(1.1);
+            }
+        }
+
+        @keyframes orbitFloat2 {
+            0%, 100% {
+                transform: translate(0, 0) rotate(0deg) scale(1);
+            }
+            33% {
+                transform: translate(-120px, 100px) rotate(120deg) scale(1.2);
+            }
+            66% {
+                transform: translate(80px, -80px) rotate(240deg) scale(0.85);
+            }
+        }
+
+        @keyframes orbitFloat3 {
+            0%, 100% {
+                transform: translate(0, 0) rotate(0deg) scale(1);
+            }
+            50% {
+                transform: translate(-100px, -150px) rotate(180deg) scale(1.25);
+            }
+        }
+
+        /* Enhanced particles with glow */
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(59, 130, 246, 0.9);
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.8), 0 0 20px rgba(59, 130, 246, 0.4);
+            animation: enhancedRise 20s linear infinite;
+        }
+
+        @keyframes enhancedRise {
+            0% {
+                transform: translateY(100vh) translateX(0) scale(0) rotate(0deg);
+                opacity: 0;
+            }
+            5% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-150px) translateX(200px) scale(1.5) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Scan lines effect */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.15) 0px,
+                transparent 1px,
+                transparent 2px,
+                rgba(0, 0, 0, 0.15) 3px
+            );
+            animation: scanlineMove 8s linear infinite;
+            opacity: 0.3;
+        }
+
+        @keyframes scanlineMove {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(10px); }
+        }
+
+        /* Lightning strikes */
+        .lightning {
+            position: fixed;
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent, rgba(59, 130, 246, 0.8), transparent);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.8);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 0;
+            animation: strike 15s ease-in-out infinite;
+        }
+
+        @keyframes strike {
+            0%, 100% { opacity: 0; }
+            48%, 52% { opacity: 0; }
+            49% { opacity: 1; }
+            50% { opacity: 0.5; }
+            51% { opacity: 1; }
+        }
+
+        /* Modal */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -31,16 +295,10 @@
             z-index: 9999;
             justify-content: center;
             align-items: center;
-            animation: fadeIn 0.3s ease;
         }
 
         .modal-overlay.active {
             display: flex;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
         }
 
         .modal-box {
@@ -49,20 +307,8 @@
             padding: 30px;
             max-width: 500px;
             width: 90%;
-            box-shadow: 0 20px 60px rgba(59, 130, 246, 0.5);
-            border: 2px solid #1e40af;
-            animation: slideUp 0.3s ease;
-        }
-
-        @keyframes slideUp {
-            from {
-                transform: translateY(50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            border: 1px solid #1a1a1a;
         }
 
         .modal-icon {
@@ -113,84 +359,52 @@
         }
 
         .modal-btn.success {
-            background: #3b82f6;
+            background: #1a1a1a;
             color: white;
+            border: 1px solid #333;
         }
 
         .modal-btn.success:hover {
-            background: #2563eb;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(59, 130, 246, 0.6);
+            background: #1e3a8a;
+            border-color: #1a1a1a;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.8);
         }
 
         .modal-btn.danger {
-            background: #ef4444;
+            background: #1a1a1a;
             color: white;
+            border: 1px solid #333;
         }
 
         .modal-btn.danger:hover {
-            background: #dc2626;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(239, 68, 68, 0.6);
+            background: #ef4444;
+            border-color: #ef4444;
         }
 
         .modal-btn.cancel {
-            background: #1f1f1f;
+            background: #1a1a1a;
             color: #b0b8d4;
             border: 1px solid #333;
         }
 
         .modal-btn.cancel:hover {
-            background: #2a2a2a;
-            transform: translateY(-2px);
+            background: #1e3a8a;
+            border-color: #1a1a1a;
         }
 
-        .banned-screen {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000000;
-            z-index: 10000;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-        }
-
-        .banned-screen.active {
-            display: flex;
-        }
-
-        .banned-icon {
-            font-size: 100px;
-            margin-bottom: 30px;
-        }
-
-        .banned-title {
-            font-size: 3em;
-            color: #ef4444;
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
-
-        .banned-message {
-            font-size: 1.3em;
-            color: #b0b8d4;
-            text-align: center;
-            max-width: 600px;
-        }
-
+        /* Login */
         .login-container {
             max-width: 400px;
             margin: 100px auto;
-            background: #0a0a0a;
+            background: rgba(10, 10, 10, 0.9);
+            backdrop-filter: blur(20px);
             border-radius: 15px;
             padding: 40px;
-            box-shadow: 0 10px 40px rgba(59, 130, 246, 0.3);
-            border: 2px solid #1e3a8a;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            border: 1px solid #1a1a1a;
             text-align: center;
+            position: relative;
+            z-index: 1;
         }
 
         .login-container h1 {
@@ -199,10 +413,10 @@
         }
 
         .discord-btn {
-            background: #5865F2;
+            background: #1a1a1a;
             color: white;
             padding: 15px 30px;
-            border: none;
+            border: 1px solid #333;
             border-radius: 8px;
             font-size: 16px;
             cursor: pointer;
@@ -213,17 +427,218 @@
             width: 100%;
             transition: all 0.3s;
             text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .discord-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .discord-btn:hover::before {
+            left: 100%;
         }
 
         .discord-btn:hover {
-            background: #4752C4;
+            background: #1e3a8a;
+            border-color: #1a1a1a;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.8);
             transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(88, 101, 242, 0.5);
+        }
+
+        /* Sidebar Navigation */
+        .sidebar-nav {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: #0a0a0a;
+            border-right: 2px solid #1a1a1a;
+            padding: 20px 0;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .nav-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        .nav-logo {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #3b82f6;
+            margin-bottom: 10px;
+        }
+
+        .nav-menu {
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #b0b8d4;
+            font-weight: 500;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: #1e3a8a;
+            color: white;
+            border-left-color: #1a1a1a;
+        }
+
+        .nav-item.active {
+            background: #1a1a1a;
+            color: #3b82f6;
+            border-left-color: #1a1a1a;
+        }
+
+        .nav-icon {
+            font-size: 1.2em;
+            width: 24px;
+            text-align: center;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            position: fixed;
+            left: 280px;
+            top: 0;
+            right: 0;
+            height: 70px;
+            background: #0a0a0a;
+            border-bottom: 2px solid #1a1a1a;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 0 30px;
+            z-index: 999;
+        }
+
+        .user-profile {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .user-avatar-top {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 1px solid #1a1a1a;
+            transition: all 0.3s;
+        }
+
+        .user-avatar-top:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+            border-color: #1a1a1a;
+        }
+
+        .user-info-popup {
+            position: absolute;
+            top: 60px;
+            left: 0;
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            border-radius: 10px;
+            padding: 20px;
+            min-width: 250px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 1001;
+        }
+
+        .user-profile:hover .user-info-popup {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .popup-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 2px solid #1a1a1a;
+            margin: 0 auto 15px;
+            display: block;
+        }
+
+        .popup-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #3b82f6;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .popup-rank {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .user-rank {
+            padding: 6px 15px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .rank-owner { background: #ef4444; color: white; }
+        .rank-admin { background: #f59e0b; color: white; }
+        .rank-moderator { background: #10b981; color: white; }
+        .rank-supporter { background: #3b82f6; color: white; }
+
+        .popup-info {
+            font-size: 0.9em;
+            color: #b0b8d4;
+            margin-bottom: 15px;
+        }
+
+        .popup-info div {
+            margin-bottom: 5px;
+        }
+
+        .logout-btn {
+            width: 100%;
+            background: #1a1a1a;
+            color: white;
+            border: 1px solid #333;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .logout-btn:hover {
+            background: #ef4444;
+            border-color: #ef4444;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            margin-top: 70px;
+            padding: 30px;
+            min-height: calc(100vh - 70px);
         }
 
         .container {
-            max-width: 1400px;
-            margin: 0 auto;
             display: none;
         }
 
@@ -231,154 +646,32 @@
             display: block;
         }
 
-        .header {
-            background: #0a0a0a;
-            color: white;
-            padding: 30px;
-            border-radius: 15px;
+        /* Content Sections */
+        .content-header {
             margin-bottom: 30px;
-            box-shadow: 0 10px 40px rgba(59, 130, 246, 0.2);
-            border: 2px solid #1e3a8a;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
 
-        .header-left h1 {
+        .content-header h1 {
             font-size: 2.5em;
-            margin-bottom: 10px;
             color: #3b82f6;
+            margin-bottom: 10px;
         }
 
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            background: rgba(59, 130, 246, 0.1);
-            padding: 15px 25px;
-            border-radius: 10px;
-            border: 1px solid #1e3a8a;
-        }
-
-        .user-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            border: 3px solid #3b82f6;
-        }
-
-        .user-details {
-            text-align: left;
-        }
-
-        .user-name {
-            font-weight: bold;
-            font-size: 1.1em;
-        }
-
-        .user-rank {
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 0.85em;
-            font-weight: bold;
-            display: inline-block;
-            margin-top: 5px;
-        }
-
-        .rank-owner { background: #ef4444; }
-        .rank-admin { background: #f59e0b; }
-        .rank-moderator { background: #10b981; }
-        .rank-supporter { background: #3b82f6; }
-
-        .logout-btn {
-            background: #ef4444;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-left: 15px;
-            transition: all 0.3s;
-        }
-
-        .logout-btn:hover {
-            background: #dc2626;
-            box-shadow: 0 5px 20px rgba(239, 68, 68, 0.5);
-        }
-
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
+        .content-section {
             background: #0a0a0a;
-            padding: 15px;
-            border-radius: 15px;
-            border: 2px solid #1e3a8a;
-            overflow-x: auto;
-        }
-
-        .tab {
-            padding: 12px 30px;
-            background: #1a1a1a;
-            border: 2px solid #333;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            white-space: nowrap;
-            font-weight: 600;
-        }
-
-        .tab:hover {
-            background: #2a2a2a;
-            border-color: #3b82f6;
-        }
-
-        .tab.active {
-            background: #3b82f6;
-            border-color: #3b82f6;
-            color: white;
-            box-shadow: 0 5px 20px rgba(59, 130, 246, 0.4);
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .main-layout {
-            display: grid;
-            grid-template-columns: 350px 1fr;
-            gap: 20px;
-        }
-
-        .sidebar {
-            background: #0a0a0a;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 10px 40px rgba(59, 130, 246, 0.2);
-            border: 2px solid #1e3a8a;
-            height: fit-content;
-            position: sticky;
-            top: 20px;
-        }
-
-        .content {
-            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
             border-radius: 15px;
             padding: 30px;
-            box-shadow: 0 10px 40px rgba(59, 130, 246, 0.2);
-            border: 2px solid #1e3a8a;
-        }
-
-        .form-section h2 {
-            color: #3b82f6;
             margin-bottom: 20px;
-            font-size: 1.5em;
         }
 
+        .section-title {
+            color: #3b82f6;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+
+        /* Form Styles */
         .form-group {
             margin-bottom: 15px;
         }
@@ -397,10 +690,10 @@
         textarea {
             width: 100%;
             padding: 12px;
-            border: 2px solid #1e3a8a;
+            border: 1px solid #1a1a1a;
             border-radius: 8px;
             font-size: 14px;
-            background: #1a1a1a;
+            background: #000;
             color: #e0e0e0;
             transition: all 0.3s;
         }
@@ -410,9 +703,14 @@
         select:focus,
         textarea:focus {
             outline: none;
-            border-color: #3b82f6;
-            background: #222;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            border-color: #1a1a1a;
+            box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.3);
+        }
+
+        input[type="text"]:hover,
+        select:hover,
+        textarea:hover {
+            border-color: #1a1a1a;
         }
 
         textarea {
@@ -421,10 +719,10 @@
         }
 
         .btn {
-            background: #3b82f6;
+            background: #1a1a1a;
             color: white;
             padding: 12px 30px;
-            border: none;
+            border: 1px solid #333;
             border-radius: 8px;
             font-size: 16px;
             cursor: pointer;
@@ -434,9 +732,9 @@
         }
 
         .btn:hover:not(:disabled) {
-            background: #2563eb;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(59, 130, 246, 0.5);
+            background: #1e3a8a;
+            border-color: #1a1a1a;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.8);
         }
 
         .btn:disabled {
@@ -444,20 +742,28 @@
             cursor: not-allowed;
         }
 
+        /* Stats */
         .stats {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
             margin-bottom: 25px;
         }
 
         .stat-card {
-            background: #1a1a1a;
+            background: #000;
             color: white;
             padding: 20px;
             border-radius: 10px;
             text-align: center;
-            border: 2px solid #1e3a8a;
+            border: 1px solid #1a1a1a;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            border-color: #1a1a1a;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
         }
 
         .stat-number {
@@ -472,26 +778,20 @@
             margin-top: 5px;
         }
 
-        .logs-section h2 {
-            color: #3b82f6;
-            margin-bottom: 20px;
-            font-size: 1.8em;
-        }
-
+        /* Log Items */
         .log-item {
-            background: #1a1a1a;
-            border: 2px solid #1e3a8a;
+            background: #000;
+            border: 1px solid #1a1a1a;
             border-radius: 12px;
             padding: 20px;
             margin-bottom: 15px;
             transition: all 0.3s;
-            cursor: pointer;
         }
 
         .log-item:hover {
+            border-color: #1a1a1a;
             transform: translateX(5px);
-            border-color: #3b82f6;
-            box-shadow: 0 5px 25px rgba(59, 130, 246, 0.3);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
         }
 
         .log-header {
@@ -509,19 +809,14 @@
             padding: 15px;
             background: #0a0a0a;
             border-radius: 10px;
-            border: 1px solid #1e3a8a;
+            border: 1px solid #1a1a1a;
         }
 
         .roblox-avatar {
             width: 60px;
             height: 60px;
             border-radius: 10px;
-            border: 3px solid #3b82f6;
-            background: #1a1a1a;
-        }
-
-        .log-user-info {
-            flex: 1;
+            border: 1px solid #1a1a1a;
         }
 
         .log-roblox-username {
@@ -538,7 +833,7 @@
             padding: 10px 15px;
             background: rgba(59, 130, 246, 0.1);
             border-radius: 8px;
-            border: 1px solid #1e3a8a;
+            border: 1px solid #1a1a1a;
             margin-bottom: 10px;
         }
 
@@ -546,12 +841,7 @@
             width: 35px;
             height: 35px;
             border-radius: 50%;
-            border: 2px solid #3b82f6;
-        }
-
-        .log-mod-name {
-            font-weight: bold;
-            color: #3b82f6;
+            border: 1px solid #1a1a1a;
         }
 
         .log-type {
@@ -584,7 +874,7 @@
         }
 
         .log-reason {
-            background: #1a1a1a;
+            background: #0a0a0a;
             padding: 12px;
             border-radius: 8px;
             margin-top: 10px;
@@ -594,9 +884,9 @@
         }
 
         .delete-btn {
-            background: #ef4444;
+            background: #1a1a1a;
             color: white;
-            border: none;
+            border: 1px solid #333;
             padding: 8px 16px;
             border-radius: 5px;
             cursor: pointer;
@@ -606,9 +896,8 @@
         }
 
         .delete-btn:hover:not(:disabled) {
-            background: #dc2626;
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.5);
+            background: #ef4444;
+            border-color: #ef4444;
         }
 
         .delete-btn:disabled {
@@ -616,137 +905,52 @@
             cursor: not-allowed;
         }
 
-        .admin-grid {
-            display: grid;
-            gap: 20px;
-        }
-
-        .admin-section {
-            background: #1a1a1a;
-            border: 2px solid #1e3a8a;
-            border-radius: 12px;
-            padding: 25px;
-        }
-
-        .admin-section h3 {
-            color: #3b82f6;
-            margin-bottom: 20px;
-            font-size: 1.3em;
-        }
-
-        .user-list,
-        .rank-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .user-item,
-        .rank-item {
-            background: #0a0a0a;
-            border: 2px solid #333;
-            border-radius: 8px;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        /* Players & Requests */
+        .player-card, .request-card {
+            background: #000;
+            border: 1px solid #1a1a1a;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
             transition: all 0.3s;
         }
 
-        .user-item:hover,
-        .rank-item:hover {
-            border-color: #3b82f6;
-            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.2);
-        }
-
-        .user-item-info,
-        .rank-item-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .user-item-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 2px solid #3b82f6;
-        }
-
-        .user-item-status {
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 0.75em;
-            font-weight: bold;
-        }
-
-        .status-active { background: #10b981; color: white; }
-        .status-banned { background: #ef4444; color: white; }
-        .status-kicked { background: #f59e0b; color: white; }
-
-        .user-item-actions {
-            display: flex;
-            gap: 10px;
+        .player-card:hover, .request-card:hover {
+            border-color: #1a1a1a;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
         }
 
         .action-btn {
             padding: 8px 16px;
-            border: none;
+            border: 1px solid #333;
             border-radius: 6px;
             font-size: 13px;
             cursor: pointer;
             transition: all 0.3s;
             font-weight: 600;
+            background: #1a1a1a;
+            color: white;
         }
 
-        .action-btn.ban {
-            background: #ef4444;
-            color: white;
+        .action-btn:hover {
+            background: #1e3a8a;
+            border-color: #1a1a1a;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.8);
         }
 
         .action-btn.ban:hover {
-            background: #dc2626;
-            box-shadow: 0 3px 10px rgba(239, 68, 68, 0.5);
-        }
-
-        .action-btn.kick {
-            background: #f59e0b;
-            color: white;
+            background: #ef4444;
+            border-color: #ef4444;
         }
 
         .action-btn.kick:hover {
-            background: #d97706;
-            box-shadow: 0 3px 10px rgba(245, 158, 11, 0.5);
-        }
-
-        .action-btn.unban {
-            background: #10b981;
-            color: white;
+            background: #f59e0b;
+            border-color: #f59e0b;
         }
 
         .action-btn.unban:hover {
-            background: #059669;
-            box-shadow: 0 3px 10px rgba(16, 185, 129, 0.5);
-        }
-
-        .action-btn.edit {
-            background: #3b82f6;
-            color: white;
-        }
-
-        .action-btn.edit:hover {
-            background: #2563eb;
-            box-shadow: 0 3px 10px rgba(59, 130, 246, 0.5);
-        }
-
-        .action-btn.delete {
-            background: #ef4444;
-            color: white;
-        }
-
-        .action-btn.delete:hover {
-            background: #dc2626;
-            box-shadow: 0 3px 10px rgba(239, 68, 68, 0.5);
+            background: #10b981;
+            border-color: #10b981;
         }
 
         .permission-checkbox {
@@ -754,10 +958,15 @@
             align-items: center;
             gap: 10px;
             padding: 10px;
-            background: #0a0a0a;
+            background: #000;
             border-radius: 6px;
             margin-bottom: 8px;
-            border: 1px solid #333;
+            border: 1px solid #1a1a1a;
+        }
+
+        .permission-checkbox:hover {
+            border-color: #1a1a1a;
+            background: rgba(26, 26, 26, 0.3);
         }
 
         .permission-checkbox input[type="checkbox"] {
@@ -770,123 +979,6 @@
         .permission-checkbox label {
             margin: 0;
             cursor: pointer;
-        }
-
-        .player-card {
-            background: #0a0a0a;
-            border: 2px solid #1e3a8a;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.3s;
-        }
-
-        .player-card:hover {
-            border-color: #3b82f6;
-            box-shadow: 0 5px 20px rgba(59, 130, 246, 0.3);
-        }
-
-        .player-info-section {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            flex: 1;
-        }
-
-        .player-avatars {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .player-avatar-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .player-details {
-            flex: 1;
-        }
-
-        .player-name {
-            font-size: 1.3em;
-            font-weight: bold;
-            color: #3b82f6;
-            margin-bottom: 8px;
-        }
-
-        .player-discord {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #b0b8d4;
-            margin-bottom: 5px;
-        }
-
-        .player-roles {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        .role-badge {
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 0.85em;
-            font-weight: bold;
-            background: #3b82f6;
-            color: white;
-        }
-
-        .player-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .request-card {
-            background: #0a0a0a;
-            border: 2px solid #f59e0b;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 15px;
-            transition: all 0.3s;
-        }
-
-        .request-card:hover {
-            border-color: #3b82f6;
-            box-shadow: 0 5px 20px rgba(59, 130, 246, 0.3);
-        }
-
-        .request-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .request-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .request-badge {
-            background: #f59e0b;
-            color: white;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 0.85em;
-        }
-
-        .request-actions {
-            display: flex;
-            gap: 10px;
         }
 
         .pending-notice {
@@ -905,10 +997,9 @@
             font-size: 2em;
         }
 
-        .pending-notice p {
-            color: #b0b8d4;
-            font-size: 1.1em;
-            line-height: 1.6;
+        .pending-notice h2::before {
+            content: '📘 ';
+            font-size: 1.2em;
         }
 
         .no-logs {
@@ -918,19 +1009,80 @@
             font-size: 1.2em;
         }
 
+        .player-info-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex: 1;
+        }
+
+        .player-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #3b82f6;
+        }
+
+        .player-roles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .role-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: bold;
+            background: #3b82f6;
+            color: white;
+        }
+
+        .request-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .request-badge {
+            background: #f59e0b;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.85em;
+        }
+
+        .user-list, .rank-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .user-item, .rank-item {
+            background: #000;
+            border: 1px solid #1a1a1a;
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .user-item:hover, .rank-item:hover {
+            border-color: #1a1a1a;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+
         @media (max-width: 1024px) {
-            .main-layout {
-                grid-template-columns: 1fr;
+            .sidebar-nav {
+                transform: translateX(-280px);
             }
 
-            .sidebar {
-                position: relative;
-                top: 0;
-            }
-
-            .header {
-                flex-direction: column;
-                gap: 20px;
+            .top-bar, .main-content {
+                margin-left: 0;
+                left: 0;
             }
         }
 
@@ -946,21 +1098,9 @@
             background: #3b82f6;
             border-radius: 5px;
         }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #2563eb;
-        }
     </style>
 </head>
 <body>
-    <div class="banned-screen" id="bannedScreen">
-        <div class="banned-icon">🚫</div>
-        <div class="banned-title">ZUGRIFF VERWEIGERT</div>
-        <div class="banned-message" id="bannedMessage">
-            Du wurdest von dieser Website gebannt und kannst nicht mehr darauf zugreifen.
-        </div>
-    </div>
-
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal-box">
             <div class="modal-icon" id="modalIcon"></div>
@@ -970,8 +1110,18 @@
         </div>
     </div>
 
+    <div class="matrix-rain" id="matrixRain"></div>
+    <div class="hex-grid" id="hexGrid"></div>
+    <div class="scanlines"></div>
+    
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <div class="particles" id="particles"></div>
+
     <div class="login-container" id="loginContainer">
-        <h1>⚖️ Bestrafungs-Log System</h1>
+        <h1>📘 Bestrafungs-Log System</h1>
         <p style="color: #b0b8d4; margin-bottom: 30px;">Melde dich mit Discord an, um fortzufahren</p>
         <a href="https://discord.com/oauth2/authorize?client_id=1419243337826832406&response_type=code&redirect_uri=https%3A%2F%2Fhrp-moderationlogging.vercel.app%2F&scope=identify" class="discord-btn">
             <svg width="24" height="24" viewBox="0 0 127.14 96.36" fill="currentColor">
@@ -981,631 +1131,93 @@
         </a>
     </div>
 
-    <div class="container" id="mainContainer">
-        <div class="header">
-            <div class="header-left">
-                <h1>⚖️ Bestrafungs-Log System</h1>
-                <p>Verwaltung von Bestrafungen und Verwarnungen</p>
+    <div id="appContainer" style="display: none;">
+        <nav class="sidebar-nav">
+            <div class="nav-header">
+                <div class="nav-logo">📘 Mod System</div>
             </div>
-            <div class="user-info">
-                <img src="" alt="Avatar" class="user-avatar" id="userAvatar">
-                <div class="user-details">
-                    <div class="user-name" id="userName"></div>
-                    <span class="user-rank" id="userRank"></span>
+            <div class="nav-menu">
+                <div class="nav-item active" onclick="navigateTo('logs')">
+                    <span class="nav-icon">📋</span>
+                    <span>Bestrafungen</span>
                 </div>
-                <button class="logout-btn" onclick="logout()">Abmelden</button>
+                <div class="nav-item" onclick="navigateTo('players')">
+                    <span class="nav-icon">👥</span>
+                    <span>Spielerliste</span>
+                </div>
+                <div class="nav-item" id="navRequests" style="display: none;" onclick="navigateTo('requests')">
+                    <span class="nav-icon">📨</span>
+                    <span>Anfragen</span>
+                </div>
+                <div class="nav-item" id="navAdmin" style="display: none;" onclick="navigateTo('admin')">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Admin Panel</span>
+                </div>
+            </div>
+        </nav>
+
+        <div class="top-bar">
+            <div class="user-profile">
+                <img src="" alt="Avatar" class="user-avatar-top" id="userAvatarTop">
+                <div class="user-info-popup">
+                    <img src="" alt="Avatar" class="popup-avatar" id="popupAvatar">
+                    <div class="popup-name" id="popupName"></div>
+                    <div class="popup-rank">
+                        <span class="user-rank" id="popupRank"></span>
+                    </div>
+                    <div class="popup-info">
+                        <div><strong>Discord ID:</strong> <span id="popupId"></span></div>
+                        <div><strong>Berechtigungen:</strong> <span id="popupPerms"></span></div>
+                    </div>
+                    <button class="logout-btn" onclick="logout()">Abmelden</button>
+                </div>
             </div>
         </div>
 
-        <div class="tabs">
-            <div class="tab active" onclick="switchTab('logs')">📋 Bestrafungen</div>
-            <div class="tab" onclick="switchTab('players')">👥 Spielerliste</div>
-            <div class="tab" onclick="switchTab('requests')" id="requestsTabBtn" style="display: none;">📨 Anfragen</div>
-            <div class="tab" onclick="switchTab('admin')" id="adminTabBtn" style="display: none;">⚙️ Admin Panel</div>
-        </div>
+        <div class="main-content">
+            <div class="container active" id="logsContainer">
+                <div class="content-header">
+                    <h1>📋 Bestrafungen</h1>
+                </div>
 
-        <div class="tab-content active" id="logsTab">
-            <div class="main-layout">
-                <div class="sidebar">
-                    <h2>➕ Neue Bestrafung</h2>
-                    <div class="stats">
-                        <div class="stat-card">
-                            <div class="stat-number" id="totalLogs">0</div>
-                            <div class="stat-label">Gesamt</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number" id="totalBans">0</div>
-                            <div class="stat-label">Bans</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number" id="totalKicks">0</div>
-                            <div class="stat-label">Kicks</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number" id="totalWarns">0</div>
-                            <div class="stat-label">Warnungen</div>
-                        </div>
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalLogs">0</div>
+                        <div class="stat-label">Gesamt</div>
                     </div>
-
-                    <form id="punishmentForm">
-                        <div class="form-group">
-                            <label for="punishmentType">Bestrafungsart:</label>
-                            <select id="punishmentType" required>
-                                <option value="">-- Bitte wählen --</option>
-                                <option value="ban">Ban</option>
-                                <option value="bolo">Bolo</option>
-                                <option value="kick">Kick</option>
-                                <option value="warn">Warnung</option>
-                                <option value="mundlich">Mündliche Warnung</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="robloxUsername">Roblox Benutzername:</label>
-                            <input type="text" id="robloxUsername" required placeholder="z.B. MaxMustermann">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="reason">Grund:</label>
-                            <textarea id="reason" required placeholder="Beschreibe den Grund..."></textarea>
-                        </div>
-
-                        <div class="form-group" id="durationGroup" style="display: none;">
-                            <label for="duration">Dauer:</label>
-                            <input type="text" id="duration" placeholder="z.B. 7 Tage, Permanent">
-                        </div>
-
-                        <button type="submit" class="btn">Bestrafung hinzufügen</button>
-                    </form>
-
-                    <div style="margin-top: 25px;">
-                        <h2 style="margin-bottom: 15px;">🔍 Suchen & Filtern</h2>
-                        <div class="form-group">
-                            <label for="searchUser">Nach Roblox Benutzer:</label>
-                            <input type="text" id="searchUser" placeholder="Roblox Benutzername...">
-                        </div>
-                        <div class="form-group">
-                            <label for="filterType">Nach Typ:</label>
-                            <select id="filterType">
-                                <option value="">Alle anzeigen</option>
-                                <option value="ban">Nur Bans</option>
-                                <option value="bolo">Nur Bolos</option>
-                                <option value="kick">Nur Kicks</option>
-                                <option value="warn">Nur Warnungen</option>
-                                <option value="mundlich">Nur Mündliche Warnungen</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="searchMod">Nach Moderator:</label>
-                            <input type="text" id="searchMod" placeholder="Moderator...">
-                        </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalBans">0</div>
+                        <div class="stat-label">Bans</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalKicks">0</div>
+                        <div class="stat-label">Kicks</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalWarns">0</div>
+                        <div class="stat-label">Warnungen</div>
                     </div>
                 </div>
 
-                <div class="content">
-                    <div class="logs-section">
-                        <h2>📋 Bestrafungs-Logs</h2>
-                        <div id="logsContainer"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="tab-content" id="playersTab">
-            <div class="content">
-                <h2>👥 Spielerliste</h2>
-                <div class="admin-section">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                        <div>
-                            <input type="text" id="playerSearch" placeholder="Spieler suchen..." style="width: 300px;">
-                        </div>
-                        <div>
-                            <span style="color: #3b82f6; font-size: 1.2em;">Gesamt: <strong id="totalPlayers">0</strong> Spieler</span>
-                        </div>
-                    </div>
-                    <div id="playersContainer"></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="tab-content" id="requestsTab">
-            <div class="content">
-                <h2>📨 Zugangsanfragen</h2>
-                <div class="admin-section">
-                    <div id="requestsContainer"></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="tab-content" id="adminTab">
-            <div class="admin-grid">
-                <div class="admin-section">
-                    <h3>👥 Team-Mitglieder</h3>
-                    <div class="user-list" id="userList"></div>
-                </div>
-
-                <div class="admin-section">
-                    <h3>✨ Neuen Rang erstellen</h3>
-                    <form id="createRankForm">
-                        <div class="form-group">
-                            <label for="rankName">Rang Name:</label>
-                            <input type="text" id="rankName" required placeholder="z.B. Moderator">
-                        </div>
-                        <div class="form-group">
-                            <label>Berechtigungen:</label>
-                            <div class="permission-checkbox">
-                                <input type="checkbox" id="perm_ban" value="ban">
-                                <label for="perm_ban">Ban Berechtigung</label>
+                <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px;">
+                    <div class="content-section">
+                        <h2 class="section-title">➕ Neue Bestrafung</h2>
+                        <form id="punishmentForm">
+                            <div class="form-group">
+                                <label for="punishmentType">Bestrafungsart:</label>
+                                <select id="punishmentType" required>
+                                    <option value="">-- Bitte wählen --</option>
+                                    <option value="ban">Ban</option>
+                                    <option value="bolo">Bolo</option>
+                                    <option value="kick">Kick</option>
+                                    <option value="warn">Warnung</option>
+                                    <option value="mundlich">Mündliche Warnung</option>
+                                </select>
                             </div>
-                            <div class="permission-checkbox">
-                                <input type="checkbox" id="perm_kick" value="kick">
-                                <label for="perm_kick">Kick Berechtigung</label>
+
+                            <div class="form-group">
+                                <label for="robloxUsername">Roblox Benutzername:</label>
+                                <input type="text" id="robloxUsername" required placeholder="z.B. MaxMustermann">
                             </div>
-                            <div class="permission-checkbox">
-                                <input type="checkbox" id="perm_warn" value="warn">
-                                <label for="perm_warn">Warn Berechtigung</label>
-                            </div>
-                            <div class="permission-checkbox">
-                                <input type="checkbox" id="perm_bolo" value="bolo">
-                                <label for="perm_bolo">Bolo Berechtigung</label>
-                            </div>
-                            <div class="permission-checkbox">
-                                <input type="checkbox" id="perm_mundlich" value="mundlich">
-                                <label for="perm_mundlich">Mündliche Warnung Berechtigung</label>
-                            </div>
-                            <div class="permission-checkbox">
-                                <input type="checkbox" id="perm_delete" value="delete">
-                                <label for="perm_delete">Löschen Berechtigung</label>
-                            </div>
-                            <div class="permission-checkbox">
-                                <input type="checkbox" id="perm_create_rank" value="create_rank">
-                                <label for="perm_create_rank">Ränge erstellen Berechtigung</label>
-                            </div>
-                            <div class="permission-checkbox">
-                                <input type="checkbox" id="perm_manage_users" value="manage_users">
-                                <label for="perm_manage_users">Benutzer verwalten Berechtigung</label>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="rankColor">Rang Farbe:</label>
-                            <select id="rankColor" required>
-                                <option value="owner">Rot (Owner Style)</option>
-                                <option value="admin">Orange (Admin Style)</option>
-                                <option value="moderator">Grün (Moderator Style)</option>
-                                <option value="supporter">Blau (Supporter Style)</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn">Rang erstellen</button>
-                    </form>
-                </div>
 
-                <div class="admin-section">
-                    <h3>🎭 Bestehende Ränge</h3>
-                    <div class="rank-list" id="rankList"></div>
-                </div>
-
-                <div class="admin-section">
-                    <h3>🔧 Rang einem Benutzer zuweisen</h3>
-                    <form id="assignRankForm">
-                        <div class="form-group">
-                            <label for="assignUserId">Discord User ID:</label>
-                            <input type="text" id="assignUserId" required placeholder="z.B. 1072581651051315240">
-                        </div>
-                        <div class="form-group">
-                            <label for="assignRankSelect">Rang auswählen:</label>
-                            <select id="assignRankSelect" required>
-                                <option value="">-- Bitte wählen --</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn">Rang zuweisen</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        const OWNER_ID = '1072581651051315240';
-        let currentUser = null;
-        let punishments = [];
-        let nextId = 1;
-        let customRanks = {};
-        let teamMembers = {
-            '1072581651051315240': {
-                rank: 'owner',
-                rankName: 'Owner',
-                permissions: ['ban', 'bolo', 'kick', 'warn', 'mundlich', 'delete', 'create_rank', 'manage_users'],
-                status: 'approved'
-            }
-        };
-        let bannedUsers = {};
-        let accessRequests = {};
-        let players = {};
-
-        function showModal(type, title, message, buttons = []) {
-            const overlay = document.getElementById('modalOverlay');
-            const icon = document.getElementById('modalIcon');
-            const titleEl = document.getElementById('modalTitle');
-            const messageEl = document.getElementById('modalMessage');
-            const buttonsEl = document.getElementById('modalButtons');
-
-            icon.className = 'modal-icon ' + type;
-            if (type === 'success') icon.textContent = '✓';
-            else if (type === 'error') icon.textContent = '✕';
-            else if (type === 'warning') icon.textContent = '⚠';
-
-            titleEl.textContent = title;
-            messageEl.textContent = message;
-
-            buttonsEl.innerHTML = '';
-            buttons.forEach(btn => {
-                const button = document.createElement('button');
-                button.className = 'modal-btn ' + btn.class;
-                button.textContent = btn.text;
-                button.onclick = () => {
-                    overlay.classList.remove('active');
-                    if (btn.callback) btn.callback();
-                };
-                buttonsEl.appendChild(button);
-            });
-
-            overlay.classList.add('active');
-        }
-
-        function showSuccess(message) {
-            showModal('success', 'Erfolg', message, [{ text: 'OK', class: 'success', callback: null }]);
-        }
-
-        function showError(message) {
-            showModal('error', 'Fehler', message, [{ text: 'OK', class: 'danger', callback: null }]);
-        }
-
-        function showWarning(message) {
-            showModal('warning', 'Warnung', message, [{ text: 'OK', class: 'success', callback: null }]);
-        }
-
-        function showConfirm(message, onConfirm) {
-            showModal('warning', 'Bestätigung', message, [
-                { text: 'Abbrechen', class: 'cancel', callback: null },
-                { text: 'Bestätigen', class: 'danger', callback: onConfirm }
-            ]);
-        }
-
-        document.getElementById('modalOverlay').addEventListener('click', function(e) {
-            if (e.target === this) {
-                this.classList.remove('active');
-            }
-        });
-
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            event.target.classList.add('active');
-
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            document.getElementById(tabName + 'Tab').classList.add('active');
-
-            if (tabName === 'admin') {
-                updateUserList();
-                updateRankList();
-            } else if (tabName === 'players') {
-                updatePlayersList();
-            } else if (tabName === 'requests') {
-                updateRequestsList();
-            }
-        }
-
-        window.addEventListener('load', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const code = urlParams.get('code');
-
-            const savedRanks = localStorage.getItem('customRanks');
-            const savedTeamMembers = localStorage.getItem('teamMembers');
-            const savedBannedUsers = localStorage.getItem('bannedUsers');
-            const savedPunishments = localStorage.getItem('punishments');
-            const savedRequests = localStorage.getItem('accessRequests');
-            const savedPlayers = localStorage.getItem('players');
-
-            if (savedRanks) customRanks = JSON.parse(savedRanks);
-            if (savedTeamMembers) {
-                const loaded = JSON.parse(savedTeamMembers);
-                teamMembers = { ...teamMembers, ...loaded };
-            }
-            if (savedBannedUsers) bannedUsers = JSON.parse(savedBannedUsers);
-            if (savedPunishments) {
-                punishments = JSON.parse(savedPunishments);
-                nextId = Math.max(...punishments.map(p => p.id), 0) + 1;
-            }
-            if (savedRequests) accessRequests = JSON.parse(savedRequests);
-            if (savedPlayers) players = JSON.parse(savedPlayers);
-
-            if (code) {
-                handleDiscordCallback(code);
-            } else {
-                const savedUser = sessionStorage.getItem('currentUser');
-                if (savedUser) {
-                    try {
-                        currentUser = JSON.parse(savedUser);
-                        checkUserStatus();
-                    } catch (e) {
-                        sessionStorage.removeItem('currentUser');
-                    }
-                }
-            }
-        });
-
-        async function handleDiscordCallback(code) {
-            try {
-                const response = await fetch(`/api/discord-auth?code=${code}`);
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.error || 'Login fehlgeschlagen');
-                }
-
-                handleSuccessfulLogin(data);
-
-                const newUrl = window.location.origin + window.location.pathname;
-                window.history.replaceState({}, document.title, newUrl);
-            } catch (error) {
-                showError('Login fehlgeschlagen: ' + error.message);
-                setTimeout(() => {
-                    const newUrl = window.location.origin + window.location.pathname;
-                    window.history.replaceState({}, document.title, newUrl);
-                }, 3000);
-            }
-        }
-
-        function handleSuccessfulLogin(discordUser) {
-            const avatarUrl = discordUser.avatar
-                ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png?size=128`
-                : `https://cdn.discordapp.com/embed/avatars/${parseInt(discordUser.discriminator || '0') % 5}.png`;
-
-            if (teamMembers[discordUser.id]) {
-                currentUser = {
-                    id: discordUser.id,
-                    username: discordUser.global_name || discordUser.username,
-                    discriminator: discordUser.discriminator || '0',
-                    avatar: avatarUrl,
-                    ...teamMembers[discordUser.id]
-                };
-
-                sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
-                checkUserStatus();
-            } else {
-                accessRequests[discordUser.id] = {
-                    id: discordUser.id,
-                    username: discordUser.global_name || discordUser.username,
-                    discriminator: discordUser.discriminator || '0',
-                    avatar: avatarUrl,
-                    requestDate: new Date().toLocaleString('de-DE'),
-                    status: 'pending'
-                };
-                localStorage.setItem('accessRequests', JSON.stringify(accessRequests));
-
-                showPendingScreen();
-            }
-        }
-
-        function showPendingScreen() {
-            document.getElementById('loginContainer').style.display = 'none';
-            document.getElementById('mainContainer').innerHTML = `
-                <div class="pending-notice">
-                    <h2>⏳ Anfrage ausstehend</h2>
-                    <p>Deine Zugangsanfrage wurde an die Administratoren gesendet.</p>
-                    <p>Bitte warte, bis ein Administrator oder höher deine Anfrage genehmigt.</p>
-                    <p style="margin-top: 20px;">Du kannst diese Seite schließen und später wiederkommen.</p>
-                    <button class="logout-btn" onclick="logout()" style="margin-top: 20px;">Zurück zum Login</button>
-                </div>
-            `;
-            document.getElementById('mainContainer').style.display = 'block';
-        }
-
-        function checkUserStatus() {
-            if (!currentUser) return;
-
-            if (bannedUsers[currentUser.id] && bannedUsers[currentUser.id].status === 'banned') {
-                showBannedScreen(bannedUsers[currentUser.id].reason);
-                return;
-            }
-
-            if (bannedUsers[currentUser.id] && bannedUsers[currentUser.id].status === 'kicked') {
-                showError('Du wurdest von der Website gekickt. Bitte melde dich erneut an.');
-                logout();
-                return;
-            }
-
-            showMainApp();
-        }
-
-        function showBannedScreen(reason) {
-            document.getElementById('bannedMessage').textContent = 
-                `Du wurdest von dieser Website gebannt. Grund: ${reason || 'Kein Grund angegeben'}`;
-            document.getElementById('bannedScreen').classList.add('active');
-            document.getElementById('loginContainer').style.display = 'none';
-            document.getElementById('mainContainer').style.display = 'none';
-        }
-
-        function showMainApp() {
-            document.getElementById('loginContainer').style.display = 'none';
-            const container = document.getElementById('mainContainer');
-            container.style.display = 'block';
-            container.classList.add('active');
-
-            document.getElementById('userName').textContent = currentUser.username;
-            document.getElementById('userAvatar').src = currentUser.avatar;
-            document.getElementById('userRank').textContent = currentUser.rankName;
-            document.getElementById('userRank').className = 'user-rank rank-' + currentUser.rank;
-
-            if (currentUser.id === OWNER_ID || currentUser.permissions.includes('create_rank') || currentUser.permissions.includes('manage_users')) {
-                document.getElementById('adminTabBtn').style.display = 'block';
-            }
-
-            const canManageRequests = currentUser.id === OWNER_ID || 
-                                     currentUser.permissions.includes('manage_users') || 
-                                     currentUser.rank === 'admin';
-            if (canManageRequests) {
-                document.getElementById('requestsTabBtn').style.display = 'block';
-            }
-
-            if (!players[currentUser.id]) {
-                players[currentUser.id] = {
-                    discordId: currentUser.id,
-                    discordName: currentUser.username,
-                    discordAvatar: currentUser.avatar,
-                    roles: [currentUser.rankName],
-                    joinDate: new Date().toLocaleString('de-DE'),
-                    robloxUsername: null,
-                    robloxAvatar: null
-                };
-                localStorage.setItem('players', JSON.stringify(players));
-            }
-
-            updateDisplay();
-            updateStats();
-            updateRankSelectOptions();
-            updatePlayersList();
-        }
-
-        function logout() {
-            currentUser = null;
-            sessionStorage.removeItem('currentUser');
-            document.getElementById('mainContainer').classList.remove('active');
-            document.getElementById('mainContainer').style.display = 'none';
-            document.getElementById('loginContainer').style.display = 'block';
-            location.reload();
-        }
-
-        document.getElementById('punishmentForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const type = document.getElementById('punishmentType').value;
-            if (!currentUser.permissions.includes(type)) {
-                showWarning('Du hast keine Berechtigung für diese Bestrafungsart!');
-                return;
-            }
-
-            const robloxUsername = document.getElementById('robloxUsername').value;
-
-            const punishment = {
-                id: nextId++,
-                type: type,
-                robloxUsername: robloxUsername,
-                robloxUserId: null,
-                moderatorDiscord: currentUser.username,
-                moderatorAvatar: currentUser.avatar,
-                moderatorRank: currentUser.rankName,
-                reason: document.getElementById('reason').value,
-                duration: type === 'ban' ? (document.getElementById('duration').value || 'Nicht angegeben') : null,
-                date: new Date().toLocaleString('de-DE')
-            };
-
-            fetchRobloxUserData(robloxUsername).then(userData => {
-                if (userData) {
-                    punishment.robloxUserId = userData.id;
-                    punishment.robloxAvatar = userData.avatar;
-                }
-                
-                punishments.unshift(punishment);
-                localStorage.setItem('punishments', JSON.stringify(punishments));
-                
-                this.reset();
-                document.getElementById('durationGroup').style.display = 'none';
-                updateDisplay();
-                updateStats();
-                showSuccess('Bestrafung erfolgreich hinzugefügt!');
-            }).catch(() => {
-                punishments.unshift(punishment);
-                localStorage.setItem('punishments', JSON.stringify(punishments));
-                
-                this.reset();
-                document.getElementById('durationGroup').style.display = 'none';
-                updateDisplay();
-                updateStats();
-                showSuccess('Bestrafung hinzugefügt (Roblox Avatar konnte nicht geladen werden)');
-            });
-        });
-
-        document.getElementById('punishmentType').addEventListener('change', function() {
-            const durationGroup = document.getElementById('durationGroup');
-            if (this.value === 'ban') {
-                durationGroup.style.display = 'block';
-            } else {
-                durationGroup.style.display = 'none';
-                document.getElementById('duration').value = '';
-            }
-        });
-
-        async function fetchRobloxUserData(username) {
-            try {
-                const userResponse = await fetch(`https://users.roblox.com/v1/usernames/users`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        usernames: [username],
-                        excludeBannedUsers: false
-                    })
-                });
-
-                const userData = await userResponse.json();
-                if (!userData.data || userData.data.length === 0) {
-                    return null;
-                }
-
-                const userId = userData.data[0].id;
-
-                const avatarResponse = await fetch(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png&isCircular=false`);
-                const avatarData = await avatarResponse.json();
-
-                let avatarUrl = null;
-                if (avatarData.data && avatarData.data.length > 0) {
-                    avatarUrl = avatarData.data[0].imageUrl;
-                }
-
-                return {
-                    id: userId,
-                    avatar: avatarUrl || `https://www.roblox.com/headshot-thumbnail/image?userId=${userId}&width=150&height=150&format=png`
-                };
-            } catch (error) {
-                console.error('Fehler beim Laden der Roblox Daten:', error);
-                return null;
-            }
-        }
-
-        document.getElementById('searchUser').addEventListener('input', updateDisplay);
-        document.getElementById('filterType').addEventListener('change', updateDisplay);
-        document.getElementById('searchMod').addEventListener('input', updateDisplay);
-
-        function updateDisplay() {
-            const searchUser = document.getElementById('searchUser').value.toLowerCase();
-            const filterType = document.getElementById('filterType').value;
-            const searchMod = document.getElementById('searchMod').value.toLowerCase();
-
-            const filtered = punishments.filter(p => {
-                const matchUser = p.robloxUsername.toLowerCase().includes(searchUser);
-                const matchType = !filterType || p.type === filterType;
-                const matchMod = p.moderatorDiscord.toLowerCase().includes(searchMod);
-                return matchUser && matchType && matchMod;
-            });
-
-            const container = document.getElementById('logsContainer');
-            if (filtered.length === 0) {
-                container.innerHTML = '<div class="no-logs">Keine Bestrafungen gefunden</div>';
-                return;
-            }
-
-            container.innerHTML = filtered.map(p => {
-                const avatarUrl = p.robloxAvatar || 'https://via.placeholder.com/60?text=No+Avatar';
-                const durationHTML = p.type === 'ban' && p.duration ? 
-                    `<div class="log-info-item"><strong>Dauer:</strong> ${p.duration}</div>` : '';
-
-                return `
-                <div class="log-item">
-                    <div class="log-header">
-                        <span class="log-type ${p.type}">${getTypeLabel(p.type)}</span>
-                        <button class="delete-btn" onclick="deletePunishment(
+                            <div class="form-group">
