@@ -13,7 +13,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #000000;
+            background: #0a0a0a;
             min-height: 100vh;
             color: #e0e0e0;
             overflow-x: hidden;
@@ -27,67 +27,204 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(ellipse at center, #0f1729 0%, #000000 100%);
+            background: 
+                radial-gradient(ellipse at 10% 10%, rgba(16, 185, 129, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 90% 90%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(139, 92, 246, 0.1) 0%, transparent 60%),
+                linear-gradient(180deg, #000814 0%, #001d3d 50%, #000814 100%);
             z-index: 0;
+            animation: gradientFlow 20s ease-in-out infinite;
+        }
+
+        @keyframes gradientFlow {
+            0%, 100% { 
+                filter: hue-rotate(0deg) brightness(1);
+            }
+            50% { 
+                filter: hue-rotate(15deg) brightness(1.1);
+            }
         }
 
         body::after {
             content: '';
             position: fixed;
-            width: 100%;
-            height: 100%;
             top: 0;
             left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(16, 185, 129, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(16, 185, 129, 0.03) 1px, transparent 1px);
+            background-size: 100px 100px;
             z-index: 0;
-            background-image:
-                linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
-            background-size: 50px 50px;
-            animation: circuitMove 30s linear infinite;
-            opacity: 0.6;
+            pointer-events: none;
+            animation: gridMove 30s linear infinite;
         }
 
-        @keyframes circuitMove {
-            0% { background-position: 0 0; }
-            100% { background-position: 50px 50px; }
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(100px, 100px); }
         }
 
-        .orb {
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            background: linear-gradient(45deg, rgba(16, 185, 129, 0.6), rgba(59, 130, 246, 0.6));
+            border-radius: 50%;
+            filter: blur(2px);
+            animation: floatParticle 25s infinite ease-in-out;
+        }
+
+        .particle:nth-child(odd) {
+            background: linear-gradient(45deg, rgba(59, 130, 246, 0.6), rgba(139, 92, 246, 0.6));
+        }
+
+        @keyframes floatParticle {
+            0% {
+                transform: translateY(100vh) translateX(0) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(100px) scale(1);
+                opacity: 0;
+            }
+        }
+
+        .glow-orb {
             position: fixed;
             border-radius: 50%;
-            filter: blur(70px);
-            opacity: 0.5;
+            filter: blur(80px);
+            opacity: 0.4;
             pointer-events: none;
             z-index: 0;
             mix-blend-mode: screen;
         }
 
-        .orb-1 {
+        .orb1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.6) 0%, transparent 70%);
+            top: -15%;
+            left: -10%;
+            animation: orbFloat1 25s ease-in-out infinite;
+        }
+
+        .orb2 {
             width: 500px;
             height: 500px;
             background: radial-gradient(circle, rgba(59, 130, 246, 0.6) 0%, transparent 70%);
-            top: -10%;
-            left: 10%;
-            animation: orbitFloat1 35s ease-in-out infinite;
+            bottom: -10%;
+            right: -10%;
+            animation: orbFloat2 30s ease-in-out infinite;
         }
 
-        .orb-2 {
+        .orb3 {
             width: 400px;
             height: 400px;
-            background: radial-gradient(circle, rgba(37, 99, 235, 0.5) 0%, transparent 70%);
-            top: 50%;
-            right: 5%;
-            animation: orbitFloat2 40s ease-in-out infinite;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.5) 0%, transparent 70%);
+            top: 40%;
+            left: 50%;
+            animation: orbFloat3 20s ease-in-out infinite;
         }
 
-        @keyframes orbitFloat1 {
-            0%, 100% { transform: translate(0, 0); }
-            50% { transform: translate(100px, 80px); }
+        @keyframes orbFloat1 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(150px, 100px) scale(1.2); }
         }
 
-        @keyframes orbitFloat2 {
-            0%, 100% { transform: translate(0, 0); }
-            50% { transform: translate(-100px, -80px); }
+        @keyframes orbFloat2 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-120px, -80px) scale(1.1); }
+        }
+
+        @keyframes orbFloat3 {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) translate(80px, -60px) scale(0.9); }
+        }
+
+        .login-container {
+            max-width: 480px;
+            margin: 100px auto;
+            background: rgba(18, 18, 18, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 60px 45px;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.9);
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .login-container h1 {
+            color: #fff;
+            margin-bottom: 15px;
+            font-size: 2.4em;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .login-container p {
+            color: #a0a0a0;
+            margin-bottom: 40px;
+            font-size: 1.05em;
+        }
+
+        .discord-btn {
+            background: #4a4a4a;
+            color: white;
+            padding: 18px 35px;
+            border: none;
+            border-radius: 12px;
+            font-size: 17px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .discord-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, #3b5998, transparent);
+            transition: left 0.5s ease;
+        }
+
+        .discord-btn:hover::before {
+            left: 100%;
+        }
+
+        .discord-btn:hover {
+            background: #3b5998;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(59, 89, 152, 0.4);
         }
 
         .modal-overlay {
@@ -109,13 +246,13 @@
         }
 
         .modal-box {
-            background: linear-gradient(145deg, #0a0a0a, #050505);
+            background: rgba(18, 18, 18, 0.98);
             border-radius: 20px;
             padding: 35px;
             max-width: 550px;
             width: 90%;
-            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(59, 130, 246, 0.2);
-            border: 1px solid rgba(59, 130, 246, 0.3);
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             position: relative;
             z-index: 10000;
             animation: modalSlideIn 0.3s ease-out;
@@ -145,20 +282,12 @@
             box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
         }
 
-        .modal-icon.success { 
-            background: linear-gradient(145deg, #3b82f6, #2563eb);
-        }
-        .modal-icon.error { 
-            background: linear-gradient(145deg, #ef4444, #dc2626);
-        }
-
         .modal-title {
             font-size: 1.8em;
             font-weight: bold;
             color: #fff;
             text-align: center;
             margin-bottom: 20px;
-            text-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
         }
 
         .modal-message {
@@ -184,26 +313,6 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .modal-btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        .modal-btn:hover::before {
-            width: 300px;
-            height: 300px;
         }
 
         .modal-btn.success {
@@ -217,99 +326,22 @@
             box-shadow: 0 8px 30px rgba(59, 130, 246, 0.6);
         }
 
-        .modal-btn.cancel {
-            background: #1a1a1a;
-            color: #b0b8d4;
-            border: 2px solid #333;
-        }
-
-        .modal-btn.cancel:hover {
-            background: #252525;
-            border-color: #444;
-        }
-
-        .login-container {
-            max-width: 450px;
-            margin: 100px auto;
-            background: linear-gradient(145deg, #0a0a0a, #050505);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 50px 40px;
-            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(59, 130, 246, 0.2);
-            border: 1px solid rgba(59, 130, 246, 0.3);
-            text-align: center;
-            position: relative;
-            z-index: 1;
-        }
-
-        .login-container h1 {
-            color: #fff;
-            margin-bottom: 15px;
-            font-size: 2.2em;
-            text-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
-        }
-
-        .discord-btn {
-            background: linear-gradient(145deg, #5865F2, #4752C4);
-            color: white;
-            padding: 18px 35px;
-            border: none;
-            border-radius: 12px;
-            font-size: 17px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            width: 100%;
-            transition: all 0.3s;
-            text-decoration: none;
-            font-weight: 600;
-            box-shadow: 0 10px 30px rgba(88, 101, 242, 0.4);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .discord-btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        .discord-btn:hover::before {
-            width: 400px;
-            height: 400px;
-        }
-
-        .discord-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(88, 101, 242, 0.6);
-        }
-
         .sidebar-nav {
             position: fixed;
             left: 0;
             top: 0;
             width: 280px;
             height: 100vh;
-            background: linear-gradient(180deg, #0a0a0a 0%, #050505 100%);
-            border-right: 2px solid rgba(59, 130, 246, 0.2);
+            background: rgba(18, 18, 18, 0.98);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
             padding: 20px 0;
             z-index: 1000;
             overflow-y: auto;
-            box-shadow: 5px 0 30px rgba(0, 0, 0, 0.5);
         }
 
         .nav-header {
             padding: 0 20px 20px;
-            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .nav-logo {
@@ -317,7 +349,6 @@
             font-weight: bold;
             color: #fff;
             margin-bottom: 10px;
-            text-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
         }
 
         .nav-menu {
@@ -334,27 +365,10 @@
             color: #b0b8d4;
             font-weight: 500;
             border-left: 3px solid transparent;
-            position: relative;
-        }
-
-        .nav-item::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 0;
-            height: 100%;
-            background: linear-gradient(90deg, rgba(59, 130, 246, 0.2), transparent);
-            transition: width 0.3s;
-        }
-
-        .nav-item:hover::before {
-            width: 100%;
         }
 
         .nav-item:hover {
             color: white;
-            border-left-color: #3b82f6;
             background: rgba(59, 130, 246, 0.1);
         }
 
@@ -362,7 +376,6 @@
             background: rgba(59, 130, 246, 0.15);
             color: #3b82f6;
             border-left-color: #3b82f6;
-            box-shadow: inset 0 0 20px rgba(59, 130, 246, 0.1);
         }
 
         .nav-icon {
@@ -377,14 +390,13 @@
             top: 0;
             right: 0;
             height: 75px;
-            background: linear-gradient(180deg, #0a0a0a 0%, #050505 100%);
-            border-bottom: 2px solid rgba(59, 130, 246, 0.2);
+            background: rgba(18, 18, 18, 0.98);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             display: flex;
             align-items: center;
             justify-content: flex-start;
             padding: 0 30px;
             z-index: 999;
-            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.5);
         }
 
         .user-profile {
@@ -396,22 +408,20 @@
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            border: 3px solid #3b82f6;
+            border: 2px solid #3b82f6;
             transition: all 0.3s;
-            box-shadow: 0 5px 20px rgba(59, 130, 246, 0.4);
         }
 
         .user-avatar-top:hover {
-            transform: scale(1.1) rotate(5deg);
-            box-shadow: 0 8px 30px rgba(59, 130, 246, 0.6);
+            transform: scale(1.1);
         }
 
         .user-info-popup {
             position: absolute;
             top: 70px;
             left: 0;
-            background: linear-gradient(145deg, #0a0a0a, #050505);
-            border: 2px solid rgba(59, 130, 246, 0.3);
+            background: rgba(18, 18, 18, 0.98);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 15px;
             padding: 25px;
             min-width: 280px;
@@ -436,7 +446,6 @@
             border: 3px solid #3b82f6;
             margin: 0 auto 20px;
             display: block;
-            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
         }
 
         .popup-name {
@@ -445,7 +454,6 @@
             color: #fff;
             text-align: center;
             margin-bottom: 12px;
-            text-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
         }
 
         .popup-rank {
@@ -459,7 +467,6 @@
             font-size: 0.9em;
             font-weight: bold;
             display: inline-block;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
 
         .rank-owner { 
@@ -474,10 +481,6 @@
             background: linear-gradient(145deg, #10b981, #059669);
             color: white;
         }
-        .rank-pending {
-            background: linear-gradient(145deg, #6b7280, #4b5563);
-            color: white;
-        }
 
         .popup-info {
             font-size: 0.95em;
@@ -486,7 +489,6 @@
             background: rgba(59, 130, 246, 0.05);
             padding: 15px;
             border-radius: 10px;
-            border: 1px solid rgba(59, 130, 246, 0.1);
         }
 
         .popup-info div {
@@ -514,12 +516,10 @@
             transition: all 0.3s;
             font-weight: 600;
             font-size: 15px;
-            box-shadow: 0 5px 20px rgba(239, 68, 68, 0.3);
         }
 
         .logout-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(239, 68, 68, 0.5);
         }
 
         .main-content {
@@ -545,23 +545,20 @@
             font-size: 2.8em;
             color: #fff;
             margin-bottom: 12px;
-            text-shadow: 0 0 30px rgba(59, 130, 246, 0.5);
         }
 
         .content-section {
-            background: linear-gradient(145deg, #0a0a0a, #050505);
-            border: 2px solid rgba(59, 130, 246, 0.2);
+            background: rgba(18, 18, 18, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 20px;
             padding: 35px;
             margin-bottom: 25px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
         }
 
         .section-title {
             color: #3b82f6;
             font-size: 1.6em;
             margin-bottom: 25px;
-            text-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
         }
 
         .form-group {
@@ -581,7 +578,7 @@
         textarea {
             width: 100%;
             padding: 14px 16px;
-            border: 2px solid rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
             font-size: 15px;
             background: #000;
@@ -611,13 +608,6 @@
             outline: none;
             border-color: #3b82f6;
             box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
-            background: rgba(59, 130, 246, 0.05);
-        }
-
-        input[type="text"]:hover,
-        select:hover,
-        textarea:hover {
-            border-color: rgba(59, 130, 246, 0.4);
         }
 
         textarea {
@@ -637,32 +627,10 @@
             transition: all 0.3s;
             width: 100%;
             font-weight: 600;
-            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        .btn:hover:not(:disabled)::before {
-            width: 400px;
-            height: 400px;
         }
 
         .btn:hover:not(:disabled) {
             transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(59, 130, 246, 0.6);
         }
 
         .btn:disabled {
@@ -678,94 +646,41 @@
         }
 
         .stat-card {
-            background: linear-gradient(145deg, #0a0a0a, #050505);
-            border: 2px solid rgba(59, 130, 246, 0.2);
+            background: rgba(18, 18, 18, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             color: white;
             padding: 28px;
             border-radius: 18px;
             text-align: center;
             transition: all 0.3s;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(145deg, rgba(59, 130, 246, 0.1), transparent);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .stat-card:hover::before {
-            opacity: 1;
         }
 
         .stat-card:hover {
-            border-color: #3b82f6;
             transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(59, 130, 246, 0.3);
         }
 
         .stat-number {
             font-size: 2.5em;
             font-weight: bold;
             color: #3b82f6;
-            text-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
-            position: relative;
-            z-index: 1;
         }
 
         .stat-label {
             font-size: 0.95em;
             opacity: 0.9;
             margin-top: 8px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .pending-notice {
-            background: linear-gradient(145deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.05));
-            border: 3px solid #f59e0b;
-            border-radius: 20px;
-            padding: 40px;
-            text-align: center;
-            margin: 60px auto;
-            max-width: 650px;
-            box-shadow: 0 20px 60px rgba(245, 158, 11, 0.2);
-        }
-
-        .pending-notice h2 {
-            color: #f59e0b;
-            margin-bottom: 20px;
-            font-size: 2.3em;
-            text-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
-        }
-
-        .pending-notice p {
-            color: #b0b8d4;
-            line-height: 1.8;
-            font-size: 1.1em;
         }
 
         .request-card, .user-card {
-            background: linear-gradient(145deg, #0a0a0a, #050505);
-            border: 2px solid rgba(59, 130, 246, 0.2);
+            background: rgba(18, 18, 18, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 18px;
             padding: 25px;
             margin-bottom: 20px;
             transition: all 0.3s;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
 
         .request-card:hover, .user-card:hover {
-            border-color: #3b82f6;
-            box-shadow: 0 15px 40px rgba(59, 130, 246, 0.3);
             transform: translateX(5px);
         }
 
@@ -781,7 +696,6 @@
             height: 60px;
             border-radius: 50%;
             border: 3px solid #3b82f6;
-            box-shadow: 0 5px 20px rgba(59, 130, 246, 0.4);
         }
 
         .request-info h3, .user-info h3 {
@@ -821,95 +735,40 @@
             font-weight: 600;
             flex: 1;
             min-width: 120px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .action-btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        .action-btn:hover::before {
-            width: 300px;
-            height: 300px;
         }
 
         .action-btn.approve {
             background: linear-gradient(145deg, #10b981, #059669);
             color: white;
-            box-shadow: 0 5px 20px rgba(16, 185, 129, 0.3);
         }
 
         .action-btn.approve:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(16, 185, 129, 0.5);
         }
 
         .action-btn.reject, .action-btn.kick {
             background: linear-gradient(145deg, #f59e0b, #d97706);
             color: white;
-            box-shadow: 0 5px 20px rgba(245, 158, 11, 0.3);
         }
 
         .action-btn.reject:hover, .action-btn.kick:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(245, 158, 11, 0.5);
         }
 
-        .action-btn.ban, .action-btn.blacklist {
+        .action-btn.ban {
             background: linear-gradient(145deg, #ef4444, #dc2626);
             color: white;
-            box-shadow: 0 5px 20px rgba(239, 68, 68, 0.3);
         }
 
-        .action-btn.ban:hover, .action-btn.blacklist:hover {
+        .action-btn.ban:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(239, 68, 68, 0.5);
         }
 
-        .no-logs {
+        .no-data {
             text-align: center;
             padding: 70px;
             color: #5a6378;
             font-size: 1.3em;
-        }
-
-        .user-status {
-            display: inline-block;
-            padding: 6px 14px;
-            border-radius: 15px;
-            font-size: 0.85em;
-            font-weight: 600;
-            margin-left: 10px;
-        }
-
-        .status-approved {
-            background: linear-gradient(145deg, #10b981, #059669);
-            color: white;
-        }
-
-        .status-pending {
-            background: linear-gradient(145deg, #f59e0b, #d97706);
-            color: white;
-        }
-
-        .status-banned {
-            background: linear-gradient(145deg, #ef4444, #dc2626);
-            color: white;
-        }
-
-        .status-blacklisted {
-            background: linear-gradient(145deg, #000, #1a1a1a);
-            color: white;
         }
 
         .search-box {
@@ -920,7 +779,7 @@
             width: 100%;
             padding: 14px 20px;
             background: #000;
-            border: 2px solid rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
             color: #e0e0e0;
             font-size: 15px;
@@ -937,17 +796,6 @@
             color: #6b7280;
         }
 
-        @media (max-width: 1024px) {
-            .sidebar-nav {
-                transform: translateX(-280px);
-            }
-
-            .top-bar, .main-content {
-                margin-left: 0;
-                left: 0;
-            }
-        }
-
         ::-webkit-scrollbar {
             width: 12px;
         }
@@ -960,50 +808,44 @@
             background: linear-gradient(180deg, #3b82f6, #2563eb);
             border-radius: 6px;
         }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(180deg, #2563eb, #1d4ed8);
-        }
     </style>
 </head>
 <body>
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-
-    <!-- Access Request Modal -->
-    <div class="modal-overlay" id="accessRequestModal">
-        <div class="modal-box">
-            <div class="modal-icon success">✉️</div>
-            <div class="modal-title">Zugriff anfragen</div>
-            <div class="modal-message">
-                <p style="margin-bottom: 15px;">Du hast noch keinen Zugriff auf das System. Bitte beschreibe kurz, warum du Zugriff benötigst:</p>
-                <textarea id="accessRequestReason" placeholder="z.B. Ich bin Moderator und möchte Bestrafungen eintragen..." style="width: 100%; min-height: 130px; margin-bottom: 15px; padding: 14px; border: 2px solid rgba(59, 130, 246, 0.2); border-radius: 12px; background: #000; color: #e0e0e0; font-family: inherit; resize: vertical;"></textarea>
-            </div>
-            <div class="modal-buttons">
-                <button class="modal-btn success" onclick="submitAccessRequest()">Anfrage senden</button>
-                <button class="modal-btn cancel" onclick="cancelAccessRequest()">Abbrechen</button>
-            </div>
-        </div>
+    <div class="glow-orb orb1"></div>
+    <div class="glow-orb orb2"></div>
+    <div class="glow-orb orb3"></div>
+    
+    <div class="floating-particles">
+        <div class="particle" style="left: 5%; width: 4px; height: 4px; animation-delay: 0s;"></div>
+        <div class="particle" style="left: 15%; width: 3px; height: 3px; animation-delay: 3s;"></div>
+        <div class="particle" style="left: 25%; width: 5px; height: 5px; animation-delay: 6s;"></div>
+        <div class="particle" style="left: 35%; width: 3px; height: 3px; animation-delay: 9s;"></div>
+        <div class="particle" style="left: 45%; width: 4px; height: 4px; animation-delay: 12s;"></div>
+        <div class="particle" style="left: 55%; width: 6px; height: 6px; animation-delay: 15s;"></div>
+        <div class="particle" style="left: 65%; width: 3px; height: 3px; animation-delay: 18s;"></div>
+        <div class="particle" style="left: 75%; width: 4px; height: 4px; animation-delay: 21s;"></div>
+        <div class="particle" style="left: 85%; width: 5px; height: 5px; animation-delay: 24s;"></div>
+        <div class="particle" style="left: 95%; width: 3px; height: 3px; animation-delay: 27s;"></div>
     </div>
 
-    <!-- Success Modal -->
-    <div class="modal-overlay" id="successModal">
+    <!-- Request Sent Modal -->
+    <div class="modal-overlay" id="requestSentModal">
         <div class="modal-box">
-            <div class="modal-icon success">✅</div>
+            <div class="modal-icon">✉️</div>
             <div class="modal-title">Anfrage gesendet!</div>
             <div class="modal-message">
                 <p>Deine Zugangsanfrage wurde erfolgreich gesendet. Ein Administrator wird sie in Kürze prüfen.</p>
             </div>
             <div class="modal-buttons">
-                <button class="modal-btn success" onclick="closeSuccessModal()">OK</button>
+                <button class="modal-btn success" onclick="closeRequestSentModal()">OK</button>
             </div>
         </div>
     </div>
 
     <!-- Login Container -->
     <div class="login-container" id="loginContainer">
-        <h1>📘 Bestrafungs-Log System</h1>
-        <p style="color: #b0b8d4; margin-bottom: 30px;">Melde dich mit Discord an, um fortzufahren</p>
+        <h1>Bestrafungs-Log System</h1>
+        <p>Melde dich mit Discord an, um fortzufahren</p>
         <a href="#" class="discord-btn" onclick="handleDiscordLogin(event)">
             <svg width="24" height="24" viewBox="0 0 127.14 96.36" fill="currentColor">
                 <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/>
@@ -1016,9 +858,9 @@
     <div id="appContainer" style="display: none;">
         <nav class="sidebar-nav">
             <div class="nav-header">
-                <div class="nav-logo">📘 Mod System</div>
+                <div class="nav-logo">Mod System</div>
             </div>
-            <div class="nav-menu">
+            <div class="nav-menu" id="navMenu">
                 <div class="nav-item active" onclick="navigateTo('logs', event)">
                     <span class="nav-icon">📋</span>
                     <span>Bestrafungen</span>
@@ -1026,14 +868,6 @@
                 <div class="nav-item" onclick="navigateTo('players', event)">
                     <span class="nav-icon">👥</span>
                     <span>Spielerliste</span>
-                </div>
-                <div class="nav-item" id="navRequests" style="display: none;" onclick="navigateTo('requests', event)">
-                    <span class="nav-icon">📨</span>
-                    <span>Anfragen</span>
-                </div>
-                <div class="nav-item" id="navAdmin" style="display: none;" onclick="navigateTo('admin', event)">
-                    <span class="nav-icon">⚙️</span>
-                    <span>Admin Panel</span>
                 </div>
             </div>
         </nav>
@@ -1057,19 +891,10 @@
         </div>
 
         <div class="main-content">
-            <!-- Pending Access Container -->
-            <div class="container active" id="pendingContainer">
-                <div class="pending-notice">
-                    <h2>⏳ Zugriff ausstehend</h2>
-                    <p>Deine Zugangsanfrage wurde gesendet und wird derzeit von einem Administrator geprüft. Du wirst benachrichtigt, sobald eine Entscheidung getroffen wurde.</p>
-                    <p style="margin-top: 15px; font-size: 0.9em;">Bitte habe etwas Geduld. Dies kann einige Zeit in Anspruch nehmen.</p>
-                </div>
-            </div>
-
             <!-- Logs Container -->
-            <div class="container" id="logsContainer">
+            <div class="container active" id="logsContainer">
                 <div class="content-header">
-                    <h1>📋 Bestrafungen</h1>
+                    <h1>Bestrafungen</h1>
                 </div>
 
                 <div class="stats">
@@ -1092,15 +917,15 @@
                 </div>
 
                 <div class="content-section">
-                    <h2 class="section-title">➕ Neue Bestrafung</h2>
+                    <h2 class="section-title">Neue Bestrafung</h2>
                     <form id="punishmentForm">
                         <div class="form-group">
                             <label for="punishmentType">Bestrafungsart:</label>
                             <select id="punishmentType" required>
                                 <option value="">── Bitte wählen ──</option>
-                                <option value="ban">🚫 Ban</option>
-                                <option value="kick">👢 Kick</option>
-                                <option value="warn">⚠️ Warnung</option>
+                                <option value="ban">Ban</option>
+                                <option value="kick">Kick</option>
+                                <option value="warn">Warnung</option>
                             </select>
                         </div>
 
@@ -1122,603 +947,46 @@
             <!-- Players Container -->
             <div class="container" id="playersContainer">
                 <div class="content-header">
-                    <h1>👥 Spielerliste</h1>
+                    <h1>Spielerliste</h1>
                 </div>
                 <div class="content-section">
-                    <div class="no-logs">Keine Spieler vorhanden</div>
+                    <div class="search-box">
+                        <input type="text" class="search-input" placeholder="Benutzer suchen..." onkeyup="filterPlayers(this.value)">
+                    </div>
+                    <div id="playersList">
+                        <div class="no-data">Keine Spieler im System</div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Requests Container -->
+            <!-- Requests Container (Admin/Owner only) -->
             <div class="container" id="requestsContainer">
                 <div class="content-header">
-                    <h1>📨 Zugriffs-Anfragen</h1>
+                    <h1>Zugriffs-Anfragen</h1>
                 </div>
                 <div class="content-section">
                     <div class="search-box">
-                        <input type="text" class="search-input" placeholder="🔍 Benutzer suchen..." onkeyup="filterRequests(this.value)">
+                        <input type="text" class="search-input" placeholder="Benutzer suchen..." onkeyup="filterRequests(this.value)">
                     </div>
                     <div id="requestsList">
-                        <div class="no-logs">Keine Anfragen vorhanden</div>
+                        <div class="no-data">Keine offenen Anfragen</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Admin Container -->
-            <div class="container" id="adminContainer">
+            <!-- Roles Container (Owner only) -->
+            <div class="container" id="rolesContainer">
                 <div class="content-header">
-                    <h1>⚙️ Admin Panel</h1>
+                    <h1>Rollenverwaltung</h1>
                 </div>
                 <div class="content-section">
-                    <h2 class="section-title">👥 Benutzerverwaltung</h2>
-                    <div class="search-box">
-                        <input type="text" class="search-input" placeholder="🔍 Benutzer suchen..." onkeyup="filterUsers(this.value)">
-                    </div>
-                    <div id="usersList">
-                        <div class="no-logs">Keine Benutzer vorhanden</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // OWNER DISCORD ID
-        const OWNER_ID = '1072581651051315240';
-
-        // Simulated database
-        let currentUser = null;
-        let accessRequests = [];
-        let approvedUsers = {};
-        let blacklistedUsers = {};
-
-        // Initialize on page load
-        window.onload = function() {
-            loadSavedData();
-            
-            const urlParams = new URLSearchParams(window.location.search);
-            const code = urlParams.get('code');
-            
-            if (code) {
-                handleOAuthCallback(code);
-            } else {
-                checkExistingSession();
-            }
-        };
-
-        function loadSavedData() {
-            const savedApproved = localStorage.getItem('approvedUsers');
-            if (savedApproved) {
-                approvedUsers = JSON.parse(savedApproved);
-            }
-
-            const savedRequests = localStorage.getItem('accessRequests');
-            if (savedRequests) {
-                accessRequests = JSON.parse(savedRequests);
-            }
-
-            const savedBlacklisted = localStorage.getItem('blacklistedUsers');
-            if (savedBlacklisted) {
-                blacklistedUsers = JSON.parse(savedBlacklisted);
-            }
-        }
-
-        function handleDiscordLogin(event) {
-            event.preventDefault();
-            
-            // Redirect to Discord OAuth2
-            window.location.href = 'https://discord.com/oauth2/authorize?client_id=1419243337826832406&response_type=code&redirect_uri=https%3A%2F%2Fhrp-moderationlogging.vercel.app%2F&scope=identify';
-        }
-
-        function handleOAuthCallback(code) {
-            // In production, you need a backend endpoint to exchange the code for user data
-            // This is a placeholder - you'll need to implement your backend API
-            
-            // For now, we'll show a message that backend is needed
-            console.log('OAuth Code received:', code);
-            
-            // TODO: Replace this with actual backend call
-            // Example:
-            // fetch('/api/discord/callback', {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify({ code: code })
-            // })
-            // .then(res => res.json())
-            // .then(userData => processLogin(userData));
-            
-            // Temporary: For testing purposes only
-            // You should remove this and implement proper backend authentication
-            const mockUser = {
-                id: '1072581651051315240', // Replace with actual user ID from Discord API
-                username: 'TestUser',
-                discriminator: '0001',
-                avatar: 'https://cdn.discordapp.com/embed/avatars/1.png'
-            };
-            
-            processLogin(mockUser);
-        }
-
-        function processLogin(userData) {
-            // Check if user is blacklisted
-            if (blacklistedUsers[userData.id]) {
-                alert('Du wurdest von diesem System ausgeschlossen und kannst keine Anfragen mehr stellen.');
-                return;
-            }
-
-            currentUser = {
-                id: userData.id,
-                username: userData.username + '#' + userData.discriminator,
-                avatar: userData.avatar,
-                rank: userData.id === OWNER_ID ? 'owner' : 'pending',
-                status: userData.id === OWNER_ID ? 'approved' : 'pending'
-            };
-
-            sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
-
-            if (currentUser.id === OWNER_ID) {
-                showApp();
-            } else {
-                if (approvedUsers[currentUser.id]) {
-                    currentUser.rank = approvedUsers[currentUser.id].rank;
-                    currentUser.status = 'approved';
-                    sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    showApp();
-                } else {
-                    const existingRequest = accessRequests.find(r => r.userId === currentUser.id && r.status === 'pending');
-                    if (existingRequest) {
-                        showPendingScreen();
-                    } else {
-                        showAccessRequestModal();
-                    }
-                }
-            }
-        }
-
-        function checkExistingSession() {
-            const savedUser = sessionStorage.getItem('currentUser');
-            if (savedUser) {
-                currentUser = JSON.parse(savedUser);
-                
-                // Check if blacklisted
-                if (blacklistedUsers[currentUser.id]) {
-                    sessionStorage.removeItem('currentUser');
-                    alert('Du wurdest von diesem System ausgeschlossen.');
-                    return;
-                }
-                
-                if (currentUser.status === 'approved' || currentUser.id === OWNER_ID) {
-                    showApp();
-                } else {
-                    showPendingScreen();
-                }
-            }
-        }
-
-        function showAccessRequestModal() {
-            document.getElementById('loginContainer').style.display = 'none';
-            document.getElementById('appContainer').style.display = 'block';
-            document.getElementById('accessRequestModal').classList.add('active');
-        }
-
-        function submitAccessRequest() {
-            const reason = document.getElementById('accessRequestReason').value.trim();
-            
-            if (!reason) {
-                alert('Bitte gib einen Grund für deine Anfrage an.');
-                return;
-            }
-
-            if (reason.length < 20) {
-                alert('Bitte gib eine ausführlichere Begründung an (mindestens 20 Zeichen).');
-                return;
-            }
-
-            const request = {
-                id: Date.now(),
-                userId: currentUser.id,
-                username: currentUser.username,
-                avatar: currentUser.avatar,
-                reason: reason,
-                timestamp: new Date().toISOString(),
-                status: 'pending'
-            };
-
-            accessRequests.push(request);
-            localStorage.setItem('accessRequests', JSON.stringify(accessRequests));
-
-            document.getElementById('accessRequestModal').classList.remove('active');
-            document.getElementById('successModal').classList.add('active');
-        }
-
-        function closeSuccessModal() {
-            document.getElementById('successModal').classList.remove('active');
-            showPendingScreen();
-        }
-
-        function cancelAccessRequest() {
-            document.getElementById('accessRequestModal').classList.remove('active');
-            logout();
-        }
-
-        function showPendingScreen() {
-            document.getElementById('loginContainer').style.display = 'none';
-            document.getElementById('appContainer').style.display = 'block';
-            
-            updateUserProfile();
-            
-            document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
-            document.getElementById('pendingContainer').classList.add('active');
-        }
-
-        function showApp() {
-            document.getElementById('loginContainer').style.display = 'none';
-            document.getElementById('appContainer').style.display = 'block';
-            
-            updateUserProfile();
-            
-            if (currentUser.rank === 'owner' || currentUser.rank === 'admin') {
-                document.getElementById('navRequests').style.display = 'flex';
-                document.getElementById('navAdmin').style.display = 'flex';
-            }
-            
-            document.getElementById('pendingContainer').classList.remove('active');
-            document.getElementById('logsContainer').classList.add('active');
-            
-            // Load all data
-            loadPunishments();
-            loadAccessRequests();
-            loadUsersList();
-        }
-
-        function updateUserProfile() {
-            document.getElementById('userAvatarTop').src = currentUser.avatar;
-            document.getElementById('popupAvatar').src = currentUser.avatar;
-            document.getElementById('popupName').textContent = currentUser.username;
-            
-            const rankElement = document.getElementById('popupRank');
-            const rankText = {
-                'owner': 'Owner',
-                'admin': 'Administrator',
-                'moderator': 'Moderator',
-                'pending': 'Ausstehend'
-            };
-            rankElement.textContent = rankText[currentUser.rank] || 'Benutzer';
-            rankElement.className = 'user-rank rank-' + currentUser.rank;
-            
-            document.getElementById('popupId').textContent = currentUser.id;
-            document.getElementById('popupStatus').textContent = currentUser.status === 'approved' ? '✅ Genehmigt' : '⏳ Ausstehend';
-        }
-
-        function loadAccessRequests() {
-            const listContainer = document.getElementById('requestsList');
-            if (!listContainer) return;
-            
-            const pendingRequests = accessRequests.filter(r => r.status === 'pending');
-            
-            if (pendingRequests.length === 0) {
-                listContainer.innerHTML = '<div class="no-logs">📭 Keine offenen Anfragen vorhanden</div>';
-                return;
-            }
-            
-            listContainer.innerHTML = pendingRequests.map(request => `
-                <div class="request-card" data-username="${request.username.toLowerCase()}">
-                    <div class="request-header">
-                        <img src="${request.avatar}" alt="Avatar" class="request-avatar">
-                        <div class="request-info" style="flex: 1;">
-                            <h3>${request.username}</h3>
-                            <small style="display: block; margin-top: 3px;">
-                                <strong style="color: #3b82f6;">Discord ID:</strong> ${request.userId}
-                            </small>
-                            <small style="display: block; margin-top: 3px; color: #6b7280;">
-                                📅 Angefragt am: ${new Date(request.timestamp).toLocaleString('de-DE')}
-                            </small>
+                    <h2 class="section-title">Neue Rolle erstellen</h2>
+                    <form id="roleForm">
+                        <div class="form-group">
+                            <label for="roleName">Rollenname:</label>
+                            <input type="text" id="roleName" required placeholder="z.B. Senior Moderator">
                         </div>
-                    </div>
-                    <div class="request-reason">
-                        <strong style="color: #3b82f6; display: block; margin-bottom: 8px;">📝 Grund der Anfrage:</strong>
-                        ${request.reason}
-                    </div>
-                    <div class="request-actions">
-                        <button class="action-btn approve" onclick="approveRequest(${request.id})">
-                            ✓ Genehmigen
-                        </button>
-                        <button class="action-btn reject" onclick="rejectRequest(${request.id})">
-                            ✗ Ablehnen
-                        </button>
-                        <button class="action-btn blacklist" onclick="blacklistUser('${request.userId}', '${request.username.replace(/'/g, "\\'")}')">
-                            🚫 Blacklisten
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function loadUsersList() {
-            const listContainer = document.getElementById('usersList');
-            if (!listContainer) return;
-            
-            // Get all approved users
-            const allUsers = Object.keys(approvedUsers).map(userId => {
-                const user = approvedUsers[userId];
-                return {
-                    id: userId,
-                    ...user,
-                    status: blacklistedUsers[userId] ? 'blacklisted' : 'approved'
-                };
-            });
-            
-            // Add blacklisted users who aren't in approved list
-            Object.keys(blacklistedUsers).forEach(userId => {
-                if (!approvedUsers[userId]) {
-                    allUsers.push({
-                        id: userId,
-                        username: blacklistedUsers[userId].username || 'Unbekannt',
-                        rank: 'blacklisted',
-                        status: 'blacklisted',
-                        approvedAt: blacklistedUsers[userId].blacklistedAt,
-                        approvedBy: blacklistedUsers[userId].blacklistedBy,
-                        avatar: blacklistedUsers[userId].avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'
-                    });
-                }
-            });
-            
-            if (allUsers.length === 0) {
-                listContainer.innerHTML = '<div class="no-logs">👥 Keine Benutzer im System vorhanden</div>';
-                return;
-            }
-            
-            listContainer.innerHTML = allUsers.map(user => `
-                <div class="user-card" data-username="${(user.username || user.id).toLowerCase()}" data-id="${user.id}">
-                    <div class="user-header">
-                        <img src="${user.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="Avatar" class="user-avatar">
-                        <div class="user-info" style="flex: 1;">
-                            <h3>
-                                ${user.username || 'Unbekannt'}
-                                <span class="user-status status-${user.status}">
-                                    ${user.status === 'blacklisted' ? '🚫 Blacklisted' : '✅ Aktiv'}
-                                </span>
-                            </h3>
-                            <small style="display: block; margin-top: 5px;">
-                                <strong style="color: #3b82f6;">Discord ID:</strong> ${user.id}
-                            </small>
-                            <div style="margin-top: 8px;">
-                                <span class="user-rank rank-${user.rank}">${user.rank === 'blacklisted' ? 'Blacklisted' : user.rank.charAt(0).toUpperCase() + user.rank.slice(1)}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div style="font-size: 0.9em; color: #6b7280; margin: 15px 0; padding: 12px; background: rgba(59, 130, 246, 0.05); border-radius: 10px; border-left: 3px solid #3b82f6;">
-                        <div style="margin-bottom: 5px;">
-                            📅 <strong>${user.status === 'blacklisted' ? 'Blacklisted' : 'Genehmigt'}</strong> am: ${new Date(user.approvedAt).toLocaleString('de-DE')}
-                        </div>
-                        <div>
-                            👤 <strong>Von:</strong> ${user.approvedBy === OWNER_ID ? 'Owner' : user.approvedBy}
-                        </div>
-                    </div>
-                    <div class="user-actions">
-                        ${user.status !== 'blacklisted' ? `
-                            <button class="action-btn kick" onclick="kickUser('${user.id}')">
-                                👢 Kicken
-                            </button>
-                            <button class="action-btn ban" onclick="banUser('${user.id}')">
-                                🚫 Bannen
-                            </button>
-                            <button class="action-btn blacklist" onclick="blacklistUser('${user.id}', '${(user.username || 'Unbekannt').replace(/'/g, "\\'")}')">
-                                ⛔ Blacklisten
-                            </button>
-                        ` : `
-                            <button class="action-btn approve" onclick="unblacklistUser('${user.id}')">
-                                ✓ Blacklist aufheben
-                            </button>
-                        `}
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function approveRequest(requestId) {
-            const request = accessRequests.find(r => r.id === requestId);
-            if (!request) return;
-            
-            approvedUsers[request.userId] = {
-                rank: 'moderator',
-                approvedBy: currentUser.id,
-                approvedAt: new Date().toISOString(),
-                username: request.username,
-                avatar: request.avatar
-            };
-            
-            request.status = 'approved';
-            
-            localStorage.setItem('approvedUsers', JSON.stringify(approvedUsers));
-            localStorage.setItem('accessRequests', JSON.stringify(accessRequests));
-            
-            loadAccessRequests();
-            loadUsersList();
-            
-            alert(`✅ Zugriff für ${request.username} wurde genehmigt!\n\n👤 Benutzer: ${request.username}\n🆔 Discord ID: ${request.userId}\n🎖️ Rang: Moderator`);
-        }
-
-        function rejectRequest(requestId) {
-            const request = accessRequests.find(r => r.id === requestId);
-            if (!request) return;
-            
-            if (confirm(`Möchtest du die Anfrage von ${request.username} wirklich ablehnen?`)) {
-                request.status = 'rejected';
-                localStorage.setItem('accessRequests', JSON.stringify(accessRequests));
-                loadAccessRequests();
-                alert('❌ Anfrage wurde abgelehnt.');
-            }
-        }
-
-        function kickUser(userId) {
-            if (!confirm('Möchtest du diesen Benutzer wirklich kicken? Er muss eine neue Anfrage stellen.')) return;
-            
-            delete approvedUsers[userId];
-            localStorage.setItem('approvedUsers', JSON.stringify(approvedUsers));
-            
-            loadUsersList();
-            alert('👢 Benutzer wurde gekickt!');
-        }
-
-        function banUser(userId) {
-            if (!confirm('Möchtest du diesen Benutzer wirklich bannen? Er wird dauerhaft vom System entfernt.')) return;
-            
-            blacklistedUsers[userId] = {
-                bannedAt: new Date().toISOString(),
-                bannedBy: currentUser.id,
-                type: 'ban'
-            };
-            
-            localStorage.setItem('blacklistedUsers', JSON.stringify(blacklistedUsers));
-            
-            loadUsersList();
-            alert('🚫 Benutzer wurde gebannt!');
-        }
-
-        function blacklistUser(userId, username) {
-            if (!confirm(`Möchtest du ${username || 'diesen Benutzer'} wirklich blacklisten? Er kann keine Anfragen mehr stellen.`)) return;
-            
-            const user = approvedUsers[userId];
-            
-            blacklistedUsers[userId] = {
-                blacklistedAt: new Date().toISOString(),
-                blacklistedBy: currentUser.id,
-                type: 'blacklist',
-                username: username,
-                avatar: user ? user.avatar : 'https://cdn.discordapp.com/embed/avatars/0.png'
-            };
-            
-            delete approvedUsers[userId];
-            
-            localStorage.setItem('blacklistedUsers', JSON.stringify(blacklistedUsers));
-            localStorage.setItem('approvedUsers', JSON.stringify(approvedUsers));
-            
-            // Update requests list
-            accessRequests.forEach(req => {
-                if (req.userId === userId) {
-                    req.status = 'blacklisted';
-                }
-            });
-            localStorage.setItem('accessRequests', JSON.stringify(accessRequests));
-            
-            loadAccessRequests();
-            loadUsersList();
-            alert('⛔ Benutzer wurde blacklisted!');
-        }
-
-        function unblacklistUser(userId) {
-            if (!confirm('Möchtest du die Blacklist für diesen Benutzer aufheben?')) return;
-            
-            delete blacklistedUsers[userId];
-            localStorage.setItem('blacklistedUsers', JSON.stringify(blacklistedUsers));
-            
-            loadUsersList();
-            alert('✅ Blacklist wurde aufgehoben!');
-        }
-
-        function filterRequests(searchTerm) {
-            const cards = document.querySelectorAll('#requestsList .request-card');
-            const term = searchTerm.toLowerCase();
-            
-            cards.forEach(card => {
-                const username = card.dataset.username;
-                card.style.display = username.includes(term) ? 'block' : 'none';
-            });
-        }
-
-        function filterUsers(searchTerm) {
-            const cards = document.querySelectorAll('#usersList .user-card');
-            const term = searchTerm.toLowerCase();
-            
-            cards.forEach(card => {
-                const username = card.dataset.username;
-                card.style.display = username.includes(term) ? 'block' : 'none';
-            });
-        }
-
-        function loadPunishments() {
-            document.getElementById('totalLogs').textContent = '0';
-            document.getElementById('totalBans').textContent = '0';
-            document.getElementById('totalKicks').textContent = '0';
-            document.getElementById('totalWarns').textContent = '0';
-        }
-
-        function navigateTo(page, event) {
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            event.target.closest('.nav-item').classList.add('active');
-            
-            document.querySelectorAll('.container').forEach(container => {
-                container.classList.remove('active');
-            });
-            
-            const containerMap = {
-                'logs': 'logsContainer',
-                'players': 'playersContainer',
-                'requests': 'requestsContainer',
-                'admin': 'adminContainer'
-            };
-            
-            document.getElementById(containerMap[page]).classList.add('active');
-        }
-
-        function logout() {
-            if (confirm('Möchtest du dich wirklich abmelden?')) {
-                sessionStorage.removeItem('currentUser');
-                currentUser = null;
-                
-                document.getElementById('appContainer').style.display = 'none';
-                document.getElementById('loginContainer').style.display = 'block';
-                
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
-        }
-
-        // Punishment Form Handler
-        document.addEventListener('DOMContentLoaded', function() {
-            const punishmentForm = document.getElementById('punishmentForm');
-            if (punishmentForm) {
-                punishmentForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    
-                    const type = document.getElementById('punishmentType').value;
-                    const username = document.getElementById('robloxUsername').value.trim();
-                    const reason = document.getElementById('reason').value.trim();
-                    
-                    if (!type || !username || !reason) {
-                        alert('❌ Bitte fülle alle Felder aus!');
-                        return;
-                    }
-                    
-                    if (reason.length < 10) {
-                        alert('❌ Der Grund muss mindestens 10 Zeichen lang sein!');
-                        return;
-                    }
-                    
-                    // Save punishment
-                    const punishment = {
-                        id: Date.now(),
-                        type: type,
-                        username: username,
-                        reason: reason,
-                        moderator: currentUser.username,
-                        timestamp: new Date().toISOString()
-                    };
-                    
-                    // Get existing punishments
-                    let punishments = JSON.parse(localStorage.getItem('punishments') || '[]');
-                    punishments.unshift(punishment);
-                    localStorage.setItem('punishments', JSON.stringify(punishments));
-                    
-                    alert(`✅ Bestrafung hinzugefügt!\n\n📋 Typ: ${type}\n👤 Benutzer: ${username}\n📝 Grund: ${reason}`);
-                    
-                    this.reset();
-                    loadPunishments();
-                });
-            }
-        });
-    </script>
-</body>
-</html>
+                        <div class="form-group">
+                            <label>Berechtigungen:</label>
+                            <div style="background: rgba(59, 130, 246, 0.05); padding: 20px; border-radius: 12px;">
+                                <div
