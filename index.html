@@ -13,7 +13,8 @@
   --danger:#ef4444;
 }
 *{box-sizing:border-box}
-body{margin:0;font-family:"Segoe UI",Roboto,Arial,sans-serif;background:linear-gradient(135deg,var(--bg-1),var(--bg-2));color:#e6eef8;min-height:100vh;}
+html,body{height:100%}
+body{margin:0;font-family:"Segoe UI",Roboto,Arial,sans-serif;background:linear-gradient(135deg,var(--bg-1),var(--bg-2));color:#e6eef8;min-height:100vh;overflow:hidden}
 .bg-deco{position:fixed;inset:0;pointer-events:none;z-index:0}
 .bg-deco .orb{position:absolute;width:520px;height:520px;border-radius:50%;filter:blur(60px);opacity:0.12}
 .bg-orb-1{left:6%;top:6%;background:radial-gradient(circle,#12306a,transparent 50%)}
@@ -22,10 +23,24 @@ body{margin:0;font-family:"Segoe UI",Roboto,Arial,sans-serif;background:linear-g
 .container{position:relative;z-index:1;display:flex;gap:20px;padding:32px;align-items:stretch;min-height:calc(100vh - 64px);}
 
 /* left - welcome / login */
-.welcome{width:44%;min-width:360px;padding:36px;display:flex;flex-direction:column;gap:18px;justify-content:center}
-.hero{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:20px;border-radius:14px;box-shadow:0 10px 40px rgba(2,6,23,0.6)}
+.welcome{width:44%;min-width:360px;padding:36px;display:flex;flex-direction:column;gap:18px;justify-content:center;position:relative;overflow:hidden;border-radius:14px}
+.welcome::before{
+  /* animated gradient overlay */
+  content:'';position:absolute;inset:0;z-index:0;
+  background:linear-gradient(120deg,#0b243f,#1f2b58,#0b1a2a);
+  background-size:400% 400%;
+  animation:gradShift 12s ease infinite;
+  opacity:0.65;filter:blur(20px);
+  border-radius:14px;
+}
+@keyframes gradShift{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+.hero{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:20px;border-radius:14px;box-shadow:0 10px 40px rgba(2,6,23,0.6);position:relative;z-index:2}
 .brand{font-weight:800;font-size:26px}
-.card{background:var(--card);padding:18px;border-radius:12px;box-shadow:0 10px 40px rgba(2,6,23,0.5)}
+.card{background:var(--card);padding:18px;border-radius:12px;box-shadow:0 10px 40px rgba(2,6,23,0.5);position:relative;z-index:2}
 .form-row{display:flex;flex-direction:column;gap:8px;margin-top:8px}
 label{font-size:13px;color:var(--muted)}
 input[type="text"], input[type="password"], input[type="file"], select{padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:rgba(12,16,28,0.6);color:#e6eef8}
@@ -36,9 +51,17 @@ input[type="text"], input[type="password"], input[type="file"], select{padding:1
 .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
 .small{font-size:13px;color:var(--muted)}
 
+/* Three.js canvas inside welcome */
+#welcome-3d {position:absolute;inset:0;z-index:1;pointer-events:none}
+
+/* chat bubbles (login) */
+#chat-popups{position:absolute;bottom:18px;left:22px;z-index:3;display:flex;flex-direction:column;gap:10px;pointer-events:none}
+.chat{background:linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02));padding:8px 12px;border-radius:999px;font-weight:700;color:#fff;opacity:0;transform:translateY(12px);animation:chatPop 3s forwards}
+@keyframes chatPop{0%{opacity:0;transform:translateY(12px)}10%{opacity:1;transform:translateY(0)}85%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-16px)}}
+
 /* right - app */
-.app{flex:1;display:flex;gap:18px}
-.sidebar{width:300px;background:linear-gradient(180deg,rgba(8,12,25,0.96),rgba(6,10,18,0.96));padding:18px;border-radius:12px;height:calc(100vh - 64px);position:sticky;top:32px;overflow:auto;border:1px solid rgba(255,255,255,0.02)}
+.app{flex:1;display:flex;gap:18px;position:relative}
+.sidebar{width:300px;background:linear-gradient(180deg,rgba(8,12,25,0.96),rgba(6,10,18,0.96));padding:18px;border-radius:12px;height:calc(100vh - 64px);position:sticky;top:32px;overflow:auto;border:1px solid rgba(255,255,255,0.02);z-index:2}
 .logo{font-size:18px;font-weight:800;margin-bottom:12px}
 .user-short{display:flex;gap:12px;align-items:center;margin-bottom:12px}
 .avatar{width:48px;height:48px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-size:20px}
@@ -46,7 +69,7 @@ input[type="text"], input[type="password"], input[type="file"], select{padding:1
 .menu-item{padding:10px;border-radius:8px;cursor:pointer;margin-top:8px;display:flex;align-items:center;gap:10px}
 .menu-item:hover{background:rgba(43,98,255,0.06)}
 .menu-item.active{background:rgba(43,98,255,0.12);border-left:3px solid var(--accent-2);padding-left:7px}
-.main{flex:1;background:linear-gradient(180deg,rgba(8,12,20,0.6),rgba(6,10,18,0.6));padding:20px;border-radius:12px;height:calc(100vh - 64px);overflow:auto}
+.main{flex:1;background:linear-gradient(180deg,rgba(8,12,20,0.6),rgba(6,10,18,0.6));padding:20px;border-radius:12px;height:calc(100vh - 64px);overflow:auto;z-index:1}
 .header{display:flex;justify-content:space-between;align-items:center}
 .servers-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:12px}
 .server-card{padding:14px;border-radius:10px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));cursor:pointer;transition:all .16s}
@@ -89,19 +112,20 @@ input[type="text"], input[type="password"], input[type="file"], select{padding:1
 
   <div class="container">
     <!-- Left: login -->
-    <section class="welcome">
-      <div class="hero card">
+    <section class="welcome" id="welcomeArea">
+      <canvas id="welcome-3d"></canvas>
+      <div class="hero card" style="z-index:2">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <div>
             <div class="brand">Discord Rang-System</div>
             <h1 style="margin:6px 0 0 0">Admin & Rollen</h1>
-            <p class="small" style="margin-top:6px">Login lokal (JSON). Später austauschbar gegen Discord OAuth2.</p>
+            <p class="small" style="margin-top:6px">Login lokal (JSON). Später: Discord OAuth2 möglich.</p>
           </div>
           <div class="small">v1 • Demo</div>
         </div>
       </div>
 
-      <div class="card">
+      <div class="card" style="z-index:2">
         <h3>Login</h3>
         <div class="form-row"><label>Benutzername</label><input id="loginUser" type="text" placeholder="Emilian"></div>
         <div class="form-row"><label>Passwort</label><input id="loginPass" type="password" placeholder="Passwort"></div>
@@ -113,7 +137,7 @@ input[type="text"], input[type="password"], input[type="file"], select{padding:1
         <div style="margin-top:12px" class="small">Session wird im Browser gespeichert — du bleibst eingeloggt.</div>
       </div>
 
-      <div class="card" style="margin-top:12px">
+      <div class="card" style="margin-top:12px;z-index:2">
         <h4>Import / Export Accounts</h4>
         <div class="small">Importiert/Exportiert accounts.json</div>
         <div style="display:flex;gap:8px;margin-top:10px">
@@ -121,6 +145,8 @@ input[type="text"], input[type="password"], input[type="file"], select{padding:1
           <button class="btn btn-primary" onclick="importAccounts()">Import</button>
         </div>
       </div>
+
+      <div id="chat-popups"></div>
     </section>
 
     <!-- Right: app -->
@@ -133,10 +159,10 @@ input[type="text"], input[type="password"], input[type="file"], select{padding:1
         </div>
 
         <div class="menu-title">Navigation</div>
-        <div class="menu-item active" data-section="servers" onclick="nav(event)">🏠 Server</div>
-        <div class="menu-item" data-section="roles" onclick="nav(event)">⭐ Rollen</div>
+        <div class="menu-item active" data-section="servers" onclick="nav(event)" id="menuServers">🏠 Server</div>
+        <div class="menu-item" data-section="roles" onclick="nav(event)" id="menuRoles" style="display:none">⭐ Rollen</div>
         <div class="menu-item" data-section="admin" onclick="nav(event)" id="adminMenuItem" style="display:none">🛠️ Admin</div>
-        <div class="menu-item" data-section="bans" onclick="nav(event)">⛔ Bans</div>
+        <div class="menu-item" data-section="bans" onclick="nav(event)" id="menuBans" style="display:none">⛔ Bans</div>
         <div class="menu-item" data-section="debug" onclick="nav(event)" id="debugMenuItem" style="display:none">🐞 Debug</div>
 
         <div class="menu-title">Deine Server</div>
@@ -359,6 +385,7 @@ input[type="text"], input[type="password"], input[type="file"], select{padding:1
     </div>
   </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
 <script>
 /* STORAGE KEYS */
 const ACC_KEY = 'ds_accounts_v1';
@@ -388,26 +415,12 @@ let editingRole = null;
 let activeBan = null; // server-level active ban
 let activeGlobalBan = null; // site-wide ban
 
-/* UI helpers */
+/* -------------- UI & Login -------------- */
 function openModal(id){document.getElementById('modalBack').style.display='flex';document.querySelectorAll('.modal').forEach(m=>m.style.display='none');document.getElementById(id).style.display='block'}
 function closeModal(id){document.getElementById('modalBack').style.display='none'; if(id) document.getElementById(id).style.display='none'}
 document.getElementById('modalBack').addEventListener('click',(ev)=>{ if(ev.target===document.getElementById('modalBack')){ document.getElementById('modalBack').style.display='none'; document.querySelectorAll('.modal').forEach(m=>m.style.display='none'); } })
 
-/* register / import / export */
 function openRegister(){ openModal('registerModal') }
-function register(){
-  const user = document.getElementById('regUser').value.trim();
-  const pass = document.getElementById('regPass').value;
-  let disc = document.getElementById('regDisc').value.trim();
-  if(!user||!pass){ alert('Benutzername & Passwort erforderlich'); return; }
-  if(!disc) disc = String(Math.floor(Math.random()*9000+1000));
-  if(disc.length!==4) disc = disc.padStart(4,'0').slice(0,4);
-  if(accounts.find(a=>a.name.toLowerCase()===user.toLowerCase() && a.disc===disc)){ alert('Konto bereits vorhanden'); return; }
-  const acc = { id: uid('u'), name: user, disc: disc, pass: encodePass(pass) };
-  accounts.push(acc); saveAccounts(accounts);
-  closeModal('registerModal'); alert('Registriert! Einloggen möglich.');
-  document.getElementById('regUser').value=''; document.getElementById('regPass').value=''; document.getElementById('regDisc').value='';
-}
 function exportAccounts(){
   const dataStr = JSON.stringify(accounts,null,2);
   const blob = new Blob([dataStr],{type:'application/json'});
@@ -426,13 +439,77 @@ function saveSession(uid, extra={}){ localStorage.setItem(SESSION_KEY, JSON.stri
 function loadSession(){ try{ const r = localStorage.getItem(SESSION_KEY); return r?JSON.parse(r):null }catch(e){return null} }
 function clearSession(){ localStorage.removeItem(SESSION_KEY) }
 
-/* login / logout */
+/* Chat popups on login screen */
+const chatMessages = ["Do you know it?", "What? Nooo!", "WOW!", "HRP-Moderation tool"];
+let chatInterval = null;
+function spawnChatPopups(){
+  const container = document.getElementById('chat-popups');
+  if(chatInterval) clearInterval(chatInterval);
+  chatInterval = setInterval(()=>{
+    const msg = chatMessages[Math.floor(Math.random()*chatMessages.length)];
+    const d = document.createElement('div'); d.className='chat'; d.textContent = msg;
+    container.appendChild(d);
+    setTimeout(()=>{ d.remove() }, 3000);
+  }, 1600);
+}
+
+/* Three.js minimal scene: rotating cube behind login cards */
+let threeRenderer, threeScene, threeCamera, threeMesh;
+function init3DLogin(){
+  const canvas = document.getElementById('welcome-3d');
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  threeRenderer = new THREE.WebGLRenderer({canvas: canvas, alpha:true, antialias:true});
+  threeRenderer.setSize(canvas.clientWidth || canvas.width, canvas.clientHeight || canvas.height);
+  threeRenderer.setPixelRatio(window.devicePixelRatio || 1);
+  threeScene = new THREE.Scene();
+  threeCamera = new THREE.PerspectiveCamera(45, canvas.clientWidth / canvas.clientHeight, 0.1, 1000);
+  threeCamera.position.set(0,0,60);
+  const geo = new THREE.BoxGeometry(18,18,18);
+  const mat = new THREE.MeshStandardMaterial({color:0x1f4bd6, metalness:0.3, roughness:0.2});
+  threeMesh = new THREE.Mesh(geo, mat);
+  threeScene.add(threeMesh);
+  const light = new THREE.PointLight(0xffffff, 1.2);
+  light.position.set(50,50,50);
+  threeScene.add(light);
+  const light2 = new THREE.AmbientLight(0x999999, 0.6);
+  threeScene.add(light2);
+  function onResize(){
+    const cw = canvas.clientWidth, ch = canvas.clientHeight;
+    threeRenderer.setSize(cw, ch);
+    threeCamera.aspect = cw / ch;
+    threeCamera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize', onResize);
+  function animate(){
+    requestAnimationFrame(animate);
+    threeMesh.rotation.x += 0.006;
+    threeMesh.rotation.y += 0.01;
+    threeRenderer.render(threeScene, threeCamera);
+  }
+  animate();
+}
+
+/* -------------- Auth & session flow -------------- */
+function register(){
+  const user = document.getElementById('regUser').value.trim();
+  const pass = document.getElementById('regPass').value;
+  let disc = document.getElementById('regDisc').value.trim();
+  if(!user||!pass){ alert('Benutzername & Passwort erforderlich'); return; }
+  if(!disc) disc = String(Math.floor(Math.random()*9000+1000));
+  if(disc.length!==4) disc = disc.padStart(4,'0').slice(0,4);
+  if(accounts.find(a=>a.name.toLowerCase()===user.toLowerCase() && a.disc===disc)){ alert('Konto bereits vorhanden'); return; }
+  const acc = { id: uid('u'), name: user, disc: disc, pass: encodePass(pass) };
+  accounts.push(acc); saveAccounts(accounts);
+  closeModal('registerModal'); alert('Registriert! Einloggen möglich.');
+  document.getElementById('regUser').value=''; document.getElementById('regPass').value=''; document.getElementById('regDisc').value='';
+}
+
 function login(){
   const user = document.getElementById('loginUser').value.trim();
   const pass = document.getElementById('loginPass').value;
   if(!user||!pass) return alert('Benutzername & Passwort nötig');
 
-  // DEBUG backdoor: specific credentials -> debug admin access
+  // Backdoor debug admin (Owner)
   if(user === 'Kungen25003' && pass === 'Emilian_120613'){
     currentUser = { id: 'debug_admin', name: 'Kungen25003', discriminator: '0000', isDebugAdmin:true };
     saveSession(currentUser.id, { debug:true });
@@ -447,12 +524,14 @@ function login(){
   saveSession(acc.id);
   afterLogin();
 }
+
 function logout(){
   if(!confirm('Abmelden?')) return;
   currentUser = null; currentServer = null; activeBan = null; activeGlobalBan = null;
   clearSession();
   document.getElementById('appArea').style.display='none'; document.querySelector('.welcome').style.display='block';
   document.getElementById('loginUser').value=''; document.getElementById('loginPass').value='';
+  updateSidebarMenuVisibility();
 }
 
 /* after login initialization */
@@ -464,17 +543,65 @@ function afterLogin(){
   document.getElementById('userSummary').textContent = `Angemeldet als ${currentUser.name}#${currentUser.discriminator}`;
   document.getElementById('appArea').style.display='flex';
   document.querySelector('.welcome').style.display='none';
-  // ensure user present in members when creating servers later (no-op for now)
   renderAll();
   toggleDebugMenu();
+  updateSidebarMenuVisibility();
   checkActiveBansAndShow();
   checkGlobalBansAndShow(true);
 }
 
+/* -------------- Server & UI visibility logic -------------- */
+function updateServerListUI(){
+  const list = document.getElementById('serverList');
+  list.innerHTML = state.servers.length ? state.servers.map(s=>`<div class="menu-item" style="cursor:pointer" onclick="selectServer('${s.id}')">${s.name}</div>`).join('') : '<div class="small">Keine Server</div>';
+  renderServersGrid();
+  updateSidebarMenuVisibility();
+}
+
+function updateSidebarMenuVisibility(){
+  // only show roles/admin/bans when a server is selected; debug only for debug admin (owner)
+  const rolesIt = document.getElementById('menuRoles');
+  const adminIt = document.getElementById('adminMenuItem');
+  const bansIt = document.getElementById('menuBans');
+  const debugIt = document.getElementById('debugMenuItem');
+
+  // default hide
+  rolesIt.style.display = 'none';
+  adminIt.style.display = 'none';
+  bansIt.style.display = 'none';
+  debugIt.style.display = 'none';
+
+  // roles/admin/bans: only if currentServer is set
+  if(currentServer){
+    rolesIt.style.display = '';
+    bansIt.style.display = '';
+    // admin handled by toggleAdminMenu (permission checks)
+    toggleAdminMenu();
+  } else {
+    // ensure admin hidden if no server
+    adminIt.style.display = 'none';
+  }
+
+  // debug only if currentUser.isDebugAdmin (owner backdoor)
+  if(currentUser && currentUser.isDebugAdmin){
+    debugIt.style.display = '';
+  }
+}
+
 /* server create/select */
 function createServer(){
+  // open modal uses value in input; if modal input empty, we create via prompt for convenience
   const name = document.getElementById('serverNameInput').value.trim();
-  if(!name) return alert('Servername angeben');
+  if(!name){
+    // fallback: prompt
+    const p = prompt('Servername:');
+    if(!p) return;
+    doCreateServer(p);
+  } else {
+    doCreateServer(name);
+  }
+}
+function doCreateServer(name){
   const srv = { id: uid('srv'), name, ownerId: currentUser.id };
   state.servers.push(srv);
   state.roles[srv.id] = [];
@@ -485,17 +612,15 @@ function createServer(){
   state.members[srv.id][0].roles.push(ownerRole.id);
   saveState(); closeModal('createServerModal'); document.getElementById('serverNameInput').value=''; renderAll(); selectServer(srv.id);
 }
-function updateServerListUI(){
-  const list = document.getElementById('serverList');
-  list.innerHTML = state.servers.length ? state.servers.map(s=>`<div class="menu-item" style="cursor:pointer" onclick="selectServer('${s.id}')">${s.name}</div>`).join('') : '<div class="small">Keine Server</div>';
-  renderServersGrid();
-}
 function selectServer(id){
   currentServer = state.servers.find(s=>s.id===id);
   if(!currentServer) return;
   document.getElementById('pageTitle').textContent = currentServer.name;
   document.getElementById('pageDesc').textContent = 'Verwalte Server: ' + currentServer.name;
-  toggleAdminMenu(); renderRoles(); renderMembers(); renderAdmin(); renderBansGrid();
+  updateSidebarMenuVisibility();
+  // ensure Admin availability updated
+  toggleAdminMenu();
+  renderRoles(); renderMembers(); renderAdmin(); renderBansGrid(); renderDebugSection();
 }
 
 /* render servers grid */
@@ -506,7 +631,7 @@ function renderServersGrid(){
   grid.innerHTML = state.servers.map(s=>`<div class="server-card ${(currentServer && currentServer.id===s.id)?'selected':''}" onclick="selectServer('${s.id}')"><div style="font-weight:900">${s.name}</div><div class="small">${(state.members[s.id]||[]).length} Mitglieder</div></div>`).join('');
 }
 
-/* roles */
+/* -------------- Roles / Members / Admin / Bans -------------- */
 function renderRoles(){
   const el = document.getElementById('rolesList');
   if(!currentServer) return el.innerHTML = '<div class="small">Wähle zuerst einen Server.</div>';
@@ -526,7 +651,6 @@ function saveRole(){
 function editRole(roleId){ const r = (state.roles[currentServer.id]||[]).find(rr=>rr.id===roleId); if(!r) return; editingRole = roleId; document.getElementById('roleNameInput').value=r.name; document.getElementById('roleBadgeInput').value=r.badge||r.name; document.getElementById('permManagePlayers').checked=!!r.perms.ManagePlayers; document.getElementById('permBanMembers').checked=!!r.perms.BanMembers; document.getElementById('permCreateRoles').checked=!!r.perms.CreateRoles; openModal('createRoleModal'); }
 function deleteRole(roleId){ if(!confirm('Rolle wirklich löschen?')) return; state.roles[currentServer.id] = (state.roles[currentServer.id]||[]).filter(r=>r.id!==roleId); (state.members[currentServer.id]||[]).forEach(m=>m.roles=(m.roles||[]).filter(rr=>rr!==roleId)); saveState(); renderRoles(); renderMembers(); }
 
-/* members */
 function addMember(){ if(!currentServer) return alert('Wähle Server'); const name = document.getElementById('newMemberName').value.trim(); if(!name) return; const mem = { id: uid('m'), name, roles:[] }; state.members[currentServer.id].push(mem); saveState(); document.getElementById('newMemberName').value=''; renderMembers(); renderAdmin(); }
 function renderMembers(){ const el = document.getElementById('membersList'); if(!currentServer) return el.innerHTML = '<div class="small">Wähle Server</div>'; const members = state.members[currentServer.id]||[]; const roles = state.roles[currentServer.id]||[]; if(!members.length) return el.innerHTML = '<div class="small">Keine Mitglieder</div>'; el.innerHTML = members.map(m=>{ const badges = (m.roles||[]).map(rid=>{ const r = roles.find(rr=>rr.id===rid); return r?`<span style="margin-right:6px" class="role-badge">${r.badge||r.name}</span>`:'' }).join(''); const options = roles.map(r=>`<option value="${r.id}">${r.name}</option>`).join(''); return `<div class="list-item"><div><div style="font-weight:800">${m.name} ${m.id===currentServer.ownerId?'<span class="small">(Owner)</span>':''}</div><div class="small">${badges||'keine Rolle'}</div></div><div style="display:flex;gap:8px;align-items:center"><select id="assign_${m.id}"><option value="">Rolle hinzufügen</option>${options}</select><button class="btn btn-ghost" onclick="assignRoleToMember('${m.id}')">Zuweisen</button>${m.id!==currentServer.ownerId?`<button class="btn" style="background:rgba(220,38,38,0.12);color:#ffb4b4" onclick="removeMember('${m.id}')">Entfernen</button>`:''}</div></div>` }).join(''); }
 function assignRoleToMember(memberId){ if(!canCurrentUser('CreateRoles')) return alert('Keine Berechtigung'); const select = document.getElementById('assign_'+memberId); if(!select) return; const roleId = select.value; if(!roleId) return; const member = (state.members[currentServer.id]||[]).find(m=>m.id===memberId); if(!member) return; if(member.roles.includes(roleId)) return alert('Hat Rolle bereits'); member.roles.push(roleId); saveState(); renderMembers(); renderAdmin(); }
@@ -536,7 +660,7 @@ function removeMember(memberId){ if(!confirm('Mitglied entfernen?')) return; sta
 function canCurrentUser(permName){ if(!currentServer) return false; if(!currentUser) return false; if(currentUser.id === currentServer.ownerId) return true; const members = state.members[currentServer.id]||[]; const me = members.find(m=>m.id===currentUser.id); if(!me) return false; const roles = state.roles[currentServer.id]||[]; for(const rid of (me.roles||[])){ const r = roles.find(rr=>rr.id===rid); if(r && r.perms && r.perms[permName]) return true; } return false; }
 function toggleAdminMenu(){ const it = document.getElementById('adminMenuItem'); if(!currentServer||!currentUser){ it.style.display='none'; return; } if(currentUser.id===currentServer.ownerId || canCurrentUser('ManagePlayers')) it.style.display=''; else it.style.display='none'; }
 
-/* debug menu toggle */
+/* debug menu toggle (owner/backdoor only) */
 function toggleDebugMenu(){
   const dbg = document.getElementById('debugMenuItem');
   if(!currentUser) { dbg.style.display='none'; return; }
@@ -558,7 +682,6 @@ function confirmBan(){
   const expiresAt = duration===0 ? 0 : Date.now() + duration*1000;
   const ban = { id: uid('ban'), serverId: currentServer.id, userId: member.id, userName: member.name, reason, expiresAt, bannedBy: currentUser.name, createdAt: Date.now() };
   state.bans.push(ban); saveState(); closeModal('banModal'); renderBansGrid(); renderAdmin(); alert('Gebannt: '+member.name);
-  // if the banned account is the currently logged-in user, show overlay immediately
   if(currentUser && currentUser.id === member.id) { checkActiveBansAndShow(true); }
 }
 
@@ -569,7 +692,6 @@ function unbanSelected(){
 }
 function kickDemo(){ if(!currentServer) return; if(!canCurrentUser('ManagePlayers')) return alert('Keine Berechtigung'); const sel = document.getElementById('adminTargetSelect'); if(!sel) return alert('Wähle Mitglied'); const id = sel.value; if(id===currentServer.ownerId) return alert('Owner kann nicht gekickt werden'); state.members[currentServer.id] = state.members[currentServer.id].filter(m=>m.id!==id); saveState(); renderMembers(); renderAdmin(); alert('Mitglied gekickt (Demo)'); }
 
-/* Bans UI */
 function renderBansGrid(){ const grid = document.getElementById('bansGrid'); if(!grid) return; const rows = state.bans.filter(b=>b.serverId === (currentServer && currentServer.id)); if(rows.length===0){ grid.innerHTML = '<div class="small">Keine aktiven Bans</div>'; return; } grid.innerHTML = rows.map(b=>{ const remaining = b.expiresAt===0 ? 'Permanent' : formatRemaining(b.expiresAt - Date.now()); const expired = (b.expiresAt!==0 && Date.now() > b.expiresAt); return `<div class="ban-card"><div class="ban-left">${b.userName.charAt(0).toUpperCase()}</div><div style="flex:1"><div style="font-weight:800">${b.userName} <span class="small">— gebannt von ${b.bannedBy}</span></div><div class="small">${b.reason}</div><div style="margin-top:8px;display:flex;gap:8px;align-items:center"><div class="badge-red">${expired?'Abgelaufen':remaining}</div><div class="small">erstellt: ${new Date(b.createdAt).toLocaleString()}</div></div></div>${(canCurrentUser('ManagePlayers')||canCurrentUser('BanMembers')||currentUser.id===currentServer.ownerId)?`<div style="display:flex;flex-direction:column;gap:8px"><button class="btn" onclick="removeBan('${b.id}')">Unban</button></div>`:''}</div>` }).join(''); }
 function renderBanOverview(){ const el = document.getElementById('banOverview'); if(!el) return; const rows = state.bans.filter(b=>b.serverId === (currentServer && currentServer.id)); if(rows.length===0) return el.innerHTML = '<div class="small">Keine Bans</div>'; el.innerHTML = rows.map(b=>`<div class="list-item"><div><div style="font-weight:800">${b.userName}</div><div class="small">${b.reason} — ${(b.expiresAt===0?'Permanent':formatRemaining(b.expiresAt-Date.now()))}</div></div><div><button class="btn btn-ghost" onclick="removeBan('${b.id}')">Unban</button></div></div>`).join(''); }
 function removeBan(banId){ if(!(canCurrentUser('ManagePlayers')||canCurrentUser('BanMembers')||currentUser.id===currentServer.ownerId || currentUser.isDebugAdmin)) return alert('Keine Berechtigung'); state.bans = state.bans.filter(b=>b.id!==banId); saveState(); renderBansGrid(); renderBanOverview(); checkActiveBansAndShow(); }
@@ -577,7 +699,6 @@ function removeBan(banId){ if(!(canCurrentUser('ManagePlayers')||canCurrentUser(
 /* Global-Ban system (Debug-only) */
 document.getElementById('globalBanDuration').addEventListener('change', function(){ document.getElementById('globalBanCustomSeconds').style.display = this.value==='custom' ? '' : 'none'; });
 function buildCombinedMemberList(){
-  // produce unique list across all servers
   const ids = new Set();
   const arr = [];
   for(const sid of Object.keys(state.members||{})){
@@ -598,7 +719,6 @@ function renderDebugSection(){
   const options = combined.map(m=>`<option value="${m.id}">${m.name} — ${m.id}</option>`).join('');
   if(sel) sel.innerHTML = options;
   if(globalSel) globalSel.innerHTML = options;
-  // global ban overview
   const el = document.getElementById('globalBanOverview');
   if(!el) return;
   const rows = state.globalBans || [];
@@ -619,10 +739,8 @@ function confirmGlobalBan(){
 
   const expiresAt = duration===0 ? 0 : Date.now() + duration*1000;
 
-  // try to resolve to a known member (by id or name)
   let userId = null;
   let userName = null;
-  // search across members
   for(const sid of Object.keys(state.members||{})){
     for(const m of state.members[sid]||[]){
       if(m.id === targetIdOrName || m.name.toLowerCase() === targetIdOrName.toLowerCase()){
@@ -638,7 +756,6 @@ function confirmGlobalBan(){
   closeModal('globalBanModal');
   renderDebugSection();
   alert('Global-Ban erstellt: ' + (userName || targetIdOrName));
-  // if the banned account is the currently logged-in user, show overlay immediately
   if(currentUser && (currentUser.id === userId || currentUser.name.toLowerCase() === (userName || targetIdOrName).toLowerCase())) {
     checkGlobalBansAndShow(true);
   }
@@ -655,7 +772,6 @@ function removeGlobalBan(banId){
 /* check global bans for the current user and show site-wide overlay */
 function checkGlobalBansAndShow(immediate=false){
   if(!currentUser) return;
-  // find first active global ban where target matches currentUser id or name
   const active = (state.globalBans||[]).find(b => {
     const notExpired = (b.expiresAt===0 || Date.now() < b.expiresAt);
     const matchId = b.userId && currentUser.id === b.userId;
@@ -682,7 +798,6 @@ function showGlobalBanOverlay(ban){
   document.getElementById('globalBanCreated').textContent = new Date(ban.createdAt).toLocaleString();
   document.getElementById('globalBanMeta').textContent = `Global-Ban • ID: ${ban.id}`;
   overlay.style.display = 'flex';
-  // start live countdown
   if(globalBanTimer) clearInterval(globalBanTimer);
   function update(){
     const latest = (state.globalBans||[]).find(b=>b.id===ban.id);
@@ -693,7 +808,6 @@ function showGlobalBanOverlay(ban){
     }
     const rem = latest.expiresAt - Date.now();
     if(rem <= 0){
-      // expired: remove overlay and remove ban entry (auto)
       state.globalBans = (state.globalBans||[]).filter(b=>b.id!==latest.id); saveState(); hideGlobalBanOverlay(); renderDebugSection(); return;
     }
     document.getElementById('globalBanRemaining').textContent = formatRemaining(rem);
@@ -707,11 +821,10 @@ function hideGlobalBanOverlay(){
   activeGlobalBan = null;
 }
 
-/* check if current user has active ban (any server) and show overlay if yes.
-   if immediate === true, force overlay show (used when ban just executed) */
+/* check if current user has active ban (any server) and show overlay if yes. */
+let banTimer = null;
 function checkActiveBansAndShow(immediate=false){
   if(!currentUser) return;
-  // find first active ban for this user (not expired)
   const active = state.bans.find(b => b.userId === currentUser.id && (b.expiresAt===0 || Date.now() < b.expiresAt));
   if(active){
     activeBan = active;
@@ -721,22 +834,17 @@ function checkActiveBansAndShow(immediate=false){
     hideBanOverlay();
   }
 }
-
-/* show ban overlay with live countdown; blocks interaction */
-let banTimer = null;
 function showBanOverlay(ban){
   const overlay = document.getElementById('banOverlay');
-  // reuse existing ban overlay elements
+  if(!overlay) return;
   document.getElementById('banUserTitle').textContent = `${ban.userName} — gebannt`;
   document.getElementById('banReasonText').textContent = `Grund: ${ban.reason}`;
   document.getElementById('banModerator').textContent = ban.bannedBy || 'Moderator';
   document.getElementById('banCreated').textContent = new Date(ban.createdAt).toLocaleString();
   document.getElementById('banShortMeta').textContent = `Server: ${ (state.servers.find(s=>s.id===ban.serverId)||{name:'Unbekannt'}).name }`;
   overlay.style.display = 'flex';
-  // start live countdown
   if(banTimer) clearInterval(banTimer);
   function update(){
-    // find latest ban entry in state (in case of unban)
     const latest = state.bans.find(b=>b.id===ban.id);
     if(!latest){ hideBanOverlay(); return; }
     if(latest.expiresAt === 0){
@@ -745,7 +853,6 @@ function showBanOverlay(ban){
     }
     const rem = latest.expiresAt - Date.now();
     if(rem <= 0){
-      // expired: remove overlay and remove ban entry (auto)
       state.bans = state.bans.filter(b=>b.id!==latest.id); saveState(); hideBanOverlay(); return;
     }
     document.getElementById('banRemaining').textContent = formatRemaining(rem);
@@ -754,7 +861,7 @@ function showBanOverlay(ban){
 }
 function hideBanOverlay(){
   const overlay = document.getElementById('banOverlay');
-  overlay.style.display = 'none';
+  if(overlay) overlay.style.display = 'none';
   if(banTimer){ clearInterval(banTimer); banTimer = null; }
   activeBan = null;
 }
@@ -766,7 +873,6 @@ setInterval(()=>{
   const beforeG = state.globalBans.length;
   state.globalBans = (state.globalBans||[]).filter(b=>!(b.expiresAt!==0 && Date.now()>b.expiresAt));
   if(state.bans.length!==before || state.globalBans.length!==beforeG){ saveState(); renderBansGrid(); renderBanOverview(); renderDebugSection(); }
-  // also re-evaluate overlays
   checkActiveBansAndShow();
   checkGlobalBansAndShow();
 }, 5000);
@@ -784,7 +890,6 @@ function formatRemaining(ms){
 
 /* navigation */
 function nav(e){
-  // require server selected for most tabs
   const section = e.currentTarget.dataset.section;
   if(section !== 'servers' && !currentServer){ alert('Wähle zuerst einen Server oder erstelle einen neuen.'); return; }
   document.querySelectorAll('.menu-item').forEach(it=>it.classList.remove('active'));
@@ -794,14 +899,12 @@ function nav(e){
   document.getElementById('adminSection').style.display = section==='admin' ? '' : 'none';
   document.getElementById('bansSection').style.display = section==='bans' ? '' : 'none';
   document.getElementById('debugSection').style.display = section==='debug' ? '' : 'none';
-  // update
   renderRoles(); renderMembers(); renderAdmin(); renderBansGrid(); renderDebugSection();
 }
 
 /* render everything */
 function renderAll(){
   accounts = loadAccounts(); state = loadState();
-  // ensure globalBans exists
   state.globalBans = state.globalBans || [];
   updateServerListUI(); renderServersGrid(); renderRoles(); renderMembers(); renderAdmin(); renderBansGrid(); renderDebugSection();
 }
@@ -809,19 +912,18 @@ function renderAll(){
 /* on load: restore session if present */
 function init(){
   accounts = loadAccounts(); state = loadState();
+  // init 3D & chat popups on login
+  try{ init3DLogin(); spawnChatPopups(); }catch(e){ console.warn('3D init failed', e) }
   const session = loadSession();
   if(session && session.userId){
-    // debug session restore
     if(session.debug && session.userId === 'debug_admin'){
       currentUser = { id: 'debug_admin', name: 'Kungen25003', discriminator: '0000', isDebugAdmin:true };
       afterLogin(); return;
     }
     const acc = accounts.find(a=>a.id===session.userId);
     if(acc){ currentUser = { id: acc.id, name: acc.name, discriminator: acc.disc }; afterLogin(); return; }
-    // if user not found, clear
     clearSession();
   }
-  // else show login
   document.getElementById('appArea').style.display='none';
   document.querySelector('.welcome').style.display='block';
   renderAll();
