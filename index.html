@@ -1,992 +1,796 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bestrafungs-Log System</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #0a0a0a;
-            min-height: 100vh;
-            color: #e0e0e0;
-            overflow-x: hidden;
-            position: relative;
-        }
-
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(ellipse at 10% 10%, rgba(16, 185, 129, 0.15) 0%, transparent 50%),
-                radial-gradient(ellipse at 90% 90%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 50%, rgba(139, 92, 246, 0.1) 0%, transparent 60%),
-                linear-gradient(180deg, #000814 0%, #001d3d 50%, #000814 100%);
-            z-index: 0;
-            animation: gradientFlow 20s ease-in-out infinite;
-        }
-
-        @keyframes gradientFlow {
-            0%, 100% { 
-                filter: hue-rotate(0deg) brightness(1);
-            }
-            50% { 
-                filter: hue-rotate(15deg) brightness(1.1);
-            }
-        }
-
-        body::after {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                linear-gradient(rgba(16, 185, 129, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(16, 185, 129, 0.03) 1px, transparent 1px);
-            background-size: 100px 100px;
-            z-index: 0;
-            pointer-events: none;
-            animation: gridMove 30s linear infinite;
-        }
-
-        @keyframes gridMove {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(100px, 100px); }
-        }
-
-        .floating-particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            pointer-events: none;
-            overflow: hidden;
-        }
-
-        .particle {
-            position: absolute;
-            background: linear-gradient(45deg, rgba(16, 185, 129, 0.6), rgba(59, 130, 246, 0.6));
-            border-radius: 50%;
-            filter: blur(2px);
-            animation: floatParticle 25s infinite ease-in-out;
-        }
-
-        .particle:nth-child(odd) {
-            background: linear-gradient(45deg, rgba(59, 130, 246, 0.6), rgba(139, 92, 246, 0.6));
-        }
-
-        @keyframes floatParticle {
-            0% {
-                transform: translateY(100vh) translateX(0) scale(0);
-                opacity: 0;
-            }
-            10% {
-                opacity: 1;
-            }
-            90% {
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-100vh) translateX(100px) scale(1);
-                opacity: 0;
-            }
-        }
-
-        .glow-orb {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.4;
-            pointer-events: none;
-            z-index: 0;
-            mix-blend-mode: screen;
-        }
-
-        .orb1 {
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(16, 185, 129, 0.6) 0%, transparent 70%);
-            top: -15%;
-            left: -10%;
-            animation: orbFloat1 25s ease-in-out infinite;
-        }
-
-        .orb2 {
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.6) 0%, transparent 70%);
-            bottom: -10%;
-            right: -10%;
-            animation: orbFloat2 30s ease-in-out infinite;
-        }
-
-        .orb3 {
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(139, 92, 246, 0.5) 0%, transparent 70%);
-            top: 40%;
-            left: 50%;
-            animation: orbFloat3 20s ease-in-out infinite;
-        }
-
-        @keyframes orbFloat1 {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            50% { transform: translate(150px, 100px) scale(1.2); }
-        }
-
-        @keyframes orbFloat2 {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            50% { transform: translate(-120px, -80px) scale(1.1); }
-        }
-
-        @keyframes orbFloat3 {
-            0%, 100% { transform: translate(-50%, -50%) scale(1); }
-            50% { transform: translate(-50%, -50%) translate(80px, -60px) scale(0.9); }
-        }
-
-        .login-container {
-            max-width: 480px;
-            margin: 100px auto;
-            background: rgba(18, 18, 18, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 24px;
-            padding: 60px 45px;
-            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.9);
-            text-align: center;
-            position: relative;
-            z-index: 1;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .login-container h1 {
-            color: #fff;
-            margin-bottom: 15px;
-            font-size: 2.4em;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        .login-container p {
-            color: #a0a0a0;
-            margin-bottom: 40px;
-            font-size: 1.05em;
-        }
-
-        .discord-btn {
-            background: #4a4a4a;
-            color: white;
-            padding: 18px 35px;
-            border: none;
-            border-radius: 12px;
-            font-size: 17px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            width: 100%;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            text-decoration: none;
-            font-weight: 600;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .discord-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, #3b5998, transparent);
-            transition: left 0.5s ease;
-        }
-
-        .discord-btn:hover::before {
-            left: 100%;
-        }
-
-        .discord-btn:hover {
-            background: #3b5998;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(59, 89, 152, 0.4);
-        }
-
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            backdrop-filter: blur(10px);
-            z-index: 9999;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        .modal-box {
-            background: rgba(18, 18, 18, 0.98);
-            border-radius: 20px;
-            padding: 35px;
-            max-width: 550px;
-            width: 90%;
-            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            position: relative;
-            z-index: 10000;
-            animation: modalSlideIn 0.3s ease-out;
-        }
-
-        @keyframes modalSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-30px) scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        .modal-icon {
-            width: 70px;
-            height: 70px;
-            margin: 0 auto 25px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 35px;
-            background: linear-gradient(145deg, #3b82f6, #2563eb);
-            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
-        }
-
-        .modal-title {
-            font-size: 1.8em;
-            font-weight: bold;
-            color: #fff;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .modal-message {
-            color: #b0b8d4;
-            text-align: center;
-            line-height: 1.8;
-            margin-bottom: 25px;
-            font-size: 1.05em;
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .modal-btn {
-            padding: 14px 35px;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .modal-btn.success {
-            background: linear-gradient(145deg, #3b82f6, #2563eb);
-            color: white;
-            box-shadow: 0 5px 20px rgba(59, 130, 246, 0.4);
-        }
-
-        .modal-btn.success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(59, 130, 246, 0.6);
-        }
-
-        .sidebar-nav {
-            position: fixed;
-            left: 0;
-            top: 0;
-            width: 280px;
-            height: 100vh;
-            background: rgba(18, 18, 18, 0.98);
-            border-right: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 20px 0;
-            z-index: 1000;
-            overflow-y: auto;
-        }
-
-        .nav-header {
-            padding: 0 20px 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .nav-logo {
-            font-size: 1.6em;
-            font-weight: bold;
-            color: #fff;
-            margin-bottom: 10px;
-        }
-
-        .nav-menu {
-            padding: 20px 0;
-        }
-
-        .nav-item {
-            padding: 16px 20px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: #b0b8d4;
-            font-weight: 500;
-            border-left: 3px solid transparent;
-        }
-
-        .nav-item:hover {
-            color: white;
-            background: rgba(59, 130, 246, 0.1);
-        }
-
-        .nav-item.active {
-            background: rgba(59, 130, 246, 0.15);
-            color: #3b82f6;
-            border-left-color: #3b82f6;
-        }
-
-        .nav-icon {
-            font-size: 1.3em;
-            width: 28px;
-            text-align: center;
-        }
-
-        .top-bar {
-            position: fixed;
-            left: 280px;
-            top: 0;
-            right: 0;
-            height: 75px;
-            background: rgba(18, 18, 18, 0.98);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            padding: 0 30px;
-            z-index: 999;
-        }
-
-        .user-profile {
-            position: relative;
-            cursor: pointer;
-        }
-
-        .user-avatar-top {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            border: 2px solid #3b82f6;
-            transition: all 0.3s;
-        }
-
-        .user-avatar-top:hover {
-            transform: scale(1.1);
-        }
-
-        .user-info-popup {
-            position: absolute;
-            top: 70px;
-            left: 0;
-            background: rgba(18, 18, 18, 0.98);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 25px;
-            min-width: 280px;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: all 0.3s;
-            z-index: 1001;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9);
-        }
-
-        .user-profile:hover .user-info-popup {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        .popup-avatar {
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-            border: 3px solid #3b82f6;
-            margin: 0 auto 20px;
-            display: block;
-        }
-
-        .popup-name {
-            font-size: 1.3em;
-            font-weight: bold;
-            color: #fff;
-            text-align: center;
-            margin-bottom: 12px;
-        }
-
-        .popup-rank {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .user-rank {
-            padding: 8px 18px;
-            border-radius: 20px;
-            font-size: 0.9em;
-            font-weight: bold;
-            display: inline-block;
-        }
-
-        .rank-owner { 
-            background: linear-gradient(145deg, #ef4444, #dc2626);
-            color: white;
-        }
-        .rank-admin { 
-            background: linear-gradient(145deg, #f59e0b, #d97706);
-            color: white;
-        }
-        .rank-moderator { 
-            background: linear-gradient(145deg, #10b981, #059669);
-            color: white;
-        }
-
-        .popup-info {
-            font-size: 0.95em;
-            color: #b0b8d4;
-            margin-bottom: 20px;
-            background: rgba(59, 130, 246, 0.05);
-            padding: 15px;
-            border-radius: 10px;
-        }
-
-        .popup-info div {
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .popup-info div:last-child {
-            margin-bottom: 0;
-        }
-
-        .popup-info strong {
-            color: #3b82f6;
-        }
-
-        .logout-btn {
-            width: 100%;
-            background: linear-gradient(145deg, #ef4444, #dc2626);
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 600;
-            font-size: 15px;
-        }
-
-        .logout-btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .main-content {
-            margin-left: 280px;
-            margin-top: 75px;
-            padding: 35px;
-            min-height: calc(100vh - 75px);
-        }
-
-        .container {
-            display: none;
-        }
-
-        .container.active {
-            display: block;
-        }
-
-        .content-header {
-            margin-bottom: 35px;
-        }
-
-        .content-header h1 {
-            font-size: 2.8em;
-            color: #fff;
-            margin-bottom: 12px;
-        }
-
-        .content-section {
-            background: rgba(18, 18, 18, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 20px;
-            padding: 35px;
-            margin-bottom: 25px;
-        }
-
-        .section-title {
-            color: #3b82f6;
-            font-size: 1.6em;
-            margin-bottom: 25px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #b0b8d4;
-            font-weight: 600;
-            font-size: 15px;
-        }
-
-        input[type="text"],
-        select,
-        textarea {
-            width: 100%;
-            padding: 14px 16px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            font-size: 15px;
-            background: #000;
-            color: #e0e0e0;
-            transition: all 0.3s;
-            font-family: inherit;
-        }
-
-        select {
-            cursor: pointer;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%233b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 16px center;
-            padding-right: 45px;
-        }
-
-        select option {
-            background: #0a0a0a;
-            color: #e0e0e0;
-            padding: 12px;
-        }
-
-        input[type="text"]:focus,
-        select:focus,
-        textarea:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 130px;
-            line-height: 1.6;
-        }
-
-        .btn {
-            background: linear-gradient(145deg, #3b82f6, #2563eb);
-            color: white;
-            padding: 15px 35px;
-            border: none;
-            border-radius: 12px;
-            font-size: 17px;
-            cursor: pointer;
-            transition: all 0.3s;
-            width: 100%;
-            font-weight: 600;
-        }
-
-        .btn:hover:not(:disabled) {
-            transform: translateY(-3px);
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: rgba(18, 18, 18, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            color: white;
-            padding: 28px;
-            border-radius: 18px;
-            text-align: center;
-            transition: all 0.3s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .stat-number {
-            font-size: 2.5em;
-            font-weight: bold;
-            color: #3b82f6;
-        }
-
-        .stat-label {
-            font-size: 0.95em;
-            opacity: 0.9;
-            margin-top: 8px;
-        }
-
-        .request-card, .user-card {
-            background: rgba(18, 18, 18, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 18px;
-            padding: 25px;
-            margin-bottom: 20px;
-            transition: all 0.3s;
-        }
-
-        .request-card:hover, .user-card:hover {
-            transform: translateX(5px);
-        }
-
-        .request-header, .user-header {
-            display: flex;
-            align-items: center;
-            gap: 18px;
-            margin-bottom: 20px;
-        }
-
-        .request-avatar, .user-avatar {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            border: 3px solid #3b82f6;
-        }
-
-        .request-info h3, .user-info h3 {
-            color: #3b82f6;
-            margin-bottom: 5px;
-            font-size: 1.3em;
-        }
-
-        .request-info small, .user-info small {
-            color: #6b7280;
-            font-size: 0.9em;
-        }
-
-        .request-reason {
-            background: rgba(59, 130, 246, 0.05);
-            padding: 18px;
-            border-radius: 12px;
-            margin-bottom: 18px;
-            color: #b0b8d4;
-            border-left: 4px solid #3b82f6;
-            line-height: 1.6;
-        }
-
-        .request-actions, .user-actions {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .action-btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 10px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 600;
-            flex: 1;
-            min-width: 120px;
-        }
-
-        .action-btn.approve {
-            background: linear-gradient(145deg, #10b981, #059669);
-            color: white;
-        }
-
-        .action-btn.approve:hover {
-            transform: translateY(-2px);
-        }
-
-        .action-btn.reject, .action-btn.kick {
-            background: linear-gradient(145deg, #f59e0b, #d97706);
-            color: white;
-        }
-
-        .action-btn.reject:hover, .action-btn.kick:hover {
-            transform: translateY(-2px);
-        }
-
-        .action-btn.ban {
-            background: linear-gradient(145deg, #ef4444, #dc2626);
-            color: white;
-        }
-
-        .action-btn.ban:hover {
-            transform: translateY(-2px);
-        }
-
-        .no-data {
-            text-align: center;
-            padding: 70px;
-            color: #5a6378;
-            font-size: 1.3em;
-        }
-
-        .search-box {
-            margin-bottom: 25px;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 14px 20px;
-            background: #000;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            color: #e0e0e0;
-            font-size: 15px;
-            transition: all 0.3s;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
-        }
-
-        .search-input::placeholder {
-            color: #6b7280;
-        }
-
-        ::-webkit-scrollbar {
-            width: 12px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #0a0a0a;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #3b82f6, #2563eb);
-            border-radius: 6px;
-        }
-    </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Discord Rang-System — mit Rollen & Admin-Panel</title>
+<style>
+  :root{
+    --bg-1: #0d1117;
+    --card: rgba(10,15,30,0.85);
+    --accent: #2563eb;
+    --muted: #9aa0a6;
+    --glass: rgba(15,23,42,0.6);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    background: linear-gradient(135deg,#06070a 0%,#0a0f1a 50%);
+    color:#e6eef8;
+    min-height:100vh;
+    display:flex;
+  }
+
+  /* Sidebar left */
+  .sidebar{
+    width:300px;
+    background: linear-gradient(180deg, rgba(8,12,25,0.96), rgba(6,10,18,0.96));
+    padding:20px;
+    border-right: 1px solid rgba(255,255,255,0.03);
+    min-height:100vh;
+    position:fixed;
+    left:0; top:0; bottom:0;
+    overflow:auto;
+  }
+  .logo{font-size:22px; font-weight:700; letter-spacing:0.2px; margin-bottom:18px}
+  .user-short{display:flex; gap:12px; align-items:center; margin-bottom:16px}
+  .avatar{width:48px;height:48px;border-radius:8px;background:linear-gradient(135deg,#1e3a8a,#2563eb);display:flex;align-items:center;justify-content:center;font-size:20px}
+  .mini{font-size:13px;color:var(--muted)}
+
+  .menu-title{margin-top:14px;color:var(--muted);font-size:12px;text-transform:uppercase}
+  .menu-item{padding:10px;border-radius:8px;cursor:pointer;margin-top:8px;display:flex;align-items:center;gap:10px}
+  .menu-item:hover{background:rgba(37,99,235,0.06)}
+  .menu-item.active{background:rgba(37,99,235,0.12);border-left:3px solid var(--accent);padding-left:7px}
+
+  .main{
+    margin-left:320px;
+    padding:36px;
+    width:100%;
+  }
+
+  .page-header{display:flex;align-items:center;justify-content:space-between;gap:16px}
+  h1{margin:0;font-size:28px}
+  p.lead{color:var(--muted);margin-top:6px;margin-bottom:18px}
+
+  .grid{display:grid;gap:18px}
+  .card{background:var(--card);padding:18px;border-radius:12px;box-shadow:0 6px 30px rgba(2,6,23,0.6)}
+  .row{display:flex;gap:12px;align-items:center}
+  .btn{padding:10px 14px;border-radius:8px;border:0;cursor:pointer;font-weight:600}
+  .btn-primary{background:linear-gradient(90deg,#1e3a8a,#2563eb);color:#fff}
+  .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:#dfe7ff}
+  .muted{color:var(--muted);font-size:13px}
+
+  /* lists */
+  .list{display:flex;flex-direction:column;gap:10px}
+  .list-item{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:8px;background:rgba(255,255,255,0.02)}
+  .role-badge{padding:6px 10px;border-radius:999px;font-weight:700;font-size:13px;background:linear-gradient(90deg,#ffd700,#ffaa00);color:#111}
+
+  /* modal */
+  .modal-back{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:80}
+  .modal{width:520px;background:rgba(8,12,20,0.95);padding:20px;border-radius:12px}
+  .field{display:flex;flex-direction:column;margin-top:8px}
+  label{font-size:13px;color:var(--muted);margin-bottom:6px}
+  input,select,textarea{padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:rgba(12,16,28,0.6);color:#e6eef8}
+  textarea{min-height:90px}
+
+  /* ban card style similar to screenshot */
+  .ban-card{background:#0b0d11;border-radius:12px;padding:16px;border:1px solid rgba(255,255,255,0.03);display:flex;gap:14px;align-items:flex-start}
+  .ban-left{width:48px;height:48px;border-radius:8px;background:linear-gradient(135deg,#1e3a8a,#2563eb);display:flex;align-items:center;justify-content:center;font-weight:700}
+  .ban-content h3{margin:0;font-size:16px}
+  .ban-meta{color:#aab3bd;font-size:13px;margin-top:6px}
+  .badge-red{background:rgba(239,68,68,0.12);color:#ffb4b4;padding:6px 8px;border-radius:8px;font-weight:700;font-size:13px}
+  .small{font-size:13px;color:var(--muted)}
+  .danger{color:#ff9b9b}
+
+  /* responsive */
+  @media (max-width:900px){
+    .sidebar{position:relative;width:100%;height:auto}
+    .main{margin-left:0;padding:18px}
+  }
+</style>
 </head>
 <body>
-    <div class="glow-orb orb1"></div>
-    <div class="glow-orb orb2"></div>
-    <div class="glow-orb orb3"></div>
-    
-    <div class="floating-particles">
-        <div class="particle" style="left: 5%; width: 4px; height: 4px; animation-delay: 0s;"></div>
-        <div class="particle" style="left: 15%; width: 3px; height: 3px; animation-delay: 3s;"></div>
-        <div class="particle" style="left: 25%; width: 5px; height: 5px; animation-delay: 6s;"></div>
-        <div class="particle" style="left: 35%; width: 3px; height: 3px; animation-delay: 9s;"></div>
-        <div class="particle" style="left: 45%; width: 4px; height: 4px; animation-delay: 12s;"></div>
-        <div class="particle" style="left: 55%; width: 6px; height: 6px; animation-delay: 15s;"></div>
-        <div class="particle" style="left: 65%; width: 3px; height: 3px; animation-delay: 18s;"></div>
-        <div class="particle" style="left: 75%; width: 4px; height: 4px; animation-delay: 21s;"></div>
-        <div class="particle" style="left: 85%; width: 5px; height: 5px; animation-delay: 24s;"></div>
-        <div class="particle" style="left: 95%; width: 3px; height: 3px; animation-delay: 27s;"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">Discord — Rang-System</div>
+    <div class="user-short">
+      <div class="avatar" id="avatar">👤</div>
+      <div>
+        <div id="displayName">Guest</div>
+        <div class="mini" id="displayId">#0000</div>
+      </div>
     </div>
 
-    <!-- Request Sent Modal -->
-    <div class="modal-overlay" id="requestSentModal">
-        <div class="modal-box">
-            <div class="modal-icon">✉️</div>
-            <div class="modal-title">Anfrage gesendet!</div>
-            <div class="modal-message">
-                <p>Deine Zugangsanfrage wurde erfolgreich gesendet. Ein Administrator wird sie in Kürze prüfen.</p>
-            </div>
-            <div class="modal-buttons">
-                <button class="modal-btn success" onclick="closeRequestSentModal()">OK</button>
-            </div>
-        </div>
+    <div class="menu-title">Navigation</div>
+    <div class="menu-item active" data-section="servers" onclick="navigate(event)">
+      🏠 Server
+    </div>
+    <div class="menu-item" data-section="roles" onclick="navigate(event)">
+      ⭐ Rollen
+    </div>
+    <div class="menu-item" data-section="admin" onclick="navigate(event)" id="adminMenuItem" style="display:none">
+      🛠️ Admin-Panel
+    </div>
+    <div class="menu-item" data-section="bans" onclick="navigate(event)">
+      ⛔ Bans
     </div>
 
-    <!-- Login Container -->
-    <div class="login-container" id="loginContainer">
-        <h1>Bestrafungs-Log System</h1>
-        <p>Melde dich mit Discord an, um fortzufahren</p>
-        <a href="#" class="discord-btn" onclick="handleDiscordLogin(event)">
-            <svg width="24" height="24" viewBox="0 0 127.14 96.36" fill="currentColor">
-                <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/>
-            </svg>
-            Mit Discord anmelden
-        </a>
+    <div class="menu-title">Server</div>
+    <div id="serverList"></div>
+
+    <div style="margin-top:20px">
+      <button class="btn btn-primary" onclick="openModal('createServerModal')">Neuen Server</button>
     </div>
 
-    <!-- App Container -->
-    <div id="appContainer" style="display: none;">
-        <nav class="sidebar-nav">
-            <div class="nav-header">
-                <div class="nav-logo">Mod System</div>
-            </div>
-            <div class="nav-menu" id="navMenu">
-                <div class="nav-item active" onclick="navigateTo('logs', event)">
-                    <span class="nav-icon">📋</span>
-                    <span>Bestrafungen</span>
-                </div>
-                <div class="nav-item" onclick="navigateTo('players', event)">
-                    <span class="nav-icon">👥</span>
-                    <span>Spielerliste</span>
-                </div>
-            </div>
-        </nav>
+    <div style="margin-top:16px">
+      <button class="btn btn-ghost" onclick="logout()">Abmelden</button>
+    </div>
+  </aside>
 
-        <div class="top-bar">
-            <div class="user-profile">
-                <img src="" alt="Avatar" class="user-avatar-top" id="userAvatarTop">
-                <div class="user-info-popup">
-                    <img src="" alt="Avatar" class="popup-avatar" id="popupAvatar">
-                    <div class="popup-name" id="popupName"></div>
-                    <div class="popup-rank">
-                        <span class="user-rank" id="popupRank"></span>
-                    </div>
-                    <div class="popup-info">
-                        <div><strong>Discord ID:</strong> <span id="popupId"></span></div>
-                        <div><strong>Status:</strong> <span id="popupStatus"></span></div>
-                    </div>
-                    <button class="logout-btn" onclick="logout()">Abmelden</button>
-                </div>
-            </div>
+  <!-- Main -->
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <h1 id="pageTitle">Server</h1>
+        <p class="lead" id="pageDesc">Wähle ein Server aus oder erstelle einen neuen.</p>
+      </div>
+      <div class="row">
+        <div class="muted">Angemeldet als:</div>
+        <div style="width:12px"></div>
+        <div id="topUserName" style="font-weight:800">Guest</div>
+      </div>
+    </div>
+
+    <!-- Servers -->
+    <section id="serversSection" class="grid">
+      <div class="card">
+        <h3>Deine Server</h3>
+        <p class="muted">Klicke auf einen Server in der Sidebar, um ihn zu wählen.</p>
+        <div id="serversGrid" style="margin-top:12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px"></div>
+      </div>
+    </section>
+
+    <!-- Roles -->
+    <section id="rolesSection" style="display:none" class="grid">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <h3>Rollen verwalten</h3>
+            <div class="muted">Owner kann Rollen erstellen / bearbeiten.</div>
+          </div>
+          <div>
+            <button class="btn btn-primary" onclick="openModal('createRoleModal')">Rolle erstellen</button>
+          </div>
         </div>
 
-        <div class="main-content">
-            <!-- Logs Container -->
-            <div class="container active" id="logsContainer">
-                <div class="content-header">
-                    <h1>Bestrafungen</h1>
-                </div>
+        <div style="margin-top:12px" id="rolesList"></div>
+      </div>
 
-                <div class="stats">
-                    <div class="stat-card">
-                        <div class="stat-number" id="totalLogs">0</div>
-                        <div class="stat-label">Gesamt</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="totalBans">0</div>
-                        <div class="stat-label">Bans</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="totalKicks">0</div>
-                        <div class="stat-label">Kicks</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="totalWarns">0</div>
-                        <div class="stat-label">Warnungen</div>
-                    </div>
-                </div>
+      <div class="card">
+        <h3>Mitglieder & Rollen zuweisen</h3>
+        <p class="muted">Erstelle Mitglieder (Demo) und weise Rollen zu.</p>
+        <div style="display:flex;gap:8px">
+          <input id="newMemberName" placeholder="Benutzername" />
+          <button class="btn btn-primary" onclick="addMember()">Mitglied hinzufügen</button>
+        </div>
+        <div id="membersList" style="margin-top:12px"></div>
+      </div>
+    </section>
 
-                <div class="content-section">
-                    <h2 class="section-title">Neue Bestrafung</h2>
-                    <form id="punishmentForm">
-                        <div class="form-group">
-                            <label for="punishmentType">Bestrafungsart:</label>
-                            <select id="punishmentType" required>
-                                <option value="">── Bitte wählen ──</option>
-                                <option value="ban">Ban</option>
-                                <option value="kick">Kick</option>
-                                <option value="warn">Warnung</option>
-                            </select>
-                        </div>
+    <!-- Admin Panel -->
+    <section id="adminSection" style="display:none" class="grid">
+      <div class="card">
+        <h3>Admin-Panel (Manage-Players)</h3>
+        <p class="muted">Nur sichtbar für Owner oder Nutzer mit der Permission "Manage-Players".</p>
+        <div style="margin-top:12px" id="adminControls">
+          <div class="small">Wähle ein Mitglied und führe Verwaltungsaktionen aus (Ban, Unban, Kick - Demo).</div>
+          <div style="margin-top:10px;display:flex;gap:8px;align-items:center">
+            <select id="adminTargetSelect"></select>
+            <button class="btn btn-primary" onclick="openModal('banModal')">Ban</button>
+            <button class="btn btn-ghost" onclick="kickDemo()">Kick (Demo)</button>
+            <button class="btn btn-ghost" onclick="unbanSelected()">Unban</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Banned Übersicht</h3>
+        <div id="banOverview" style="margin-top:12px"></div>
+      </div>
+    </section>
 
-                        <div class="form-group">
-                            <label for="robloxUsername">Roblox Benutzername:</label>
-                            <input type="text" id="robloxUsername" required placeholder="z.B. MaxMustermann">
-                        </div>
+    <!-- Bans page -->
+    <section id="bansSection" style="display:none" class="grid">
+      <div class="card">
+        <h3>Aktuelle Bans</h3>
+        <p class="muted">Hier erscheinen alle aktiven Banns mit Grund & Dauer.</p>
+        <div id="bansGrid" style="margin-top:12px;display:flex;flex-direction:column;gap:10px"></div>
+      </div>
+    </section>
 
-                        <div class="form-group">
-                            <label for="reason">Grund:</label>
-                            <textarea id="reason" required placeholder="Detaillierte Beschreibung des Grundes..."></textarea>
-                        </div>
+  </main>
 
-                        <button type="submit" class="btn">Bestrafung hinzufügen</button>
-                    </form>
-                </div>
-            </div>
+  <!-- Modals -->
+  <div class="modal-back" id="modalBack">
+    <div class="modal" id="createServerModal" style="display:none">
+      <h3>Neuen Server erstellen</h3>
+      <div class="field">
+        <label>Server Name</label>
+        <input id="serverNameInput" placeholder="Mein Server" />
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
+        <button class="btn btn-ghost" onclick="closeModal('createServerModal')">Abbrechen</button>
+        <button class="btn btn-primary" onclick="createServer()">Erstellen</button>
+      </div>
+    </div>
 
-            <!-- Players Container -->
-            <div class="container" id="playersContainer">
-                <div class="content-header">
-                    <h1>Spielerliste</h1>
-                </div>
-                <div class="content-section">
-                    <div class="search-box">
-                        <input type="text" class="search-input" placeholder="Benutzer suchen..." onkeyup="filterPlayers(this.value)">
-                    </div>
-                    <div id="playersList">
-                        <div class="no-data">Keine Spieler im System</div>
-                    </div>
-                </div>
-            </div>
+    <div class="modal" id="createRoleModal" style="display:none">
+      <h3>Rolle erstellen / bearbeiten</h3>
+      <div class="field"><label>Rollen-Name</label><input id="roleNameInput" /></div>
+      <div class="field"><label>Farbe / Badge (Text)</label><input id="roleBadgeInput" placeholder="z.B. Support" /></div>
+      <div class="field">
+        <label>Berechtigungen</label>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label><input type="checkbox" id="permManagePlayers"> Manage-Players</label>
+          <label><input type="checkbox" id="permBanMembers"> Ban-Members</label>
+          <label><input type="checkbox" id="permCreateRoles"> Create-Roles</label>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
+        <button class="btn btn-ghost" onclick="closeModal('createRoleModal')">Abbrechen</button>
+        <button class="btn btn-primary" onclick="saveRole()">Speichern</button>
+      </div>
+    </div>
 
-            <!-- Requests Container (Admin/Owner only) -->
-            <div class="container" id="requestsContainer">
-                <div class="content-header">
-                    <h1>Zugriffs-Anfragen</h1>
-                </div>
-                <div class="content-section">
-                    <div class="search-box">
-                        <input type="text" class="search-input" placeholder="Benutzer suchen..." onkeyup="filterRequests(this.value)">
-                    </div>
-                    <div id="requestsList">
-                        <div class="no-data">Keine offenen Anfragen</div>
-                    </div>
-                </div>
-            </div>
+    <div class="modal" id="banModal" style="display:none">
+      <h3>Spieler bannen</h3>
+      <div class="field">
+        <label>Betroffener Spieler</label>
+        <select id="banTargetSelect"></select>
+      </div>
+      <div class="field"><label>Grund (erforderlich)</label><input id="banReason" placeholder="Grund eingeben..." /></div>
+      <div class="field">
+        <label>Dauer</label>
+        <select id="banDuration">
+          <option value="3600">1 Stunde</option>
+          <option value="86400">1 Tag</option>
+          <option value="604800">7 Tage</option>
+          <option value="2592000">30 Tage</option>
+          <option value="0">Permanent</option>
+          <option value="custom">Benutzerdefiniert (Sekunden)</option>
+        </select>
+        <input id="banCustomSeconds" style="display:none;margin-top:8px" placeholder="Sekunden (z.B. 7200)" />
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+        <button class="btn btn-ghost" onclick="closeModal('banModal')">Abbrechen</button>
+        <button class="btn btn-primary" onclick="confirmBan()">Ban ausführen</button>
+      </div>
+    </div>
+  </div>
 
-            <!-- Roles Container (Owner only) -->
-            <div class="container" id="rolesContainer">
-                <div class="content-header">
-                    <h1>Rollenverwaltung</h1>
-                </div>
-                <div class="content-section">
-                    <h2 class="section-title">Neue Rolle erstellen</h2>
-                    <form id="roleForm">
-                        <div class="form-group">
-                            <label for="roleName">Rollenname:</label>
-                            <input type="text" id="roleName" required placeholder="z.B. Senior Moderator">
-                        </div>
-                        <div class="form-group">
-                            <label>Berechtigungen:</label>
-                            <div style="background: rgba(59, 130, 246, 0.05); padding: 20px; border-radius: 12px;">
-                                <div
+<script>
+/*
+  Voll funktionsfähige clientseitige App mit:
+  - Owner / Rollen / Berechtigungen
+  - Admin-Panel nur für Nutzer mit Manage-Players
+  - Ban-System mit Grund + Dauer (speichert in localStorage)
+  - Sicherheit: alle Aktionen prüfen Permissions
+*/
+
+/* ========== simple "Auth" (Demo) ========== */
+// Demo-Login automatisch: Nutzer kann seinen Namen ändern
+let currentUser = { id: 'u_'+Math.floor(Math.random()*999999), name: 'DemoUser', discriminator: '0001' };
+document.getElementById('displayName').textContent = currentUser.name;
+document.getElementById('displayId').textContent = '#'+currentUser.discriminator;
+document.getElementById('topUserName').textContent = currentUser.name;
+
+/* ========== Storage helpers ========== */
+const STORAGE_KEY = 'discord_rang_system_v1';
+function loadState(){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if(!raw) return { servers:[], roles:{}, members:{}, bans:[] };
+  try{ return JSON.parse(raw); }catch(e){ return { servers:[], roles:{}, members:{}, bans:[] }; }
+}
+function saveState(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+let state = loadState();
+
+/* ========== Data model
+  state = {
+    servers: [{id,name,ownerId}],
+    roles: { serverId: [ {id,name,badge,perms:{...}} ] },
+    members: { serverId: [ {id,name,roles:[roleId,...]} ] },
+    bans: [ {id, serverId, userId, userName, reason, expiresAt (ts or 0), bannedBy} ]
+  }
+ ========== */
+
+/* ====== Utility ====== */
+function uid(prefix='id'){ return prefix + '_' + Date.now() + '_' + Math.floor(Math.random()*9999) }
+
+/* ====== Navigation & UI ====== */
+function navigate(e){
+  const section = e.currentTarget.dataset.section;
+  document.querySelectorAll('.menu-item').forEach(it => it.classList.remove('active'));
+  e.currentTarget.classList.add('active');
+  showSection(section);
+}
+function showSection(section){
+  document.getElementById('serversSection').style.display = section==='servers' || !section ? '' : 'none';
+  document.getElementById('rolesSection').style.display = section==='roles' ? '' : 'none';
+  document.getElementById('adminSection').style.display = section==='admin' ? '' : 'none';
+  document.getElementById('bansSection').style.display = section==='bans' ? '' : 'none';
+  // update content when switching
+  renderServersGrid();
+  renderRoles();
+  renderMembers();
+  renderAdmin();
+  renderBansGrid();
+}
+
+/* ====== Modals ====== */
+function openModal(id){
+  document.getElementById('modalBack').style.display = 'flex';
+  document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+  document.getElementById(id).style.display = 'block';
+}
+function closeModal(id){
+  document.getElementById('modalBack').style.display = 'none';
+  if(id) document.getElementById(id).style.display = 'none';
+}
+
+/* ====== Server handling ====== */
+function createServer(){
+  const name = document.getElementById('serverNameInput').value.trim();
+  if(!name){ alert('Bitte Servernamen angeben'); return; }
+  const server = { id: uid('srv'), name, ownerId: currentUser.id };
+  state.servers.push(server);
+  state.roles[server.id] = []; // roles array
+  state.members[server.id] = [ { id: currentUser.id, name: currentUser.name, roles: [] } ]; // owner is member
+  // automatically create an "Owner"-role that cannot be deleted and gives all perms
+  const ownerRole = { id: uid('role'), name:'Owner', badge:'Owner', perms:{ ManagePlayers:true, BanMembers:true, CreateRoles:true }, immutable:true };
+  state.roles[server.id].push(ownerRole);
+  // assign owner role to user
+  state.members[server.id][0].roles.push(ownerRole.id);
+  saveState();
+  closeModal('createServerModal');
+  document.getElementById('serverNameInput').value='';
+  updateServerListUI();
+  selectServer(server.id);
+}
+
+function updateServerListUI(){
+  const list = document.getElementById('serverList');
+  list.innerHTML = state.servers.map(s=>{
+    const activeClass = (currentServer && currentServer.id === s.id) ? 'background:rgba(37,99,235,0.08);padding:8px;border-radius:8px' : '';
+    return `<div class="menu-item" style="${activeClass}" onclick="selectServer('${s.id}')">${s.name}</div>`
+  }).join('') || '<div class="muted">Keine Server</div>';
+  renderServersGrid();
+}
+
+/* ====== current server selection ====== */
+let currentServer = state.servers[0] || null;
+function selectServer(id){
+  currentServer = state.servers.find(s=>s.id===id) || null;
+  if(!currentServer){ alert('Server nicht gefunden'); return; }
+  document.getElementById('pageTitle').textContent = currentServer.name;
+  document.getElementById('pageDesc').textContent = 'Verwalte Server: ' + currentServer.name;
+  updateServerListUI();
+  // show Admin menu item only if current user has perms
+  toggleAdminMenu();
+  showSection('servers');
+}
+
+/* ====== Render servers grid ====== */
+function renderServersGrid(){
+  const grid = document.getElementById('serversGrid');
+  if(!grid) return;
+  if(state.servers.length===0) {
+    grid.innerHTML = `<div class="card">Du hast noch keine Server. Erstelle einen neuen.</div>`;
+    return;
+  }
+  grid.innerHTML = state.servers.map(s=>{
+    const mcount = (state.members[s.id]||[]).length;
+    return `<div class="card" style="cursor:pointer" onclick="selectServer('${s.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-weight:900">${s.name}</div>
+          <div class="muted" style="margin-top:6px">${mcount} Mitglieder</div>
+        </div>
+        <div class="role-badge" style="background:linear-gradient(90deg,#1e3a8a,#2563eb)">Server</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ====== Roles ====== */
+let editingRole = null;
+function renderRoles(){
+  if(!currentServer) { document.getElementById('rolesList').innerHTML = '<div class="muted">Wähle zuerst einen Server.</div>'; return; }
+  const roles = state.roles[currentServer.id] || [];
+  const html = roles.map(r=>{
+    const perms = Object.keys(r.perms||{}).filter(k=>r.perms[k]).join(', ') || 'keine';
+    return `<div class="list-item" style="margin-top:8px">
+      <div>
+        <div style="font-weight:800">${r.name} ${r.immutable?'<span class="muted" style="font-size:12px;margin-left:8px">(System)</span>':''}</div>
+        <div class="muted" style="margin-top:6px">Permissions: ${perms}</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        ${canCurrentUser('CreateRoles') && !r.immutable ? `<button class="btn btn-ghost" onclick="editRole('${r.id}')">Bearbeiten</button>` : ''}
+        ${canCurrentUser('CreateRoles') && !r.immutable ? `<button class="btn" style="background:rgba(220,38,38,0.12);color:#ffb4b4" onclick="deleteRole('${r.id}')">Löschen</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('rolesList').innerHTML = html || '<div class="muted">Keine Rollen</div>';
+}
+
+function openCreateRole(){
+  editingRole = null;
+  document.getElementById('roleNameInput').value='';
+  document.getElementById('roleBadgeInput').value='';
+  document.getElementById('permManagePlayers').checked=false;
+  document.getElementById('permBanMembers').checked=false;
+  document.getElementById('permCreateRoles').checked=false;
+  openModal('createRoleModal');
+}
+window.openCreateRole = openCreateRole; // expose
+
+function saveRole(){
+  if(!currentServer) { alert('Wähle Server'); return; }
+  if(!canCurrentUser('CreateRoles')) { alert('Keine Berechtigung Rollen zu erstellen'); closeModal('createRoleModal'); return; }
+  const name = document.getElementById('roleNameInput').value.trim();
+  if(!name){ alert('Rollenname erforderlich'); return; }
+  const badge = document.getElementById('roleBadgeInput').value.trim() || name;
+  const perms = { ManagePlayers: !!document.getElementById('permManagePlayers').checked,
+                  BanMembers: !!document.getElementById('permBanMembers').checked,
+                  CreateRoles: !!document.getElementById('permCreateRoles').checked };
+  if(editingRole){
+    const arr = state.roles[currentServer.id];
+    const idx = arr.findIndex(r=>r.id===editingRole);
+    if(idx>=0){
+      arr[idx].name = name; arr[idx].badge = badge; arr[idx].perms = perms;
+    }
+  } else {
+    const role = { id: uid('role'), name, badge, perms };
+    state.roles[currentServer.id].push(role);
+  }
+  saveState();
+  closeModal('createRoleModal');
+  renderRoles();
+  renderMembers();
+}
+
+function editRole(roleId){
+  const role = (state.roles[currentServer.id]||[]).find(r=>r.id===roleId);
+  if(!role) return;
+  editingRole = roleId;
+  document.getElementById('roleNameInput').value = role.name;
+  document.getElementById('roleBadgeInput').value = role.badge || role.name;
+  document.getElementById('permManagePlayers').checked = !!role.perms.ManagePlayers;
+  document.getElementById('permBanMembers').checked = !!role.perms.BanMembers;
+  document.getElementById('permCreateRoles').checked = !!role.perms.CreateRoles;
+  openModal('createRoleModal');
+}
+
+function deleteRole(roleId){
+  if(!confirm('Rolle wirklich löschen?')) return;
+  state.roles[currentServer.id] = (state.roles[currentServer.id]||[]).filter(r=>r.id!==roleId);
+  // remove role from members
+  (state.members[currentServer.id]||[]).forEach(m => {
+    m.roles = (m.roles || []).filter(rr=>rr!==roleId);
+  });
+  saveState();
+  renderRoles();
+  renderMembers();
+}
+
+/* ====== Members (Demo) ====== */
+function addMember(){
+  if(!currentServer){ alert('Wähle Server'); return; }
+  const name = document.getElementById('newMemberName').value.trim();
+  if(!name) return;
+  const member = { id: uid('m'), name, roles: [] };
+  state.members[currentServer.id].push(member);
+  saveState();
+  document.getElementById('newMemberName').value='';
+  renderMembers();
+  renderAdmin();
+}
+
+function renderMembers(){
+  if(!currentServer) return;
+  const list = document.getElementById('membersList');
+  const members = state.members[currentServer.id] || [];
+  const roles = state.roles[currentServer.id] || [];
+  list.innerHTML = members.map(m=>{
+    const roleBadges = (m.roles||[]).map(rid=>{
+      const r = roles.find(rr=>rr.id===rid);
+      return r ? `<span style="margin-right:6px" class="role-badge">${r.badge||r.name}</span>` : '';
+    }).join('');
+    // role assign select
+    const roleOptions = roles.map(r=>`<option value="${r.id}">${r.name}</option>`).join('');
+    return `<div class="list-item">
+      <div>
+        <div style="font-weight:800">${m.name}${m.id===currentServer.ownerId ? ' <span class="muted" style="font-size:12px">(Owner)</span>' : ''}</div>
+        <div class="muted">${roleBadges || '<span class="muted">keine Rolle</span>'}</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <select id="assign_${m.id}">
+          <option value="">Rolle hinzufügen</option>
+          ${roleOptions}
+        </select>
+        <button class="btn btn-ghost" onclick="assignRoleToMember('${m.id}')">Zuweisen</button>
+        ${ (m.id !== currentServer.ownerId) ? `<button class="btn" style="background:rgba(220,38,38,0.12);color:#ffb4b4" onclick="removeMember('${m.id}')">Entfernen</button>` : '' }
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function assignRoleToMember(memberId){
+  const select = document.getElementById('assign_'+memberId);
+  if(!select) return;
+  const roleId = select.value;
+  if(!roleId) return;
+  // permission: only Owner or roles with CreateRoles can assign roles (you set policy)
+  if(!canCurrentUser('CreateRoles')) { alert('Keine Berechtigung Rollen zu vergeben'); return; }
+  const member = (state.members[currentServer.id]||[]).find(m=>m.id===memberId);
+  if(!member) return;
+  if(!member.roles) member.roles=[];
+  if(member.roles.includes(roleId)){ alert('Benutzer hat die Rolle bereits'); return; }
+  member.roles.push(roleId);
+  saveState();
+  renderMembers();
+  renderAdmin();
+}
+
+function removeMember(memberId){
+  if(!confirm('Mitglied entfernen?')) return;
+  state.members[currentServer.id] = (state.members[currentServer.id]||[]).filter(m=>m.id!==memberId);
+  saveState();
+  renderMembers();
+  renderAdmin();
+}
+
+/* ====== Permissions check ====== */
+function canCurrentUser(permName){
+  if(!currentServer) return false;
+  if(currentUser.id === currentServer.ownerId) return true;
+  const members = state.members[currentServer.id]||[];
+  const me = members.find(m => m.id === currentUser.id);
+  if(!me) return false;
+  const roles = state.roles[currentServer.id] || [];
+  for(const rid of (me.roles||[])){
+    const r = roles.find(rr=>rr.id===rid);
+    if(r && r.perms && r.perms[permName]) return true;
+  }
+  return false;
+}
+
+function toggleAdminMenu(){
+  const item = document.getElementById('adminMenuItem');
+  if(canCurrentUser('ManagePlayers') || currentUser.id === (currentServer && currentServer.ownerId)) item.style.display = '';
+  else item.style.display = 'none';
+}
+
+/* ====== Admin rendering ====== */
+function renderAdmin(){
+  toggleAdminMenu();
+  // admin target select
+  const sel = document.getElementById('adminTargetSelect');
+  const banSel = document.getElementById('banTargetSelect');
+  if(!currentServer) return;
+  const members = state.members[currentServer.id]||[];
+  const options = members.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+  if(sel) sel.innerHTML = options;
+  if(banSel) banSel.innerHTML = options;
+  // ban overview
+  renderBanOverview();
+}
+
+/* ====== Ban System ====== */
+function openBanModalFor(memberId){
+  if(memberId) document.getElementById('banTargetSelect').value = memberId;
+  document.getElementById('banCustomSeconds').style.display = 'none';
+  openModal('banModal');
+}
+window.openBanModalFor = openBanModalFor;
+
+document.getElementById('banDuration').addEventListener('change', function(){
+  if(this.value === 'custom') document.getElementById('banCustomSeconds').style.display = '';
+  else document.getElementById('banCustomSeconds').style.display = 'none';
+});
+
+function confirmBan(){
+  if(!currentServer){ alert('Wähle Server'); return; }
+  // permission: ManagePlayers OR BanMembers
+  if(!(canCurrentUser('ManagePlayers') || canCurrentUser('BanMembers'))){
+    alert('Keine Berechtigung zu bannen');
+    closeModal('banModal');
+    return;
+  }
+  const targetId = document.getElementById('banTargetSelect').value;
+  const reason = document.getElementById('banReason').value.trim();
+  let duration = document.getElementById('banDuration').value;
+  const custom = document.getElementById('banCustomSeconds').value.trim();
+  if(!targetId || !reason){ alert('Ziel & Grund erforderlich'); return; }
+  if(duration === 'custom'){
+    duration = parseInt(custom||'0',10);
+    if(isNaN(duration) || duration < 0){ alert('Ungültige Dauer'); return; }
+  } else {
+    duration = parseInt(duration,10);
+  }
+  const member = (state.members[currentServer.id]||[]).find(m=>m.id===targetId);
+  if(!member){ alert('Mitglied nicht gefunden'); return; }
+  const expiresAt = duration === 0 ? 0 : Date.now() + duration*1000;
+  // create ban entry
+  const ban = {
+    id: uid('ban'),
+    serverId: currentServer.id,
+    userId: member.id,
+    userName: member.name,
+    reason,
+    expiresAt,
+    bannedBy: currentUser.name,
+    createdAt: Date.now()
+  };
+  state.bans.push(ban);
+  saveState();
+  closeModal('banModal');
+  renderBansGrid();
+  renderBanOverview();
+  renderAdmin();
+  alert('Ban ausgeführt: ' + member.name);
+}
+
+function unbanSelected(){
+  if(!currentServer) return;
+  if(!(canCurrentUser('ManagePlayers') || canCurrentUser('BanMembers'))){
+    alert('Keine Berechtigung Unban');
+    return;
+  }
+  const sel = document.getElementById('adminTargetSelect');
+  const memberId = sel.value;
+  if(!memberId) return alert('Wähle ein Mitglied');
+  // remove bans for that user on this server
+  state.bans = state.bans.filter(b => !(b.serverId===currentServer.id && b.userId===memberId));
+  saveState();
+  renderBansGrid();
+  renderBanOverview();
+  alert('Unban ausgeführt');
+}
+
+function kickDemo(){
+  // purely demo: remove member but do not ban
+  if(!currentServer) return;
+  if(!canCurrentUser('ManagePlayers')) return alert('Keine Berechtigung');
+  const sel = document.getElementById('adminTargetSelect');
+  const id = sel.value;
+  if(!id) return alert('Wähle Mitglied');
+  if(id === currentServer.ownerId) return alert('Owner kann nicht gekickt werden');
+  state.members[currentServer.id] = state.members[currentServer.id].filter(m=>m.id!==id);
+  saveState();
+  renderMembers();
+  renderAdmin();
+  alert('Mitglied gekickt (Demo): ' + id);
+}
+
+/* ====== Bans UI ====== */
+function renderBansGrid(){
+  const grid = document.getElementById('bansGrid');
+  if(!grid) return;
+  // filter active bans for current server
+  const rows = state.bans.filter(b=>b.serverId === (currentServer && currentServer.id));
+  if(rows.length===0){ grid.innerHTML = '<div class="muted">Keine aktiven Bans</div>'; return; }
+  grid.innerHTML = rows.map(b=>{
+    const remaining = b.expiresAt === 0 ? 'Permanent' : formatRemaining(b.expiresAt - Date.now());
+    const expired = (b.expiresAt !==0 && Date.now() > b.expiresAt);
+    return `<div class="ban-card">
+      <div class="ban-left">${b.userName.charAt(0).toUpperCase()}</div>
+      <div class="ban-content" style="flex:1">
+        <h3>${b.userName} <span class="muted" style="font-size:13px">— gebannt von ${b.bannedBy}</span></h3>
+        <div class="ban-meta">${b.reason}</div>
+        <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
+          <div class="badge-red">${expired ? 'Abgelaufen' : remaining}</div>
+          <div class="small">erstellt: ${new Date(b.createdAt).toLocaleString()}</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${ (canCurrentUser('ManagePlayers') || canCurrentUser('BanMembers')) ? `<button class="btn" onclick="removeBan('${b.id}')">Unban</button>` : '' }
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderBanOverview(){
+  const el = document.getElementById('banOverview');
+  if(!el) return;
+  const rows = state.bans.filter(b=>b.serverId === (currentServer && currentServer.id));
+  if(rows.length===0){ el.innerHTML = '<div class="muted">Keine Bans</div>'; return; }
+  el.innerHTML = rows.map(b=>{
+    const remaining = b.expiresAt === 0 ? 'Permanent' : formatRemaining(b.expiresAt - Date.now());
+    return `<div class="list-item">
+      <div>
+        <div style="font-weight:800">${b.userName}</div>
+        <div class="muted">${b.reason} — ${remaining}</div>
+      </div>
+      <div>
+        <button class="btn btn-ghost" onclick="removeBan('${b.id}')">Unban</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* remove ban */
+function removeBan(banId){
+  if(!(canCurrentUser('ManagePlayers') || canCurrentUser('BanMembers'))){ alert('Keine Berechtigung'); return; }
+  state.bans = state.bans.filter(b=>b.id!==banId);
+  saveState();
+  renderBansGrid();
+  renderBanOverview();
+}
+
+/* auto-clean expired bans periodically */
+setInterval(()=>{
+  const before = state.bans.length;
+  state.bans = state.bans.filter(b => !(b.expiresAt !==0 && Date.now() > b.expiresAt));
+  if(state.bans.length !== before){ saveState(); renderBansGrid(); renderBanOverview(); }
+}, 5000);
+
+/* helpers */
+function formatRemaining(ms){
+  if(ms <= 0) return 'abgelaufen';
+  const s = Math.floor(ms/1000);
+  const d = Math.floor(s/86400); const h = Math.floor((s%86400)/3600); const m = Math.floor((s%3600)/60); const sec = s%60;
+  if(d>0) return `${d}d ${h}h ${m}m`;
+  if(h>0) return `${h}h ${m}m`;
+  if(m>0) return `${m}m ${sec}s`;
+  return `${sec}s`;
+}
+
+/* initial rendering */
+function init(){
+  // if no server exists, leave blank until user creates
+  updateServerListUI();
+  if(state.servers.length>0 && !currentServer) selectServer(state.servers[0].id);
+  renderServersGrid();
+  renderRoles();
+  renderMembers();
+  renderAdmin();
+  renderBansGrid();
+  // close modal on background click
+  document.getElementById('modalBack').addEventListener('click', (ev)=>{
+    if(ev.target === document.getElementById('modalBack')){
+      document.getElementById('modalBack').style.display = 'none';
+      document.querySelectorAll('.modal').forEach(m=>m.style.display='none');
+    }
+  });
+}
+
+init();
+
+/* Bindings for UI buttons */
+window.createServer = createServer;
+window.openModal = openModal;
+window.closeModal = closeModal;
+window.saveRole = saveRole;
+window.editRole = editRole;
+window.deleteRole = deleteRole;
+window.renderMembers = renderMembers;
+window.renderRoles = renderRoles;
+window.selectServer = selectServer;
+window.assignRoleToMember = assignRoleToMember;
+window.addMember = addMember;
+window.openBanModalFor = openBanModalFor;
+window.confirmBan = confirmBan;
+window.unbanSelected = unbanSelected;
+window.removeBan = removeBan;
+window.openCreateRoleModal = function(){ if(!currentServer) return alert('Wähle Server'); if(!canCurrentUser('CreateRoles')) return alert('Keine Berechtigung'); openModal('createRoleModal'); }
+window.openCreateRoleModal = openCreateRoleModal;
+
+/* small UI helpers to open role modal from sidebar button */
+document.querySelectorAll('[data-section]').forEach(it=>it.addEventListener('click', ()=>{}));
+
+</script>
+</body>
+</html>
